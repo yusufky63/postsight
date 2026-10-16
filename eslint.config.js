@@ -4,7 +4,7 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default defineConfig(
-  { ignores: ["dist/**", "release/**", "node_modules/**"] },
+  { ignores: ["dist/**", "release/**", "node_modules/**", ".claude/**"] },
   js.configs.recommended,
   tseslint.configs.recommended,
   {
@@ -16,7 +16,7 @@ export default defineConfig(
     },
   },
   {
-    files: ["scripts/**/*.mjs", "harness/**/*.mjs", "*.js"],
+    files: ["scripts/**/*.mjs", "harness/**/*.mjs", "*.js", "*.mjs"],
     languageOptions: { globals: globals.node },
   },
   {

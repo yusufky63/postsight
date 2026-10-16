@@ -14,6 +14,7 @@
   --primary: #5b4bff;
   --primary-strong: #4433e6;
   --primary-fill: #5b4bff;
+  --primary-fill-hover: #4433e6;
   --primary-contrast: #ffffff;
   --primary-soft: rgba(91, 75, 255, 0.08);
   --positive: #66c800;
@@ -163,50 +164,56 @@ input:focus-visible {
 }
 
 /* ---------- Trigger in the post header ----------
-   A small "AI" label beside X's own icons. Its height is the icon box X uses (the
-   host sets it), so the header row keeps its height and nothing around it moves. */
+   The Postsight badge: brand mark and "AI" on the brand fill, so it reads as its own
+   button next to X's grey icons. The host sets its height to what the header row
+   already has room for, so the row keeps its height and nothing around it moves. */
 .trigger {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   height: 100%;
   margin: 0;
-  padding: 0 6px 0 5px;
-  border: 1px solid currentColor;
+  padding: 0 8px 0 5px;
+  border: 0;
   border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--x-icon, var(--text-muted));
-  font-family: var(--font-mono);
-  font-size: 11px;
+  background: var(--primary-fill);
+  color: var(--primary-contrast);
+  font-family: var(--font-body);
+  font-size: 12px;
   font-weight: 500;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.02em;
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
-  transition:
-    color var(--dur-fast) var(--ease),
-    background-color var(--dur-fast) var(--ease);
+  transition: background-color var(--dur-fast) var(--ease);
 }
 .trigger svg {
-  width: 12px;
-  height: 12px;
+  width: 15px;
+  height: 15px;
   flex: none;
+  stroke-width: 2.4;
 }
 .trigger:hover,
 .trigger[aria-expanded="true"] {
-  color: var(--primary);
-  background: var(--primary-soft);
+  background: var(--primary-fill-hover);
 }
+.trigger:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+/* A result card is open for this post. */
 .trigger[data-active="true"]::after {
   content: "";
   position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 6px;
-  height: 6px;
+  top: -3px;
+  right: -3px;
+  width: 8px;
+  height: 8px;
+  box-sizing: border-box;
+  border: 2px solid var(--bg);
   border-radius: 50%;
-  background: var(--primary);
+  background: var(--positive);
 }
 
 /* ---------- Menu and picker ---------- */
