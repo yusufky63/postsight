@@ -919,7 +919,7 @@ function renderHelp(): Child {
   const faqs = [1, 2, 3, 4, 5, 6, 7].map((n) =>
     h("details", { class: "faq" }, h("summary", null, t(`help.q${n}` as MessageKey)), h("p", null, t(`help.a${n}` as MessageKey))),
   );
-  return [h("div", { class: "module" }, faqs), h("span", { class: "mono xs muted" }, `Sift ${__SIFT_VERSION__} · ${t("models.intro", { date: PRICES_CHECKED })}`)];
+  return [h("div", { class: "module" }, faqs), h("span", { class: "mono xs muted" }, `Postsight ${__POSTSIGHT_VERSION__} · ${t("models.intro", { date: PRICES_CHECKED })}`)];
 }
 
 // ---------- layout ----------
@@ -954,7 +954,7 @@ let observer: IntersectionObserver | null = null;
 function renderAll(): void {
   t = translator(state.lang);
   document.documentElement.lang = state.lang;
-  document.title = `Sift · ${t("opt.title")}`;
+  document.title = `Postsight · ${t("opt.title")}`;
   containers.clear();
 
   const intros: Partial<Record<SectionId, Child>> = {
@@ -973,8 +973,8 @@ function renderAll(): void {
       h(
         "div",
         { class: "topbar-inner" },
-        h("span", { class: "mark", "aria-hidden": "true" }, icon("sift", 18)),
-        h("span", { class: "title display-medium" }, "Sift"),
+        h("span", { class: "mark", "aria-hidden": "true" }, icon("lens", 18)),
+        h("span", { class: "title display-medium" }, "Postsight"),
         h("span", { class: "muted small subtitle" }, t("opt.title")),
         h("span", { class: "spacer" }),
         h(

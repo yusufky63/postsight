@@ -1,10 +1,10 @@
 {
   "extName": {
-    "message": "Sift: Cek fakta dan riset dengan AI untuk X",
-    "description": "Extension name shown in the browser and the store. Keep Sift and X as they are."
+    "message": "Postsight: Cek fakta dan riset dengan AI untuk X",
+    "description": "Extension name shown in the browser and the store. Keep Postsight and X as they are."
   },
   "extShortName": {
-    "message": "Sift",
+    "message": "Postsight",
     "description": "Short name; do not translate."
   },
   "extDescription": {
@@ -12,7 +12,7 @@
     "description": "Store summary. Must stay under 132 characters."
   },
   "extActionTitle": {
-    "message": "Sift: AI untuk postingan di X",
+    "message": "Postsight: AI untuk postingan di X",
     "description": "Tooltip of the toolbar button."
   }
 }

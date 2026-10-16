@@ -1,5 +1,5 @@
 /**
- * Languages Sift speaks, both for its interface and for answers. `english` names the
+ * Languages Postsight speaks, both for its interface and for answers. `english` names the
  * language in prompts, `native` is what the language picker shows, `chrome` is the
  * folder name under _locales for the store listing.
  */

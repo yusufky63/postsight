@@ -14,7 +14,7 @@ import type {
   UiLang,
 } from "./types";
 
-export const RUN_PORT = "sift-run";
+export const RUN_PORT = "postsight-run";
 
 export interface ContentConfig {
   enabled: boolean;
@@ -45,7 +45,7 @@ export type RunEvent =
   | { type: "delta"; text: string }
   | { type: "reset" }
   | { type: "source"; source: Source }
-  /** Linked pages were skipped because Sift may not read other sites yet. */
+  /** Linked pages were skipped because Postsight may not read other sites yet. */
   | { type: "notice"; code: "linksNeedPermission" }
   | { type: "done"; result: RunResult }
   | { type: "error"; code: ErrorCode; detail?: string };

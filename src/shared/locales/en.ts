@@ -31,7 +31,7 @@ export const en = {
   "menu.copy": "Copy",
   "menu.model": "Model",
   "menu.back": "Back",
-  "menu.open": "Open Sift",
+  "menu.open": "Open Postsight",
   "menu.estimate": "~{tokens} tokens · {cost}",
   "menu.priceUnknown": "price not set",
   "menu.priceHint": "USD per 1M tokens, input / output",
@@ -60,7 +60,7 @@ export const en = {
   "card.noWeb": "This model has no live web search, so the answer comes from what it already knows.",
   "card.why": "Why this model",
   "card.answer": "Answer",
-  "card.linksNeedPermission": "The linked page was not read: Sift needs permission to open other sites.",
+  "card.linksNeedPermission": "The linked page was not read: Postsight needs permission to open other sites.",
   "card.allowLinks": "Allow in settings",
 
   "verdict.accurate": "Accurate",
@@ -117,7 +117,7 @@ export const en = {
   "saved": "Saved",
   "total": "Total",
 
-  "popup.toggle": "Show Sift on X",
+  "popup.toggle": "Show Postsight on X",
   "popup.defaultModel": "Default model",
   "popup.strategy": "Auto strategy",
   "popup.month": "This month",
@@ -249,13 +249,13 @@ export const en = {
   "help.q3": "How accurate are the costs?",
   "help.a3": "Token counts come straight from each provider's response, so they are exact. Prices come from the table under Models and prices, and web searches are added at the provider's rate. The estimate in the menu is a rough guess made before the request runs.",
   "help.q4": "Can it tell me how much credit my account has?",
-  "help.a4": "DeepSeek exposes a balance endpoint, so its live balance is shown. Anthropic and OpenAI do not offer one for normal API keys, so set a monthly budget and Sift counts down from it, including roughly how many tokens are left.",
+  "help.a4": "DeepSeek exposes a balance endpoint, so its live balance is shown. Anthropic and OpenAI do not offer one for normal API keys, so set a monthly budget and Postsight counts down from it, including roughly how many tokens are left.",
   "help.q5": "Why does DeepSeek not search the web?",
-  "help.a5": "The DeepSeek API has no web search tool. Sift still answers from the model's knowledge and says what it could not check, but for fact-checks a Claude or OpenAI key gives sourced answers.",
-  "help.q6": "Does Sift post anything for me?",
-  "help.a6": "No. Reply ideas are drafts you copy; Sift never types into X or posts on your behalf.",
+  "help.a5": "The DeepSeek API has no web search tool. Postsight still answers from the model's knowledge and says what it could not check, but for fact-checks a Claude or OpenAI key gives sourced answers.",
+  "help.q6": "Does Postsight post anything for me?",
+  "help.a6": "No. Reply ideas are drafts you copy; Postsight never types into X or posts on your behalf.",
   "help.q7": "What is sent to the model?",
-  "help.a7": "The post text, author handle, time, quoted post, link preview text, poll, community note, image links (only to models that can see them) and, on a post page, the rest of the author's thread. For an X Article Sift reads the article from X's public post page; for links it reads the linked page if you allowed that. Pages are fetched without your cookies. Nothing else from your account or timeline is sent.",
+  "help.a7": "The post text, author handle, time, quoted post, link preview text, poll, community note, image links (only to models that can see them) and, on a post page, the rest of the author's thread. For an X Article Postsight reads the article from X's public post page; for links it reads the linked page if you allowed that. Pages are fetched without your cookies. Nothing else from your account or timeline is sent.",
 } as const;
 
 export type MessageKey = keyof typeof en;

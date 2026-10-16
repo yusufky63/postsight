@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>X timeline harness</title>
     <style>
-      /* A rough copy of X's timeline markup and colours, enough to place Sift's UI. */
+      /* A rough copy of X's timeline markup and colours, enough to place Postsight's UI. */
       body {
         margin: 0;
         font: 15px/1.35 "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -258,9 +258,9 @@
     <script>
       // ?demo=menu opens the menu on the first post; ?demo=card runs verify and summarize.
       const demo = params.get("demo");
-      const trigger = (i) => document.querySelectorAll("article")[i].querySelector("[data-sift-trigger]").shadowRoot.querySelector("button");
-      const overlayItems = () => document.querySelector("[data-sift-overlay]").shadowRoot.querySelectorAll(".item");
-      const ready = (fn) => (document.querySelector("[data-sift-trigger]") ? setTimeout(fn, 50) : setTimeout(() => ready(fn), 50));
+      const trigger = (i) => document.querySelectorAll("article")[i].querySelector("[data-postsight-trigger]").shadowRoot.querySelector("button");
+      const overlayItems = () => document.querySelector("[data-postsight-overlay]").shadowRoot.querySelectorAll(".item");
+      const ready = (fn) => (document.querySelector("[data-postsight-trigger]") ? setTimeout(fn, 50) : setTimeout(() => ready(fn), 50));
       ready(() => {
         if (demo === "card" || demo === "both") {
           trigger(1).click();

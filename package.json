@@ -1,16 +1,16 @@
 {
-  "name": "sift",
-  "version": "1.0.0",
+  "name": "postsight",
+  "version": "1.0.1",
   "private": true,
   "description": "Verify, research, translate and summarize posts on X with Claude, OpenAI or DeepSeek.",
   "license": "MIT",
-  "homepage": "https://github.com/yusufky63/sift",
+  "homepage": "https://github.com/yusufky63/postsight",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yusufky63/sift.git"
+    "url": "https://github.com/yusufky63/postsight.git"
   },
   "bugs": {
-    "url": "https://github.com/yusufky63/sift/issues"
+    "url": "https://github.com/yusufky63/postsight/issues"
   },
   "type": "module",
   "scripts": {

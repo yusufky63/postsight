@@ -77,7 +77,7 @@ export function estimateRun(
 }
 
 /**
- * Blended price per token for "how many tokens are left" figures. Sift prompts are
+ * Blended price per token for "how many tokens are left" figures. Postsight prompts are
  * input-heavy (post text plus search results), so input is weighted 4:1.
  */
 export function blendedPricePerToken(model: ModelInfo): number | null {

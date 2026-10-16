@@ -1,4 +1,4 @@
-// Packs dist/ into release/sift-<version>.zip for the Chrome Web Store and Edge
+// Packs dist/ into release/postsight-<version>.zip for the Chrome Web Store and Edge
 // Add-ons. Writes a plain ZIP (deflate) with Node's zlib, so no zip tool is needed.
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, sep } from "node:path";
@@ -80,7 +80,7 @@ end.writeUInt16LE(centrals.length / 2, 10);
 end.writeUInt32LE(centralSize, 12);
 end.writeUInt32LE(offset, 16);
 
-const out = join(root, "release", `sift-${version}.zip`);
+const out = join(root, "release", `postsight-${version}.zip`);
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, Buffer.concat([...locals, ...centrals, end]));
 console.log(`${relative(root, out)} (${centrals.length / 2} files)`);

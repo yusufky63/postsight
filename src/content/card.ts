@@ -45,7 +45,7 @@ export class Card {
     readonly postId: string,
     private readonly env: CardEnv,
   ) {
-    this.host = h("div", { "data-sift-card": postId });
+    this.host = h("div", { "data-postsight-card": postId });
     this.root = this.host.attachShadow({ mode: "open" });
     this.frame = h("section", { class: "card", "aria-live": "polite" });
     adoptStyles(this.root);

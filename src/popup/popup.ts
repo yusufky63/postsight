@@ -33,8 +33,8 @@ async function render(): Promise<void> {
   const head = h(
     "header",
     { class: "pop-head" },
-    h("span", { class: "mark", "aria-hidden": "true" }, icon("sift", 18)),
-    h("span", { class: "title display-medium" }, "Sift"),
+    h("span", { class: "mark", "aria-hidden": "true" }, icon("lens", 18)),
+    h("span", { class: "title display-medium" }, "Postsight"),
     toggle("", settings.enabled, (enabled) => void updateSettings((s) => (s.enabled = enabled))),
   );
   head.querySelector("input")?.setAttribute("aria-label", t("popup.toggle"));

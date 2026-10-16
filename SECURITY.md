@@ -1,6 +1,6 @@
 # Security
 
-Sift handles API keys and renders text written by AI models and by strangers on X, so security reports are welcome.
+Postsight handles API keys and renders text written by AI models and by strangers on X, so security reports are welcome.
 
 ## Reporting
 
@@ -10,7 +10,7 @@ Please report vulnerabilities privately through GitHub's "Report a vulnerability
 
 - API keys leaving the extension other than to the provider they belong to.
 - Script injection through post content, model output or fetched pages (all of it is rendered as text; links are limited to http and https).
-- Prompt injection that makes Sift take an action beyond showing an answer.
+- Prompt injection that makes Postsight take an action beyond showing an answer.
 - The service worker fetching anything the user did not trigger.
 
 ## Design notes

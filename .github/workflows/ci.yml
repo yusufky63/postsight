@@ -25,5 +25,5 @@ jobs:
       - run: pnpm package
       - uses: actions/upload-artifact@v4
         with:
-          name: sift-extension
+          name: postsight-extension
           path: release/*.zip

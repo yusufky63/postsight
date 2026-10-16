@@ -1,5 +1,5 @@
-/** Attribute on the element that hosts Sift's button in a post header. */
-export const TRIGGER = "data-sift-trigger";
+/** Attribute on the element that hosts Postsight's button in a post header. */
+export const TRIGGER = "data-postsight-trigger";
 
 /** Default size of X's header icons; their hover circle is drawn outside this box. */
 export const X_ICON = 18.75;

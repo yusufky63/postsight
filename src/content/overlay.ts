@@ -58,13 +58,13 @@ export class Overlay {
   private toastTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
-    this.host = h("div", { "data-sift-overlay": "" });
+    this.host = h("div", { "data-postsight-overlay": "" });
     Object.assign(this.host.style, { position: "fixed", top: "0", left: "0", width: "0", height: "0", zIndex: "2147483000" });
     this.root = this.host.attachShadow({ mode: "open" });
     adoptStyles(this.root);
     document.documentElement.appendChild(this.host);
 
-    // X has page-wide keyboard shortcuts; keystrokes typed into Sift must not reach them.
+    // X has page-wide keyboard shortcuts; keystrokes typed into Postsight must not reach them.
     for (const type of ["keydown", "keyup", "keypress"]) this.host.addEventListener(type, (e) => e.stopPropagation());
     document.addEventListener(
       "pointerdown",
@@ -140,7 +140,7 @@ export class Overlay {
     let route: RouteChoice = config.route;
     const estimates = new Map<string, EstimateResponse>();
 
-    const panel = h("div", { class: "panel", role: "menu", "aria-label": "Sift" });
+    const panel = h("div", { class: "panel", role: "menu", "aria-label": "Postsight" });
     const body = h("div");
     const foot = h("div", { class: "panel-foot" });
 
@@ -240,7 +240,7 @@ export class Overlay {
       if (!config.hasKey) {
         replace(
           body,
-          head(h("span", { class: "eyebrow" }, "Sift")),
+          head(h("span", { class: "eyebrow" }, "Postsight")),
           h(
             "div",
             { class: "empty" },
@@ -296,7 +296,7 @@ export class Overlay {
       );
       replace(
         body,
-        head(h("span", { class: "eyebrow" }, "Sift")),
+        head(h("span", { class: "eyebrow" }, "Postsight")),
         h("div", { class: "section-label label" }, t("menu.analyze")),
         h("div", { class: "list" }, items),
         h("div", { class: "section-label label" }, t("menu.copy")),

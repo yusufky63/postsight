@@ -28,7 +28,7 @@ export interface ThreadItem {
   position: "before" | "after";
 }
 
-/** Everything Sift reads from one post on the page. */
+/** Everything Postsight reads from one post on the page. */
 export interface TweetData {
   id: string;
   url: string;

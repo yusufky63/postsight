@@ -40,7 +40,7 @@ describe("iconRow", () => {
     expect(found?.item.id).toBe("right");
   });
 
-  it("ignores a row that only holds the caret and Sift's own button", () => {
+  it("ignores a row that only holds the caret and Postsight's own button", () => {
     const article = mount(`
       <article>
         <div id="header" style="${row}">

@@ -1,11 +1,11 @@
 # Store submission kit
 
-Everything needed to list Sift on the Chrome Web Store and Microsoft Edge Add-ons.
+Everything needed to list Postsight on the Chrome Web Store and Microsoft Edge Add-ons.
 
 ## Package
 
 ```bash
-pnpm check && pnpm package     # release/sift-<version>.zip
+pnpm check && pnpm package     # release/postsight-<version>.zip
 ```
 
 Upload that zip. Bump `version` in `package.json` for every new upload; the build copies it into the manifest.
@@ -24,7 +24,7 @@ Upload that zip. Bump `version` in `package.json` for every new upload; the buil
 
 ## Single purpose
 
-Sift helps people understand posts on X: it fact-checks, researches, summarizes, translates and explains a post with an AI model the user chooses, using the user's own API key.
+Postsight helps people understand posts on X: it fact-checks, researches, summarizes, translates and explains a post with an AI model the user chooses, using the user's own API key.
 
 ## Permission justifications
 
@@ -43,7 +43,7 @@ No remote code: all scripts ship in the package.
 - Collects: website content (the post the user runs an action on) and authentication information (the user's own API keys, stored locally).
 - Not sold, not used for unrelated purposes, not used for creditworthiness or lending.
 - Sent only to the AI provider the user selected, to provide the feature the user asked for.
-- Privacy policy URL: https://github.com/yusufky63/sift/blob/main/PRIVACY.md (switch to the website once the domain is live).
+- Privacy policy URL: https://github.com/yusufky63/postsight/blob/main/PRIVACY.md (switch to the website once the domain is live).
 
 ## Developer accounts
 

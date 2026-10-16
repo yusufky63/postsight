@@ -6,7 +6,7 @@ body:
     id: problem
     attributes:
       label: What are you trying to do
-      description: The situation on X where Sift falls short today.
+      description: The situation on X where Postsight falls short today.
     validations:
       required: true
   - type: textarea

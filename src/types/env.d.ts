@@ -3,4 +3,4 @@ declare module "*.css" {
   export default css;
 }
 
-declare const __SIFT_VERSION__: string;
+declare const __POSTSIGHT_VERSION__: string;

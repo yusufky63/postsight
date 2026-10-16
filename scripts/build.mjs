@@ -43,7 +43,7 @@ const common = {
   loader: { ".css": "text" },
   minify: !watch,
   sourcemap: watch ? "inline" : false,
-  define: { __SIFT_VERSION__: JSON.stringify(pkg.version) },
+  define: { __POSTSIGHT_VERSION__: JSON.stringify(pkg.version) },
 };
 
 const builds = [

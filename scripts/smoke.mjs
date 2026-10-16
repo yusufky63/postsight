@@ -9,7 +9,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import * as esbuild from "esbuild";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const dir = mkdtempSync(join(tmpdir(), "sift-smoke-"));
+const dir = mkdtempSync(join(tmpdir(), "postsight-smoke-"));
 const outfile = join(dir, "smoke.mjs");
 
 const entry = `
@@ -29,7 +29,7 @@ await esbuild.build({
   format: "esm",
   outfile,
   logLevel: "error",
-  define: { __SIFT_VERSION__: '"smoke"' },
+  define: { __POSTSIGHT_VERSION__: '"smoke"' },
 });
 
 const m = await import(pathToFileURL(outfile).href);

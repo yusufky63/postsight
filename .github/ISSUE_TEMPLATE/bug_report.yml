@@ -22,8 +22,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: Sift version and browser
-      description: From chrome://extensions or edge://extensions, e.g. "Sift 1.0.0, Chrome 141".
+      label: Postsight version and browser
+      description: From chrome://extensions or edge://extensions, e.g. "Postsight 1.0.0, Chrome 141".
     validations:
       required: true
   - type: markdown

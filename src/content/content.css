@@ -1,4 +1,4 @@
-/* Sift styles for shadow roots on x.com. Tokens follow the house design system;
+/* Postsight styles for shadow roots on x.com. Tokens follow the house design system;
    the page theme (light, dim, lights out) is mirrored through :host([data-theme]). */
 :host {
   all: initial;
@@ -32,9 +32,9 @@
   --dur-fast: 120ms;
   --dur-base: 180ms;
   --dur-slow: 240ms;
-  --font-body: "Sift Sans", "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Sift Display", "Space Grotesk", system-ui, sans-serif;
-  --font-mono: "Sift Mono", "JetBrains Mono", ui-monospace, "Cascadia Mono", monospace;
+  --font-body: "Postsight Sans", "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Postsight Display", "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "Postsight Mono", "JetBrains Mono", ui-monospace, "Cascadia Mono", monospace;
   font-family: var(--font-body);
   font-size: 15px;
   line-height: 1.5;

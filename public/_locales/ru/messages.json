@@ -1,10 +1,10 @@
 {
   "extName": {
-    "message": "Sift: проверка фактов и изучение постов в X с помощью ИИ",
-    "description": "Extension name shown in the browser and the store. Keep Sift and X as they are."
+    "message": "Postsight: проверка фактов и изучение постов в X с помощью ИИ",
+    "description": "Extension name shown in the browser and the store. Keep Postsight and X as they are."
   },
   "extShortName": {
-    "message": "Sift",
+    "message": "Postsight",
     "description": "Short name; do not translate."
   },
   "extDescription": {
@@ -12,7 +12,7 @@
     "description": "Store summary. Must stay under 132 characters."
   },
   "extActionTitle": {
-    "message": "Sift: ИИ для постов в X",
+    "message": "Postsight: ИИ для постов в X",
     "description": "Tooltip of the toolbar button."
   }
 }
