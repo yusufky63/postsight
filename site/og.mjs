@@ -16,12 +16,11 @@ try {
   mkdirSync(join(work, "fonts"));
   for (const [from, to] of FONTS) copyFileSync(join(root, "node_modules", from), join(work, "fonts", to));
   const fontCss = readFileSync(join(root, "src/ui/fonts.css"), "utf8");
-  copyFileSync(join(root, "store/screenshots/1-verify.png"), join(work, "shot.png"));
 
   await withBrowser(async (page) => {
     for (const lang of ["en", "tr"]) {
       const file = join(work, `og-${lang}.html`);
-      writeFileSync(file, ogCardHtml(lang, fontCss, "shot.png"));
+      writeFileSync(file, ogCardHtml(lang, fontCss));
       await page.open({ url: pathToFileURL(file).href, width: OG_SIZE.width, height: OG_SIZE.height });
       await page.screenshot(join(out, `og-${lang}.png`));
       console.log(`site/og/og-${lang}.png`);

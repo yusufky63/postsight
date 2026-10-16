@@ -4,7 +4,7 @@
  */
 import { BRAND, DOMAIN } from "./config";
 import type { Lang } from "./config";
-import { COPY } from "./content";
+import { ACTION_IDS, COPY, actionName } from "./content";
 import { html, raw } from "./html";
 import { ICONS } from "./layout";
 
@@ -24,11 +24,12 @@ const C = {
 };
 
 /**
- * `fontCss` is src/ui/fonts.css with its URLs pointing at the font files; `shot` is the
- * verify screenshot as a data or file URL, cropped to its result card.
+ * `fontCss` is src/ui/fonts.css with its URLs pointing at the font files. The right side
+ * lists the actions under the AI badge, with the names and hints the extension's menu uses.
  */
-export function ogCardHtml(lang: Lang, fontCss: string, shot: string): string {
+export function ogCardHtml(lang: Lang, fontCss: string): string {
   const c = COPY[lang];
+  const actions = ACTION_IDS.filter((id) => id !== "copy");
   const chips = ["Claude", "OpenAI", "DeepSeek", c.hero.facts[c.hero.facts.length - 1] ?? ""];
   const page = html`<!doctype html>
 <html lang="${lang}">
@@ -54,8 +55,15 @@ p{margin-top:22px;font-size:25px;line-height:1.35;color:${C.secondary};max-width
 .chip{display:flex;align-items:center;gap:9px;height:40px;padding:0 16px;border:1px solid ${C.border};border-radius:999px;font-size:18px;font-weight:500}
 .chip i{width:7px;height:7px;border-radius:50%;background:${C.primary}}
 .domain{position:absolute;right:28px;top:26px;font-family:"JetBrains Mono",monospace;font-size:18px;letter-spacing:0.04em;color:${C.muted}}
-.shot{position:relative;flex:1;margin:64px 0 -48px;border:1px solid ${C.border};border-right:0;border-bottom:0;border-top-left-radius:8px;background:${C.surface};overflow:hidden}
-.shot img{position:absolute;left:-396px;top:-266px;width:1280px;height:800px}
+.menu{flex:1;margin:64px 0 -48px;border:1px solid ${C.border};border-right:0;border-bottom:0;border-top-left-radius:8px;background:${C.canvas};overflow:hidden}
+.menu-head{display:flex;align-items:center;gap:14px;height:58px;padding:0 22px;border-bottom:1px solid ${C.border};background:${C.surface}}
+.badge{display:flex;align-items:center;gap:5px;height:30px;padding:0 11px 0 7px;border-radius:6px;background:${C.primary};color:#fff;font-size:16px;font-weight:500;letter-spacing:0.02em}
+.badge svg{width:19px;height:19px;stroke-width:2.4}
+.menu-label{font-family:"JetBrains Mono",monospace;font-size:14px;letter-spacing:0.14em;text-transform:uppercase;color:${C.muted}}
+.row{display:flex;align-items:baseline;gap:14px;height:57px;padding:15px 22px 0;border-bottom:1px solid ${C.border}}
+.idx{font-family:"JetBrains Mono",monospace;font-size:14px;color:${C.primary}}
+.act{font-size:20px;font-weight:500}
+.hint{font-size:16px;color:${C.muted};white-space:nowrap}
 </style>
 </head>
 <body>
@@ -67,7 +75,12 @@ p{margin-top:22px;font-size:25px;line-height:1.35;color:${C.secondary};max-width
     <p>${c.meta.ogLine}</p>
     <div class="chips">${chips.map((chip) => html`<span class="chip"><i></i>${chip}</span>`)}</div>
   </div>
-  <div class="shot"><img src="${shot}" alt=""></div>
+  <div class="menu">
+    <div class="menu-head"><span class="badge">${ICONS.mark}AI</span><span class="menu-label" lang="en">${BRAND}</span></div>
+    ${actions.map(
+      (id, i) => html`<div class="row"><span class="idx">${String(i + 1).padStart(2, "0")}</span><span class="act">${actionName(lang, id)}</span><span class="hint">${c.ui[`action.${id}.hint` as const]}</span></div>`,
+    )}
+  </div>
   <span class="domain">${DOMAIN}</span>
 </div>
 </body>

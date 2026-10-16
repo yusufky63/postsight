@@ -26,23 +26,24 @@ function modelLabel(provider: ProviderId, id: string): string {
 }
 
 /**
- * A screenshot in a hairline frame. Timeline shots are 1280x800 with the X column in the
- * middle, so the portrait frame crops to that column instead of showing empty margins.
+ * A screenshot of the extension's own pages in a hairline frame. Only real extension pages
+ * are shown; posts on X are not mocked up.
  */
-function shot(data: SiteData, name: string, alt: string, opts: { portrait?: boolean; eager?: boolean; ticks?: boolean } = {}): Markup {
+function shot(data: SiteData, name: string, alt: string, opts: { eager?: boolean; ticks?: boolean } = {}): Markup {
   const img = data.assets.shots[name];
-  if (!img) throw new Error(`missing screenshot ${name}`);
-  const cls = ["shot", opts.portrait ? "shot-portrait" : "shot-wide", opts.ticks ? "ticks" : ""].filter(Boolean).join(" ");
+  if (!img) throw new Error(`missing screenshot store/screenshots/${name}.png`);
+  const cls = opts.ticks ? "shot ticks" : "shot";
   return html`<figure class="${cls}"><img src="${img.url}" width="${img.width}" height="${img.height}" alt="${alt}" ${
     opts.eager ? html`fetchpriority="high"` : html`loading="lazy"`
   } decoding="async"></figure>`;
 }
 
-function sectionHead(id: string, eyebrow: string, title: string, lead: string): Markup {
+function sectionHead(id: string, eyebrow: string, title: string, lead: string, extra?: Markup): Markup {
   return html`<header class="section-head">
       <p class="eyebrow">${eyebrow}</p>
       <h2 class="display-medium h2" id="${id}">${title}</h2>
       <p class="lead-sm">${lead}</p>
+      ${extra}
     </header>`;
 }
 
@@ -64,23 +65,27 @@ export function homePage(lang: Lang, data: SiteData): Markup {
       ${c.hero.facts.map((f) => html`<li>${f}</li>`)}
     </ul>
   </div>
-  ${shot(data, "1-verify", c.hero.shotAlt, { portrait: true, eager: true, ticks: true })}
+  ${shot(data, "5-routing", c.hero.shotAlt, { eager: true, ticks: true })}
 </section>`;
 
   const actions = html`<section class="section frame" id="features" aria-labelledby="features-title">
-  <div class="split split-media-first">
-    <div>
-      ${sectionHead("features-title", c.actions.eyebrow, c.actions.title, c.actions.lead)}
-      <dl class="actions">
-        ${ACTION_IDS.map(
-          (id, i) => html`<div class="action">
-          <dt><span class="idx num">${String(i + 1).padStart(2, "0")}</span>${actionName(lang, id)}</dt>
-          <dd>${c.actions.items[id]}</dd>
-        </div>`,
-        )}
-      </dl>
-    </div>
-    ${shot(data, "2-menu", c.actions.shotAlt, { portrait: true })}
+  <div class="split split-top">
+    ${sectionHead(
+      "features-title",
+      c.actions.eyebrow,
+      c.actions.title,
+      c.actions.lead,
+      // Same look as the badge the extension puts on each post (src/content/content.css .trigger).
+      html`<p class="badge-row"><span class="trigger-badge">${ICONS.mark}AI</span><span class="small secondary">${c.actions.badgeNote}</span></p>`,
+    )}
+    <dl class="actions">
+      ${ACTION_IDS.map(
+        (id, i) => html`<div class="action">
+        <dt><span class="idx num">${String(i + 1).padStart(2, "0")}</span>${actionName(lang, id)}</dt>
+        <dd>${c.actions.items[id]}</dd>
+      </div>`,
+      )}
+    </dl>
   </div>
 </section>`;
 
@@ -107,20 +112,18 @@ export function homePage(lang: Lang, data: SiteData): Markup {
       <p class="card-foot xs muted mono">${c.routing.prices(PRICES_CHECKED)}</p>
     </div>
   </div>
-  ${shot(data, "5-routing", c.routing.shotAlt)}
 </section>`;
 
   const reads = html`<section class="section frame" aria-labelledby="reads-title">
-  <div class="split">
+  <div class="split split-top">
+    ${sectionHead("reads-title", c.reads.eyebrow, c.reads.title, c.reads.lead)}
     <div>
-      ${sectionHead("reads-title", c.reads.eyebrow, c.reads.title, c.reads.lead)}
       <h3 class="display-medium h3">${c.reads.langTitle}</h3>
       <p class="secondary">${c.reads.langLead}</p>
       <ul class="langs" role="list">
         ${LANGUAGES.map((l) => html`<li><span class="code mono">${l.code}</span><span lang="${l.locale}">${l.native}</span></li>`)}
       </ul>
     </div>
-    ${shot(data, "3-translate", c.reads.shotAlt, { portrait: true })}
   </div>
 </section>`;
 

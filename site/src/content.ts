@@ -36,7 +36,7 @@ export type Copy = {
     otherLangName: string;
   };
   hero: { eyebrow: string; title: string; lead: string; download: string; source: string; facts: string[]; shotAlt: string };
-  actions: { eyebrow: string; title: string; lead: string; items: Record<ActionId, string>; shotAlt: string };
+  actions: { eyebrow: string; title: string; lead: string; badgeNote: string; items: Record<ActionId, string> };
   routing: {
     eyebrow: string;
     title: string;
@@ -47,9 +47,8 @@ export type Copy = {
     costTitle: string;
     cost: string[];
     prices: (date: string) => string;
-    shotAlt: string;
   };
-  reads: { eyebrow: string; title: string; lead: string; langTitle: string; langLead: string; shotAlt: string };
+  reads: { eyebrow: string; title: string; lead: string; langTitle: string; langLead: string };
   privacy: { eyebrow: string; title: string; lead: string; facts: { label: string; text: string }[]; link: string; shotAlt: string };
   install: {
     eyebrow: string;
@@ -111,7 +110,7 @@ const en: Copy = {
   meta: {
     homeTitle: "Postsight: AI fact-check and research for posts on X",
     homeDescription:
-      "A Chrome and Edge extension that adds an AI button to posts on X: fact-check, research, summarize and translate them with your own Claude, OpenAI or DeepSeek key.",
+      "A Chrome and Edge extension that adds an AI badge to every post on X: fact-check, research, summarize and translate it with your own Claude, OpenAI or DeepSeek key.",
     privacyDescription:
       "What Postsight stores, what it sends to the AI provider you choose, and what it never does. No server, no account, no analytics.",
     supportTitle: "Support",
@@ -136,17 +135,18 @@ const en: Copy = {
   hero: {
     eyebrow: "Browser extension for X · Chrome and Edge",
     title: "Fact-check any post on X.",
-    lead: "Postsight adds a small AI button to every post. Verify, research, summarize, translate or explain it with your own Claude, OpenAI or DeepSeek key, and see what each answer cost.",
+    lead: "Postsight adds a violet AI badge to every post. Click it to verify, research, summarize, translate or explain the post with your own Claude, OpenAI or DeepSeek key, and see what each answer cost.",
     download: "Download the latest release",
     source: "Build from source",
     facts: ["MIT license", "No account", "No tracking", "12 languages"],
     shotAlt:
-      "A Verify card under a post on X: the claim is rated False with 92% confidence, followed by claim-by-claim notes, context and a bottom line.",
+      "The Auto routing page in Postsight's settings: the strategy, the provider order with saved keys, and the model Auto picks for each action with its estimated cost.",
   },
   actions: {
     eyebrow: "01 — On every post",
-    title: "What the AI button does",
-    lead: "Open the menu on any post and pick what you need. Each action sees the whole post: the thread, the quoted post, polls, community notes and images.",
+    title: "What the AI badge does",
+    lead: "Click the badge on any post and pick what you need. Each action sees the whole post: the thread, the quoted post, polls, community notes and images.",
+    badgeNote: "On every post, next to Grok and the more menu",
     items: {
       verify:
         "A verdict (accurate, misleading, false, opinion and more), a confidence score, claim-by-claim notes and the sources behind them, using live web search.",
@@ -158,8 +158,6 @@ const en: Copy = {
       ask: "Any question about the post.",
       copy: "The text, the link, or a ready-made quote.",
     },
-    shotAlt:
-      "The Postsight menu open on a post on X, listing Verify, Research, Summarize, Translate, Explain, Reply ideas and Ask with an estimated cost for each, and three copy buttons.",
   },
   routing: {
     eyebrow: "02 — Auto routing and cost",
@@ -176,8 +174,6 @@ const en: Copy = {
       "Saved results are reused, so the same request is not paid for twice.",
     ],
     prices: (date) => `Built-in prices checked ${date}, in USD per 1M tokens.`,
-    shotAlt:
-      "The Auto routing settings: strategy, provider order and a table of the model Auto picks for each action on a short post and on a long thread with images.",
   },
   reads: {
     eyebrow: "03 — Context and languages",
@@ -185,7 +181,6 @@ const en: Copy = {
     lead: "A link-only post is not judged by its headline. Postsight reads X Articles from X's public post page and, with your permission, the news and blog pages a post links to. Pages are fetched without your cookies.",
     langTitle: "12 languages",
     langLead: "For the interface and the answers. Translate goes into your language, or into your second language when the post is already in yours.",
-    shotAlt: "A Spanish post on X translated into Turkish by Postsight, with the link kept intact and the token count and cost shown below.",
   },
   privacy: {
     eyebrow: "04 — Privacy",
@@ -212,7 +207,7 @@ const en: Copy = {
       "Open `chrome://extensions` or `edge://extensions` and turn on **Developer mode**.",
       "Choose **Load unpacked** and pick the unzipped folder.",
       `The settings page opens. Paste a Claude, OpenAI or DeepSeek key and press **${enUi["prov.save"]}**; Postsight tests it and loads the model list.`,
-      "On x.com, every post now has a small **AI** button next to Grok and the more menu.",
+      "On x.com, every post now has a violet **AI** badge with the Postsight lens, next to Grok and the more menu.",
     ],
     sourceTitle: "From source",
     sourceLead: "Needs Node 22 or later and pnpm.",
@@ -276,7 +271,7 @@ const tr: Copy = {
   meta: {
     homeTitle: "Postsight: X gönderileri için yapay zekâ ile doğrulama ve araştırma",
     homeDescription:
-      "X'teki gönderilere AI butonu ekleyen Chrome ve Edge eklentisi: kendi Claude, OpenAI ya da DeepSeek anahtarınla doğrula, araştır, özetle ve çevir.",
+      "X'teki her gönderiye AI rozeti ekleyen Chrome ve Edge eklentisi: kendi Claude, OpenAI ya da DeepSeek anahtarınla doğrula, araştır, özetle ve çevir.",
     privacyDescription:
       "Postsight neyi saklar, seçtiğin yapay zekâ sağlayıcısına neyi gönderir ve neyi asla yapmaz. Sunucu, hesap ve analitik yok.",
     supportTitle: "Destek",
@@ -300,17 +295,18 @@ const tr: Copy = {
   hero: {
     eyebrow: "X için tarayıcı eklentisi · Chrome ve Edge",
     title: "X gönderilerini doğrula.",
-    lead: "Postsight, X'teki her gönderiye küçük bir AI butonu ekler. Kendi Claude, OpenAI ya da DeepSeek anahtarınla doğrula, araştır, özetle, çevir ya da açıkla; her yanıtın maliyetini gör.",
+    lead: "Postsight, X'teki her gönderiye mor bir AI rozeti ekler. Tıkla; gönderiyi kendi Claude, OpenAI ya da DeepSeek anahtarınla doğrula, araştır, özetle, çevir ya da açıkla ve her yanıtın maliyetini gör.",
     download: "Son sürümü indir",
     source: "Kaynaktan derle",
     facts: ["MIT lisansı", "Hesap yok", "Takip yok", "12 dil"],
     shotAlt:
-      "X'te bir gönderinin altında Postsight'ın Verify kartı: iddia yüzde 92 güvenle yanlış bulunmuş; altında iddia iddia notlar, bağlam ve sonuç var.",
+      "Postsight ayarlarındaki Otomatik yönlendirme sayfası: strateji, kayıtlı anahtarlarla sağlayıcı sırası ve Otomatik modun her işlem için seçtiği model ile tahmini maliyeti.",
   },
   actions: {
     eyebrow: "01 — Her gönderide",
-    title: "AI butonu ne yapar",
-    lead: "Herhangi bir gönderide menüyü aç ve ihtiyacın olanı seç. Her işlem gönderinin tamamını görür: flood, alıntılanan gönderi, anket, topluluk notu ve görseller.",
+    title: "AI rozeti ne yapar",
+    lead: "Herhangi bir gönderide rozete tıkla ve ihtiyacın olanı seç. Her işlem gönderinin tamamını görür: flood, alıntılanan gönderi, anket, topluluk notu ve görseller.",
+    badgeNote: "Her gönderide, Grok ve Daha fazla menüsünün yanında",
     items: {
       verify: "Karar (doğru, yanıltıcı, yanlış, görüş ve diğerleri), güven puanı, iddia iddia notlar ve dayandığı kaynaklar; canlı web aramasıyla.",
       research: "Arka plan, tarihli önemli bilgiler, kimlerin işin içinde olduğu ve görüşlerin nerede ayrıştığı.",
@@ -321,8 +317,6 @@ const tr: Copy = {
       ask: "Gönderiyle ilgili istediğin soru.",
       copy: "Metin, bağlantı ya da hazır alıntı.",
     },
-    shotAlt:
-      "X'te bir gönderide açık Postsight menüsü: Verify, Research, Summarize, Translate, Explain, Reply ideas ve Ask, her birinin tahmini maliyetiyle; altında üç kopyalama butonu.",
   },
   routing: {
     eyebrow: "02 — Otomatik yönlendirme ve maliyet",
@@ -339,8 +333,6 @@ const tr: Copy = {
       "Kaydedilen sonuçlar yeniden kullanılır; aynı istek için iki kez ödeme yapmazsın.",
     ],
     prices: (date) => `Yerleşik fiyatlar ${date} tarihinde kontrol edildi; 1M token başına USD.`,
-    shotAlt:
-      "Otomatik yönlendirme ayarları: strateji, sağlayıcı sırası ve kısa bir gönderi ile görselli uzun bir flood için Otomatik modun her işlemde seçtiği modelin tablosu.",
   },
   reads: {
     eyebrow: "03 — Bağlam ve diller",
@@ -348,7 +340,6 @@ const tr: Copy = {
     lead: "Sadece bağlantıdan oluşan bir gönderi başlığına göre değerlendirilmez. Postsight X Makalelerini X'in herkese açık gönderi sayfasından, izin verirsen gönderinin bağlantı verdiği haber ve blog sayfalarını da okur. Sayfalar çerezlerin olmadan çekilir.",
     langTitle: "12 dil",
     langLead: "Arayüz ve yanıtlar için. Çeviri senin diline yapılır; gönderi zaten senin dilindeyse ikinci diline.",
-    shotAlt: "X'te İspanyolca bir gönderi, Postsight ile Türkçeye çevrilmiş; bağlantı bozulmamış, token sayısı ve maliyet altta görünüyor.",
   },
   privacy: {
     eyebrow: "04 — Gizlilik",
@@ -375,7 +366,7 @@ const tr: Copy = {
       "`chrome://extensions` ya da `edge://extensions` sayfasını aç ve **Geliştirici modu** anahtarını aç.",
       "**Paketlenmemiş öğe yükle** düğmesine bas ve açtığın klasörü seç.",
       `Ayarlar sayfası açılır. Bir Claude, OpenAI ya da DeepSeek anahtarı yapıştır ve **${trUi["prov.save"]}** düğmesine bas; Postsight anahtarı dener ve model listesini yükler.`,
-      "Artık x.com'da her gönderide Grok ve diğer menünün yanında küçük bir **AI** butonu var.",
+      "Artık x.com'da her gönderide Grok ve Daha fazla menüsünün yanında Postsight merceğiyle mor bir **AI** rozeti var.",
     ],
     sourceTitle: "Kaynaktan",
     sourceLead: "Node 22 ya da üstü ve pnpm gerekir.",
