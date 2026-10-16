@@ -1,0 +1,31 @@
+name: Bug report
+description: Something does not work as described
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected and what you saw instead. A screenshot helps.
+    validations:
+      required: true
+  - type: input
+    id: post
+    attributes:
+      label: Post link
+      description: A public post on X where it happens, if any.
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Provider and model
+      options: [Auto, Claude, OpenAI, DeepSeek]
+  - type: input
+    id: version
+    attributes:
+      label: Sift version and browser
+      description: From chrome://extensions or edge://extensions, e.g. "Sift 1.0.0, Chrome 141".
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: Never paste an API key in an issue.

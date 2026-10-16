@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sift popup harness</title>
+    <link rel="stylesheet" href="/dist/pages.css" />
+    <script>
+      const theme = new URLSearchParams(location.search).get("theme");
+      if (theme) document.documentElement.setAttribute("data-theme", theme);
+    </script>
+  </head>
+  <body class="popup">
+    <main id="app"></main>
+    <script src="/harness/chrome-mock.js"></script>
+    <script src="/dist/popup.js"></script>
+  </body>
+</html>

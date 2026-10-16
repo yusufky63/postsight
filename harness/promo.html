@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Sift promo tile</title>
+    <link rel="stylesheet" href="/dist/pages.css" />
+    <style>
+      /* Store promo tile: 440x280 by default, ?size=marquee for 1400x560. */
+      html,
+      body {
+        margin: 0;
+        background: var(--bg);
+      }
+      .tile {
+        box-sizing: border-box;
+        width: 440px;
+        height: 280px;
+        padding: 36px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border: 1px solid var(--border);
+      }
+      .marquee .tile {
+        width: 1400px;
+        height: 560px;
+        padding: 96px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .brand .mark {
+        width: 44px;
+        height: 44px;
+      }
+      .marquee .brand .mark {
+        width: 88px;
+        height: 88px;
+      }
+      .brand .name {
+        font-size: 40px;
+        line-height: 1;
+      }
+      .marquee .brand .name {
+        font-size: 96px;
+      }
+      .line {
+        font-size: 22px;
+        line-height: 1.25;
+        max-width: 340px;
+      }
+      .marquee .line {
+        font-size: 48px;
+        max-width: 980px;
+      }
+      .chips {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .marquee .chips .tag {
+        font-size: 18px;
+        padding: 6px 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="tile">
+      <div class="brand">
+        <span class="mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="60%" height="60%" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /><path d="M8 11.2l2 2 3.6-3.8" /></svg>
+        </span>
+        <span class="name display">Sift</span>
+      </div>
+      <div class="line display-medium">Fact-check, research and translate any post on X.</div>
+      <div class="chips"><span class="tag">Claude</span><span class="tag">OpenAI</span><span class="tag">DeepSeek</span><span class="tag">12 languages</span></div>
+    </div>
+    <script>
+      if (new URLSearchParams(location.search).get("size") === "marquee") document.body.classList.add("marquee");
+    </script>
+  </body>
+</html>

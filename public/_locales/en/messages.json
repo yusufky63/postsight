@@ -1,0 +1,18 @@
+{
+  "extName": {
+    "message": "Sift: AI fact-check and research for X",
+    "description": "Extension name shown in the browser and the store. Keep Sift and X as they are."
+  },
+  "extShortName": {
+    "message": "Sift",
+    "description": "Short name; do not translate."
+  },
+  "extDescription": {
+    "message": "Fact-check, research, summarize, translate and copy posts on X with your own Claude, OpenAI or DeepSeek API key.",
+    "description": "Store summary. Must stay under 132 characters."
+  },
+  "extActionTitle": {
+    "message": "Sift: AI for posts on X",
+    "description": "Tooltip of the toolbar button."
+  }
+}

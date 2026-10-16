@@ -1,0 +1,150 @@
+/* House design tokens (plain CSS). The brand block is Sift violet. */
+:root {
+  color-scheme: light;
+  --bg: #ffffff;
+  --surface: #f8f9fb;
+  --surface-muted: #eef0f3;
+  --border: #dee1e7;
+  --border-strong: #8f96a3;
+  --text: #0a0b0d;
+  --text-secondary: #5b616e;
+  --text-muted: #687080;
+
+  /* ---- BRAND ---- */
+  --primary: #5b4bff;
+  --primary-strong: #4433e6;
+  --primary-fill: #5b4bff;
+  --primary-contrast: #ffffff;
+  --primary-soft: rgba(91, 75, 255, 0.08);
+  /* -------------- */
+
+  --positive: #66c800;
+  --positive-fg: #2f7d00;
+  --positive-soft: rgba(102, 200, 0, 0.14);
+  --danger: #fc401f;
+  --danger-fg: #c62a0f;
+  --danger-soft: rgba(252, 64, 31, 0.1);
+  --warning: #f5a623;
+  --warning-fg: #8a5a00;
+  --warning-soft: rgba(245, 166, 35, 0.14);
+
+  --grid: rgba(10, 11, 13, 0.045);
+  --shadow-popover: 0 8px 24px rgba(10, 11, 13, 0.12);
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 240ms;
+
+  --font-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", monospace;
+
+  --z-sticky: 20;
+  --z-header: 40;
+  --z-toast: 1200;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0a0b0d;
+  --surface: #111318;
+  --surface-muted: #17191f;
+  --border: #2b2e36;
+  --border-strong: #5b616e;
+  --text: #ffffff;
+  --text-secondary: #b1b7c3;
+  --text-muted: #8a90a0;
+  --primary: #8f84ff;
+  --primary-strong: #b0a8ff;
+  --primary-fill: #5b4bff;
+  --primary-soft: rgba(143, 132, 255, 0.16);
+  --positive-fg: #7ddc1a;
+  --positive-soft: rgba(125, 220, 26, 0.16);
+  --danger-fg: #ff6a4d;
+  --danger-soft: rgba(255, 106, 77, 0.14);
+  --warning-fg: #ffc857;
+  --warning-soft: rgba(255, 200, 87, 0.14);
+  --grid: rgba(255, 255, 255, 0.045);
+  --shadow-popover: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0a0b0d;
+    --surface: #111318;
+    --surface-muted: #17191f;
+    --border: #2b2e36;
+    --border-strong: #5b616e;
+    --text: #ffffff;
+    --text-secondary: #b1b7c3;
+    --text-muted: #8a90a0;
+    --primary: #8f84ff;
+    --primary-strong: #b0a8ff;
+    --primary-fill: #5b4bff;
+    --primary-soft: rgba(143, 132, 255, 0.16);
+    --positive-fg: #7ddc1a;
+    --positive-soft: rgba(125, 220, 26, 0.16);
+    --danger-fg: #ff6a4d;
+    --danger-soft: rgba(255, 106, 77, 0.14);
+    --warning-fg: #ffc857;
+    --warning-soft: rgba(255, 200, 87, 0.14);
+    --grid: rgba(255, 255, 255, 0.045);
+    --shadow-popover: 0 8px 24px rgba(0, 0, 0, 0.5);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+body {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+::selection {
+  background: var(--primary);
+  color: #fff;
+}
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+input:focus-visible,
+select:focus-visible {
+  outline: none;
+}
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+a {
+  color: var(--primary);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

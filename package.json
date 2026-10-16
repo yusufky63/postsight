@@ -1,0 +1,46 @@
+{
+  "name": "sift",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Verify, research, translate and summarize posts on X with Claude, OpenAI or DeepSeek.",
+  "license": "MIT",
+  "homepage": "https://github.com/yusufky63/sift",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yusufky63/sift.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yusufky63/sift/issues"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs --watch",
+    "icons": "node scripts/icons.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
+    "smoke": "node scripts/smoke.mjs",
+    "harness": "node harness/serve.mjs",
+    "package": "node scripts/package.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "0.135.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@fontsource-variable/dm-sans": "5.3.0",
+    "@fontsource-variable/jetbrains-mono": "5.3.0",
+    "@fontsource-variable/space-grotesk": "5.3.0",
+    "@types/chrome": "0.3.5",
+    "@types/node": "24.10.1",
+    "esbuild": "0.28.2",
+    "eslint": "10.12.0",
+    "globals": "17.13.0",
+    "happy-dom": "21.0.3",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.2",
+    "vitest": "5.0.5"
+  }
+}

@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>X timeline harness</title>
+    <style>
+      /* A rough copy of X's timeline markup and colours, enough to place Sift's UI. */
+      body {
+        margin: 0;
+        font: 15px/1.35 "Segoe UI", system-ui, -apple-system, sans-serif;
+        color: #0f1419;
+      }
+      body.dark {
+        color: #e7e9ea;
+      }
+      main {
+        max-width: 600px;
+        margin: 0 auto;
+        min-height: 100vh;
+        border-left: 1px solid #eff3f4;
+        border-right: 1px solid #eff3f4;
+      }
+      .dark main,
+      .dark article {
+        border-color: #2f3336;
+      }
+      .top {
+        position: sticky;
+        top: 0;
+        padding: 14px 16px;
+        font-weight: 700;
+        font-size: 20px;
+        border-bottom: 1px solid #eff3f4;
+        background: inherit;
+      }
+      .dark .top {
+        border-color: #2f3336;
+      }
+      article {
+        display: flex;
+        gap: 12px;
+        padding: 12px 16px;
+        border-bottom: 1px solid #eff3f4;
+        cursor: pointer;
+      }
+      .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        flex: none;
+        background: #cfd9de;
+      }
+      .dark .avatar {
+        background: #333639;
+      }
+      .col {
+        flex: 1;
+        min-width: 0;
+      }
+      .head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      [data-testid="User-Name"] {
+        display: flex;
+        gap: 4px;
+        min-width: 0;
+        flex: 1;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+      [data-testid="User-Name"] a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .name {
+        font-weight: 700;
+      }
+      .muted {
+        color: #536471;
+      }
+      .dark .muted {
+        color: #71767b;
+      }
+      /* Header icons the way X builds them: the button box is only the icon, the
+         hover circle overflows it, and Grok sits next to the caret. */
+      .tools {
+        display: flex;
+        align-items: center;
+      }
+      /* Like React Native Web, every wrapper is a column flexbox by default. */
+      .slot,
+      .col {
+        display: flex;
+        flex-direction: column;
+      }
+      .slot + .slot {
+        margin-left: 12px;
+      }
+      .xicon {
+        position: relative;
+        width: 18.75px;
+        height: 18.75px;
+        padding: 0;
+        border: 0;
+        background: none;
+        color: #536471;
+        cursor: pointer;
+      }
+      .dark .xicon {
+        color: #71767b;
+      }
+      .xicon::before {
+        content: "";
+        position: absolute;
+        inset: -8px;
+        border-radius: 50%;
+      }
+      .xicon:hover::before {
+        background: rgba(29, 155, 240, 0.1);
+      }
+      .xicon svg {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+      .icon {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 0;
+        background: none;
+        color: #536471;
+        border-radius: 50%;
+      }
+      .dark .icon {
+        color: #71767b;
+      }
+      [data-testid="tweetText"] {
+        margin-top: 2px;
+        white-space: pre-wrap;
+      }
+      [data-testid="card.wrapper"] {
+        margin-top: 12px;
+        border: 1px solid #cfd9de;
+        border-radius: 16px;
+        padding: 12px;
+      }
+      .dark [data-testid="card.wrapper"] {
+        border-color: #2f3336;
+      }
+      [role="group"] {
+        display: flex;
+        justify-content: space-between;
+        max-width: 425px;
+        margin-top: 8px;
+      }
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+    </style>
+  </head>
+  <body>
+    <main data-testid="primaryColumn">
+      <div class="top">Home</div>
+    </main>
+    <template id="post">
+      <article data-testid="tweet" role="article" tabindex="0">
+        <div class="avatar"></div>
+        <div class="col">
+          <div class="head">
+            <div data-testid="User-Name">
+              <a href="#" class="name"><span data-slot="name"></span></a>
+              <a href="#" class="muted"><span data-slot="handle"></span></a>
+              <span class="muted">·</span>
+              <a href="#" class="muted" data-slot="link"><time datetime="2026-10-15T14:00:00.000Z">Oct 15</time></a>
+            </div>
+            <div class="tools">
+              <div class="slot">
+                <button class="xicon" aria-label="Grok actions">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 20 20 4M9 4h11v11" /></svg>
+                </button>
+              </div>
+              <div class="slot"><div class="col">
+                <button class="xicon" data-testid="caret" aria-label="More">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" /></svg>
+                </button>
+              </div></div>
+            </div>
+          </div>
+          <div data-testid="tweetText" data-slot="text"></div>
+          <div data-slot="card"></div>
+          <div role="group">
+            <button class="icon" aria-label="Reply"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg></button>
+            <button class="icon" aria-label="Repost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="m17 2 4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3" /></svg></button>
+            <button class="icon" aria-label="Like"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z" /></svg></button>
+            <button class="icon" aria-label="Share"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 3v13M7 8l5-5 5 5M5 21h14" /></svg></button>
+          </div>
+        </div>
+      </article>
+    </template>
+    <script>
+      const params = new URLSearchParams(location.search);
+      if (params.get("theme") === "dark") {
+        document.body.classList.add("dark");
+        document.body.style.backgroundColor = "rgb(0, 0, 0)";
+      } else {
+        document.body.style.backgroundColor = "rgb(255, 255, 255)";
+      }
+      // Links are marked up the way X does it: hidden scheme and tail around a visible middle.
+      const posts = [
+        {
+          name: "Ειδήσεις",
+          handle: "eidiseis",
+          id: "1846000000000000004",
+          lang: "el",
+          html: 'Σκηνές χάους στην Αλβανία: πετροπόλεμος διαδηλωτών με αστυνομικούς <a href="https://t.co/abc"><span style="display:none">https://</span><span>msn.com/el-gr/news/other/</span><span style="display:none">%CF%83%CE%BA%CE%B7%CE%BD%CE%AD%CF%82-%CF%87%CE%AC%CE%BF%CF%85%CF%82-%CF%83%CF%84%CE%B7%CE%BD-%CE%B1%CE%BB%CE%B2%CE%B1%CE%BD%CE%AF%CE%B1-%CF%80%CE%B5%CF%84%CF%81%CE%BF%CF%80%CF%8C%CE%BB%CE%B5%CE%BC%CE%BF%CF%82/ar-AA2ej0J2?ocid=msedgdhp&amp;pc=U531&amp;cvid=6ad0647a45b747358f747590950bea6a</span><span>…</span></a>',
+        },
+        { name: "Climate Desk", handle: "climatedesk", id: "1846000000000000001", lang: "en", text: "Global sea ice just hit a record low this week. Scientists say it will never recover." },
+        { name: "Örnek Haber", handle: "ornekhaber", id: "1846000000000000002", lang: "tr", text: "Yarın İstanbul'da toplu taşıma ücretsiz mi olacak? Belediye henüz resmi bir açıklama yapmadı." },
+        {
+          name: "Dev Notes",
+          handle: "devnotes",
+          id: "1846000000000000003",
+          lang: "en",
+          text: "Shipped: our build cache now hits 94% on CI. Wrote up what changed and why the old keys kept missing.",
+          card: "devnotes.blog · How we fixed our CI cache keys",
+        },
+      ];
+      const main = document.querySelector("main");
+      const tpl = document.getElementById("post");
+      for (const p of posts) {
+        const node = tpl.content.cloneNode(true);
+        node.querySelector('[data-slot="name"]').textContent = p.name;
+        node.querySelector('[data-slot="handle"]').textContent = `@${p.handle}`;
+        node.querySelector('[data-slot="link"]').setAttribute("href", `/${p.handle}/status/${p.id}`);
+        const text = node.querySelector('[data-slot="text"]');
+        if (p.html) text.innerHTML = p.html;
+        else text.textContent = p.text;
+        text.setAttribute("lang", p.lang);
+        if (p.card) {
+          const card = document.createElement("div");
+          card.setAttribute("data-testid", "card.wrapper");
+          card.className = "muted";
+          card.textContent = p.card;
+          node.querySelector('[data-slot="card"]').replaceWith(card);
+        }
+        main.appendChild(node);
+      }
+    </script>
+    <script src="/harness/chrome-mock.js"></script>
+    <script src="/dist/content.js"></script>
+    <script>
+      // ?demo=menu opens the menu on the first post; ?demo=card runs verify and summarize.
+      const demo = params.get("demo");
+      const trigger = (i) => document.querySelectorAll("article")[i].querySelector("[data-sift-trigger]").shadowRoot.querySelector("button");
+      const overlayItems = () => document.querySelector("[data-sift-overlay]").shadowRoot.querySelectorAll(".item");
+      const ready = (fn) => (document.querySelector("[data-sift-trigger]") ? setTimeout(fn, 50) : setTimeout(() => ready(fn), 50));
+      ready(() => {
+        if (demo === "card" || demo === "both") {
+          trigger(1).click();
+          setTimeout(() => {
+            overlayItems()[0].click();
+            trigger(3).click();
+            setTimeout(() => overlayItems()[2].click(), 120);
+          }, 120);
+        }
+        if (demo === "menu") trigger(0).click();
+        if (demo === "translate") {
+          trigger(0).click();
+          setTimeout(() => overlayItems()[3].click(), 120);
+        }
+        if (demo === "both") setTimeout(() => trigger(1).click(), 600);
+      });
+    </script>
+  </body>
+</html>

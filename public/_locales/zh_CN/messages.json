@@ -1,0 +1,18 @@
+{
+  "extName": {
+    "message": "Sift：适用于 X 的 AI 事实核查与研究",
+    "description": "Extension name shown in the browser and the store. Keep Sift and X as they are."
+  },
+  "extShortName": {
+    "message": "Sift",
+    "description": "Short name; do not translate."
+  },
+  "extDescription": {
+    "message": "使用你自己的 Claude、OpenAI 或 DeepSeek API 密钥，对 X 上的帖子进行事实核查、研究、总结、翻译和复制。",
+    "description": "Store summary. Must stay under 132 characters."
+  },
+  "extActionTitle": {
+    "message": "Sift：X 帖子的 AI 助手",
+    "description": "Tooltip of the toolbar button."
+  }
+}

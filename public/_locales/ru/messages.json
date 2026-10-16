@@ -1,0 +1,18 @@
+{
+  "extName": {
+    "message": "Sift: проверка фактов и изучение постов в X с помощью ИИ",
+    "description": "Extension name shown in the browser and the store. Keep Sift and X as they are."
+  },
+  "extShortName": {
+    "message": "Sift",
+    "description": "Short name; do not translate."
+  },
+  "extDescription": {
+    "message": "Проверяйте, изучайте, пересказывайте, переводите и копируйте посты в X со своим API-ключом Claude, OpenAI или DeepSeek.",
+    "description": "Store summary. Must stay under 132 characters."
+  },
+  "extActionTitle": {
+    "message": "Sift: ИИ для постов в X",
+    "description": "Tooltip of the toolbar button."
+  }
+}

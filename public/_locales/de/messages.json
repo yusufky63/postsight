@@ -1,0 +1,18 @@
+{
+  "extName": {
+    "message": "Sift: KI-Faktencheck und Recherche für X",
+    "description": "Extension name shown in the browser and the store. Keep Sift and X as they are."
+  },
+  "extShortName": {
+    "message": "Sift",
+    "description": "Short name; do not translate."
+  },
+  "extDescription": {
+    "message": "Prüfe, recherchiere, fasse zusammen, übersetze und kopiere Posts auf X mit eigenem Claude-, OpenAI- oder DeepSeek-API-Schlüssel.",
+    "description": "Store summary. Must stay under 132 characters."
+  },
+  "extActionTitle": {
+    "message": "Sift: KI für Posts auf X",
+    "description": "Tooltip of the toolbar button."
+  }
+}
