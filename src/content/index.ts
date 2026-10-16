@@ -15,6 +15,8 @@ let config: ContentConfig | null = null;
 let theme: "light" | "dark" = "light";
 let hovered: Element | null = null;
 const cards = new Map<string, Card>();
+/** Each badge host, with the post it belongs to and its button. */
+const triggers = new WeakMap<Element, { article: Element; button: HTMLButtonElement }>();
 const overlay = new Overlay();
 
 const t = () => translator(config?.lang ?? "en");
@@ -34,11 +36,7 @@ function syncTheme(): void {
   theme = next;
   overlay.setTheme(theme);
   for (const card of cards.values()) card.setTheme(theme);
-  document.querySelectorAll<HTMLElement>(`[${TRIGGER}]`).forEach((el) => {
-    el.dataset.theme = theme;
-    const caret = el.parentElement?.querySelector('[data-testid="caret"]');
-    if (caret) el.style.setProperty("--x-icon", getComputedStyle(caret).color);
-  });
+  document.querySelectorAll<HTMLElement>(`[${TRIGGER}]`).forEach((el) => (el.dataset.theme = theme));
 }
 
 function readPost(article: Element): TweetData | null {
@@ -117,17 +115,22 @@ function openMenu(article: Element, button: HTMLButtonElement): void {
   });
 }
 
+/** Badge height bounds: readable at the low end, never taller than a header line at the top. */
+const BADGE_MIN = 18;
+const BADGE_MAX = 22;
+
 /**
- * Puts the trigger in the post header with the same footprint as X's own icons: a
- * box the size of the icon (the hover circle overflows it), the same color, and the
- * same visible gap X leaves between Grok and the caret. A bigger box would make the
- * header row taller and push the name and the other icons around. When Grok sits
- * next to the caret, the trigger goes before Grok so those two stay together.
+ * Puts the badge in the post header: as tall as the header line already is (so the
+ * row does not grow and the name and icons stay put), with the same visible gap X
+ * leaves between Grok and the caret. When Grok sits next to the caret, the badge
+ * goes before Grok so those two stay together.
  */
-function placeTrigger(host: HTMLElement, caret: Element, row: Element, item: Element): void {
+function placeTrigger(host: HTMLElement, article: Element, caret: Element, row: Element, item: Element): void {
   const px = (v: string) => parseFloat(v) || 0;
   const caretIcon = iconBox(caret);
-  const size = caretIcon ? Math.round(caretIcon.width * 100) / 100 : X_ICON;
+  const nameLine = article.querySelector('[data-testid="User-Name"]')?.getBoundingClientRect().height ?? 0;
+  const room = Math.max(row.getBoundingClientRect().height, nameLine, caretIcon?.height ?? X_ICON);
+  const size = Math.max(BADGE_MIN, Math.min(BADGE_MAX, Math.floor(room)));
 
   const prev = item.previousElementSibling;
   const prevIcon = prev ? iconBox(prev) : undefined;
@@ -144,9 +147,7 @@ function placeTrigger(host: HTMLElement, caret: Element, row: Element, item: Ele
   const inset = anchorIcon ? Math.max(0, anchorIcon.left - anchor.getBoundingClientRect().left) : 0;
   const margin = Math.max(0, visibleGap - inset - px(getComputedStyle(row).columnGap) - px(getComputedStyle(anchor).marginLeft));
 
-  // The label is wider than an icon but never taller, so the row height stays put.
   host.style.cssText = `display:flex;align-items:center;justify-content:center;flex:none;align-self:center;height:${size}px;margin:0 ${margin}px 0 0;`;
-  host.style.setProperty("--x-icon", getComputedStyle(caret).color);
   row.insertBefore(host, anchor);
 }
 
@@ -163,15 +164,33 @@ function addTrigger(article: Element): void {
   const root = host.attachShadow({ mode: "open" });
   adoptStyles(root);
   const label = t()("menu.open");
-  const button = h("button", { class: "trigger", type: "button", title: label, "aria-label": label, "aria-haspopup": "menu", "aria-expanded": "false" }, icon("spark", 12), h("span", null, "AI"));
+  const button = h("button", { class: "trigger", type: "button", title: label, "aria-label": label, "aria-haspopup": "menu", "aria-expanded": "false" }, icon("lens", 15), h("span", null, "AI"));
   if (cards.get(postIdOf(article) ?? "")) button.setAttribute("data-active", "true");
   root.appendChild(button);
-  for (const type of ["click", "mousedown", "mouseup", "pointerdown", "pointerup", "touchstart", "touchend"]) {
-    host.addEventListener(type, (e) => e.stopPropagation());
-  }
-  button.addEventListener("click", () => openMenu(article, button));
+  triggers.set(host, { article, button });
 
-  placeTrigger(host, caret, place.row, place.item);
+  placeTrigger(host, article, caret, place.row, place.item);
+}
+
+
+/**
+ * X handles pointer and click events high up the page, and the header the badge sits
+ * in can belong to a link or a menu. Events on the badge are therefore taken at the
+ * window in the capture phase, before any of X's listeners run, and the menu is
+ * opened from here rather than from a listener on the button itself.
+ */
+function onBadgeEvent(e: Event): void {
+  const host = e.composedPath().find((n): n is Element => n instanceof Element && n.hasAttribute(TRIGGER));
+  if (!host) return;
+  e.stopPropagation();
+  if (e.type !== "click") return;
+  e.preventDefault();
+  const entry = triggers.get(host);
+  if (entry?.article.isConnected) openMenu(entry.article, entry.button);
+}
+
+for (const type of ["pointerdown", "pointerup", "mousedown", "mouseup", "click", "auxclick", "dblclick", "touchstart", "touchend"]) {
+  window.addEventListener(type, onBadgeEvent, true);
 }
 
 function scan(): void {
