@@ -14,7 +14,7 @@ import { ARTICLE, extractTweet, postIdOf, postText, readThread } from "./tweet";
 import type { WalletTarget } from "./wallet-card";
 import { WalletPopover } from "./wallet-card";
 import type { Spot } from "./wallets";
-import { clearHighlights, markPost, pruneHighlights, spotAt, spotsIn } from "./wallets";
+import { clearHighlights, markPost, pruneHighlights, setActiveSpot, setHighlightTheme, spotAt, spotsIn } from "./wallets";
 
 let config: ContentConfig | null = null;
 let theme: "light" | "dark" = "light";
@@ -42,6 +42,7 @@ function syncTheme(): void {
   overlay.setTheme(theme);
   for (const card of cards.values()) card.setTheme(theme);
   walletCard.setTheme(theme);
+  setHighlightTheme(theme);
   document.querySelectorAll<HTMLElement>(`[${TRIGGER}]`).forEach((el) => (el.dataset.theme = theme));
 }
 
@@ -269,6 +270,10 @@ const walletCard = new WalletPopover({
   },
   onSettings: () => void sendRequest({ type: "open-options", section: "features" }),
   toast: (text, tone) => overlay.toast(text, tone),
+  onClose: () => {
+    shownSpot = null;
+    setActiveSpot(null);
+  },
 });
 
 const SHOW_DELAY_MS = 350;
@@ -277,6 +282,8 @@ const HIDE_DELAY_MS = 300;
 let showTimer: ReturnType<typeof setTimeout> | undefined;
 let hideTimer: ReturnType<typeof setTimeout> | undefined;
 let waitingFor: Spot | null = null;
+/** The spot whose card is open; it stays drawn stronger while the card is up. */
+let shownSpot: Spot | null = null;
 /** A card opened from the menu, or clicked into, stays until it is closed. */
 let pinned = false;
 const pointer = { x: 0, y: 0, target: null as Element | null, overCard: false };
@@ -296,6 +303,8 @@ function showWallet(spot: Spot, fromMenu = false): void {
   hideTimer = undefined;
   pinned = fromMenu;
   walletCard.open(walletTarget(spot), fromMenu);
+  shownSpot = spot;
+  setActiveSpot(spot);
 }
 
 function hideWalletSoon(): void {
@@ -313,6 +322,7 @@ function onPointer(): void {
     return;
   }
   const spot = spotAt(pointer.target, pointer.x, pointer.y);
+  setActiveSpot(spot ?? shownSpot);
   if (!spot) {
     clearTimeout(showTimer);
     showTimer = undefined;
@@ -417,4 +427,5 @@ loadFonts();
 theme = pageTheme();
 overlay.setTheme(theme);
 walletCard.setTheme(theme);
+setHighlightTheme(theme);
 void loadConfig();

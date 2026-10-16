@@ -24,6 +24,7 @@ export interface WalletEnv {
   onResearch(target: WalletTarget, card: WalletCard): void;
   onSettings(): void;
   toast(text: string, tone?: "positive" | "danger"): void;
+  onClose?(): void;
 }
 
 const CHAIN_LABEL: Record<string, string> = {
@@ -119,6 +120,7 @@ export class WalletPopover {
     const port = this.port;
     this.port = null;
     port?.disconnect();
+    if (this.panel) this.env.onClose?.();
     this.panel?.remove();
     this.panel = null;
     this.target = null;
@@ -137,13 +139,17 @@ export class WalletPopover {
       return;
     }
     const gap = 8;
+    const edge = 8;
+    const below = window.innerHeight - rect.bottom - gap - edge;
+    const above = rect.top - gap - edge;
+    // The side is chosen once: the card grows as sources answer, and it must never
+    // slide over the address it belongs to. It scrolls inside instead.
+    this.side ??= below >= 360 || below >= above ? "below" : "above";
+    panel.style.maxHeight = `${Math.max(160, this.side === "below" ? below : above)}px`;
     const width = panel.offsetWidth;
     const height = panel.offsetHeight;
-    this.side ??= window.innerHeight - rect.bottom >= Math.min(height, 420) + gap * 2 ? "below" : "above";
-    const left = Math.max(8, Math.min(rect.left, window.innerWidth - width - 8));
-    const top = this.side === "below" ? rect.bottom + gap : rect.top - height - gap;
-    panel.style.left = `${left}px`;
-    panel.style.top = `${Math.max(8, Math.min(top, window.innerHeight - height - 8))}px`;
+    panel.style.left = `${Math.max(edge, Math.min(rect.left, window.innerWidth - width - edge))}px`;
+    panel.style.top = `${this.side === "below" ? rect.bottom + gap : Math.max(edge, rect.top - height - gap)}px`;
   }
 
   private connect(query: string): void {

@@ -803,6 +803,13 @@ input:focus-visible {
 .wcard .muted {
   color: var(--text-muted);
 }
+/* Only the body scrolls when the card is taller than the room beside the address. */
+.wc-head,
+.wc-foot,
+.wc-danger,
+.wc-author {
+  flex: none;
+}
 .wc-head {
   display: flex;
   align-items: center;

@@ -29,8 +29,23 @@ interface Marked {
   spots: Spot[];
 }
 
+/** The address under the pointer, or whose card is open, drawn stronger on top. */
+export const HIGHLIGHT_ACTIVE = "postsight-wallet-active";
+
 const marked = new WeakMap<Element, Marked>();
 let highlight: Highlight | null = null;
+let active: Highlight | null = null;
+let sheet: CSSStyleSheet | null = null;
+let theme: "light" | "dark" = "light";
+
+/** A tint behind the text plus a thick dashed line, so an address reads as something to hover on any X theme. */
+function highlightCss(t: "light" | "dark"): string {
+  const c = t === "dark" ? { line: "#8f84ff", tint: "rgba(143, 132, 255, 0.18)", strong: "rgba(143, 132, 255, 0.34)" } : { line: "#5b4bff", tint: "rgba(91, 75, 255, 0.10)", strong: "rgba(91, 75, 255, 0.22)" };
+  return [
+    `::highlight(${HIGHLIGHT}) { background-color: ${c.tint}; text-decoration: underline dashed ${c.line}; text-decoration-thickness: 2px; text-underline-offset: 3px; }`,
+    `::highlight(${HIGHLIGHT_ACTIVE}) { background-color: ${c.strong}; text-decoration: underline solid ${c.line}; text-decoration-thickness: 2px; text-underline-offset: 3px; }`,
+  ].join("\n");
+}
 
 export function highlightSupported(): boolean {
   return typeof CSS !== "undefined" && "highlights" in CSS && typeof Highlight === "function";
@@ -40,19 +55,39 @@ function ensureHighlight(): Highlight | null {
   if (!highlightSupported()) return null;
   if (!highlight) {
     highlight = new Highlight();
+    active = new Highlight();
+    // Above the plain marks where the two overlap.
+    active.priority = 1;
     CSS.highlights.set(HIGHLIGHT, highlight);
+    CSS.highlights.set(HIGHLIGHT_ACTIVE, active);
     // ::highlight() rules have to live in the page's own stylesheets.
     try {
-      const sheet = new CSSStyleSheet();
-      sheet.replaceSync(
-        `::highlight(${HIGHLIGHT}) { text-decoration: underline dotted rgba(91, 75, 255, 0.85); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }`,
-      );
+      sheet = new CSSStyleSheet();
+      sheet.replaceSync(highlightCss(theme));
       document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
     } catch {
-      // No underline then; hovering still works.
+      // No marks then; hovering still works.
     }
   }
   return highlight;
+}
+
+/** X's light, dim and lights-out themes need different strengths of the same violet. */
+export function setHighlightTheme(next: "light" | "dark"): void {
+  if (next === theme) return;
+  theme = next;
+  try {
+    sheet?.replaceSync(highlightCss(theme));
+  } catch {
+    // Keep the previous colours.
+  }
+}
+
+/** Draws one spot stronger: the one under the pointer or with its card open. */
+export function setActiveSpot(spot: Spot | null): void {
+  if (!active) return;
+  active.clear();
+  if (spot?.range.startContainer.isConnected) active.add(spot.range);
 }
 
 /** The handle of whoever wrote this text: the quoted post's author inside a quote, the post's author outside it. */
@@ -97,14 +132,17 @@ export function markPost(article: Element): void {
 
 /** Drops ranges whose text X has thrown away, so the highlight does not keep them alive. */
 export function pruneHighlights(): void {
-  if (!highlight) return;
-  for (const range of highlight) {
-    if (!(range as Range).startContainer.isConnected) highlight.delete(range);
+  for (const hl of [highlight, active]) {
+    if (!hl) continue;
+    for (const range of hl) {
+      if (!(range as Range).startContainer.isConnected) hl.delete(range);
+    }
   }
 }
 
 export function clearHighlights(): void {
   highlight?.clear();
+  active?.clear();
 }
 
 /** The spot under the pointer, if any. */
