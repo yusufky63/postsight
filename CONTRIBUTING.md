@@ -24,7 +24,7 @@ pnpm check      # typecheck, lint with zero warnings, tests, build
 
 ## Translations
 
-To improve a language, edit `src/shared/locales/<code>.ts`, `public/_locales/<code>/messages.json` (store name and summary) and `store/listing/<code>.md` (store description). To add a language, add it to `src/shared/languages.ts` and create those three files.
+To improve a language, edit `src/shared/locales/<code>.ts`, `public/_locales/<code>/messages.json` (store name and summary) and `store/listing/<code>.md` (store description). To add a language, add it to `src/shared/languages.ts` and create those three files. The website is in English and Turkish; its copy is in `site/src/content.ts`.
 
 ## Layout of the code
 
@@ -36,3 +36,4 @@ To improve a language, edit `src/shared/locales/<code>.ts`, `public/_locales/<co
 | `src/shared` | Models and prices, router, prompts, pricing, usage, languages, markdown, readable-text extraction |
 | `src/ui` | DOM helpers, controls and design tokens shared by the pages |
 | `harness` | Local pages that run the built bundles with a mocked `chrome` API |
+| `site` | The postsight.app website: landing, privacy and support pages, built from `PRIVACY.md` and the locales (see `site/README.md`) |

@@ -17,13 +17,16 @@
     "build": "node scripts/build.mjs",
     "dev": "node scripts/build.mjs --watch",
     "icons": "node scripts/icons.mjs",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p site",
     "lint": "eslint . --max-warnings=0",
     "test": "vitest run",
-    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm site:build",
     "smoke": "node scripts/smoke.mjs",
     "harness": "node harness/serve.mjs",
-    "package": "node scripts/package.mjs"
+    "package": "node scripts/package.mjs",
+    "site:dev": "node site/serve.mjs",
+    "site:build": "node site/build.mjs",
+    "site:og": "node site/og.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.135.0"

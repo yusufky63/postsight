@@ -54,15 +54,17 @@ Keys stay in your browser's extension storage and go only to the provider they b
 | Command | What it does |
 |---|---|
 | `pnpm dev` | Rebuilds `dist/` on change; reload the extension to see it |
-| `pnpm check` | Typecheck, lint with zero warnings, tests, build |
+| `pnpm check` | Typecheck, lint with zero warnings, tests, build (extension and website) |
 | `pnpm package` | Builds the store zip in `release/` |
 | `pnpm harness` | Serves `harness/` at http://localhost:4317 to view the UI with a mocked `chrome` API |
 | `pnpm smoke` | Calls the real APIs with keys from `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `DEEPSEEK_API_KEY` (a fraction of a cent; `--web` adds one search) |
 | `pnpm icons` | Redraws the toolbar icons |
+| `pnpm site:dev` | Serves the website (`site/`) at http://localhost:4320 and rebuilds on change |
+| `pnpm site:build` | Builds the static website into `site/dist` for Cloudflare Pages |
 
 Stack: TypeScript, esbuild, Manifest V3, the Anthropic TypeScript SDK, plain `fetch` for OpenAI's Responses API and DeepSeek, Vitest and happy-dom. No UI framework; the content script renders into shadow roots.
 
-Code layout and translation notes are in [CONTRIBUTING.md](CONTRIBUTING.md); store submission notes in [store/README.md](store/README.md); security reporting in [SECURITY.md](SECURITY.md).
+Code layout and translation notes are in [CONTRIBUTING.md](CONTRIBUTING.md); store submission notes in [store/README.md](store/README.md); the website for postsight.app in [site/README.md](site/README.md); security reporting in [SECURITY.md](SECURITY.md).
 
 ## License
 
