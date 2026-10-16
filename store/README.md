@@ -43,7 +43,17 @@ No remote code: all scripts ship in the package.
 - Collects: website content (the post the user runs an action on) and authentication information (the user's own API keys, stored locally).
 - Not sold, not used for unrelated purposes, not used for creditworthiness or lending.
 - Sent only to the AI provider the user selected, to provide the feature the user asked for.
-- Privacy policy URL: https://github.com/yusufky63/postsight/blob/main/PRIVACY.md (switch to the website once the domain is live).
+- Privacy policy URL: https://github.com/yusufky63/postsight/blob/main/PRIVACY.md until the website is deployed; after that, https://postsight.app/privacy (built from `PRIVACY.md`, see [site/README.md](../site/README.md)).
+
+## Website URLs
+
+Once https://postsight.app is deployed from `site/` on Cloudflare Pages:
+
+| Store field | URL |
+|---|---|
+| Privacy policy | https://postsight.app/privacy |
+| Homepage / official URL | https://postsight.app |
+| Support URL | https://postsight.app/support |
 
 ## Developer accounts
 
