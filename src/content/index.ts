@@ -3,6 +3,7 @@ import type { ContentConfig } from "../shared/messages";
 import { sendRequest } from "../shared/messages";
 import { postFeatures } from "../shared/router";
 import type { ActionId, RouteChoice, TweetData } from "../shared/types";
+import { shortAddress, walletFacts } from "../shared/wallet";
 import { copyText, h, icon } from "../ui/dom";
 import { Card } from "./card";
 import type { CopyKind } from "./overlay";
@@ -10,6 +11,10 @@ import { Overlay } from "./overlay";
 import { iconBox, iconRow, TRIGGER, X_ICON } from "./layout";
 import { adoptStyles, loadFonts } from "./styles";
 import { ARTICLE, extractTweet, postIdOf, postText, readThread } from "./tweet";
+import type { WalletTarget } from "./wallet-card";
+import { WalletPopover } from "./wallet-card";
+import type { Spot } from "./wallets";
+import { clearHighlights, markPost, pruneHighlights, spotAt, spotsIn } from "./wallets";
 
 let config: ContentConfig | null = null;
 let theme: "light" | "dark" = "light";
@@ -36,6 +41,7 @@ function syncTheme(): void {
   theme = next;
   overlay.setTheme(theme);
   for (const card of cards.values()) card.setTheme(theme);
+  walletCard.setTheme(theme);
   document.querySelectorAll<HTMLElement>(`[${TRIGGER}]`).forEach((el) => (el.dataset.theme = theme));
 }
 
@@ -46,7 +52,7 @@ function readPost(article: Element): TweetData | null {
   return tweet;
 }
 
-function runAction(article: Element, action: ActionId, route: RouteChoice, question?: string): void {
+function runAction(article: Element, action: ActionId, route: RouteChoice, question?: string, facts?: string): void {
   const tweet = readPost(article);
   if (!tweet) {
     overlay.toast(t()("error.noPost"), "danger");
@@ -68,7 +74,7 @@ function runAction(article: Element, action: ActionId, route: RouteChoice, quest
     cards.set(tweet.id, card);
   }
   if (!article.contains(card.host)) card.attach(article);
-  card.run({ action, tweet, route, question });
+  card.run({ action, tweet, route, question, facts });
 }
 
 function markActive(postId: string, active: boolean): void {
@@ -112,6 +118,12 @@ function openMenu(article: Element, button: HTMLButtonElement): void {
     features: postFeatures(tweet),
     onAction: (action, route, question) => runAction(article, action, route, question),
     onCopy: (kind) => copyPost(article, kind),
+    // The keyboard way to a wallet card: hover cards cannot be reached with Tab.
+    wallets: config.wallets
+      ? spotsIn(article)
+          .slice(0, 4)
+          .map((spot) => ({ label: spot.kind === "name" ? spot.value : shortAddress(spot.value), onOpen: () => showWallet(spot, true) }))
+      : [],
   });
 }
 
@@ -198,11 +210,13 @@ function scan(): void {
   if (!config?.enabled) return;
   for (const article of document.querySelectorAll(ARTICLE)) {
     addTrigger(article);
+    if (config.wallets) markPost(article);
     // Timeline cells are recycled as you scroll; put an open card back when its post returns.
     const id = postIdOf(article);
     const card = id ? cards.get(id) : undefined;
     if (card && !card.host.isConnected) card.attach(article);
   }
+  if (config.wallets) pruneHighlights();
 }
 
 let scheduled = false;
@@ -217,6 +231,8 @@ function schedule(): void {
 
 function removeAll(): void {
   overlay.close();
+  walletCard.close();
+  clearHighlights();
   document.querySelectorAll(`[${TRIGGER}]`).forEach((el) => el.remove());
   for (const card of [...cards.values()]) card.close();
 }
@@ -234,8 +250,129 @@ async function loadConfig(): Promise<void> {
   }
   // Labels are baked into triggers, so rebuild them when the language changes.
   document.querySelectorAll(`[${TRIGGER}]`).forEach((el) => el.remove());
+  if (!config.wallets) {
+    walletCard.close();
+    clearHighlights();
+  }
   schedule();
 }
+
+// ---------- Wallet cards ----------
+
+const walletCard = new WalletPopover({
+  lang: () => config?.lang ?? "en",
+  canResearch: () => !!config?.hasKey,
+  onResearch: (target, card) => {
+    if (!config || !card.address) return;
+    const question = t()("wallet.researchQuestion", { address: card.address });
+    runAction(target.article, "ask", config.route, question, walletFacts(card, target.author));
+  },
+  onSettings: () => void sendRequest({ type: "open-options", section: "features" }),
+  toast: (text, tone) => overlay.toast(text, tone),
+});
+
+const SHOW_DELAY_MS = 350;
+const SWITCH_DELAY_MS = 120;
+const HIDE_DELAY_MS = 300;
+let showTimer: ReturnType<typeof setTimeout> | undefined;
+let hideTimer: ReturnType<typeof setTimeout> | undefined;
+let waitingFor: Spot | null = null;
+/** A card opened from the menu, or clicked into, stays until it is closed. */
+let pinned = false;
+const pointer = { x: 0, y: 0, target: null as Element | null, overCard: false };
+let pointerFrame = 0;
+
+function walletTarget(spot: Spot): WalletTarget {
+  return {
+    query: spot.value,
+    author: spot.author,
+    article: spot.article,
+    anchor: () => (spot.range.startContainer.isConnected ? (spot.range.getClientRects()[0] ?? null) : null),
+  };
+}
+
+function showWallet(spot: Spot, fromMenu = false): void {
+  clearTimeout(hideTimer);
+  hideTimer = undefined;
+  pinned = fromMenu;
+  walletCard.open(walletTarget(spot), fromMenu);
+}
+
+function hideWalletSoon(): void {
+  if (pinned || hideTimer || !walletCard.query) return;
+  hideTimer = setTimeout(() => {
+    hideTimer = undefined;
+    walletCard.close();
+  }, HIDE_DELAY_MS);
+}
+
+function onPointer(): void {
+  if (pointer.overCard) {
+    clearTimeout(hideTimer);
+    hideTimer = undefined;
+    return;
+  }
+  const spot = spotAt(pointer.target, pointer.x, pointer.y);
+  if (!spot) {
+    clearTimeout(showTimer);
+    showTimer = undefined;
+    waitingFor = null;
+    hideWalletSoon();
+    return;
+  }
+  clearTimeout(hideTimer);
+  hideTimer = undefined;
+  if (walletCard.query === spot.value || waitingFor?.range === spot.range) return;
+  waitingFor = spot;
+  clearTimeout(showTimer);
+  // Moving from one address to the next should not wait as long as the first hover.
+  showTimer = setTimeout(
+    () => {
+      showTimer = undefined;
+      const next = waitingFor;
+      waitingFor = null;
+      if (next?.range.startContainer.isConnected) showWallet(next);
+    },
+    walletCard.query ? SWITCH_DELAY_MS : SHOW_DELAY_MS,
+  );
+}
+
+document.addEventListener(
+  "pointermove",
+  (e) => {
+    if (!config?.wallets || e.pointerType === "touch") return;
+    pointer.x = e.clientX;
+    pointer.y = e.clientY;
+    pointer.target = e.target instanceof Element ? e.target : null;
+    pointer.overCard = walletCard.contains(e.composedPath());
+    pointerFrame ||= requestAnimationFrame(() => {
+      pointerFrame = 0;
+      onPointer();
+    });
+  },
+  { passive: true },
+);
+
+document.addEventListener(
+  "pointerdown",
+  (e) => {
+    if (!walletCard.query) return;
+    if (walletCard.contains(e.composedPath())) pinned = true;
+    else {
+      pinned = false;
+      walletCard.close();
+    }
+  },
+  true,
+);
+
+window.addEventListener(
+  "scroll",
+  () => {
+    if (walletCard.query) requestAnimationFrame(() => walletCard.place());
+  },
+  { capture: true, passive: true },
+);
 
 const SHORTCUTS: Record<string, ActionId> = {
   KeyV: "verify",
@@ -279,4 +416,5 @@ new MutationObserver(syncTheme).observe(document.body, { attributes: true, attri
 loadFonts();
 theme = pageTheme();
 overlay.setTheme(theme);
+walletCard.setTheme(theme);
 void loadConfig();

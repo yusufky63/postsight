@@ -17,6 +17,8 @@ export interface MenuOptions {
   features: PostFeatures;
   onAction(action: ActionId, route: RouteChoice, question?: string): void;
   onCopy(kind: CopyKind): void;
+  /** Addresses and names in the post, each opening its wallet card. */
+  wallets?: { label: string; onOpen(): void }[];
 }
 
 const ACTION_ICON: Record<ActionId, IconName> = {
@@ -236,6 +238,33 @@ export class Overlay {
         ),
       );
 
+    const walletRows = () =>
+      opts.wallets?.length
+        ? [
+            h("div", { class: "section-label label" }, t("wallet.inPost")),
+            h(
+              "div",
+              { class: "list" },
+              opts.wallets.map((w) =>
+                h(
+                  "button",
+                  {
+                    class: "item",
+                    type: "button",
+                    role: "menuitem",
+                    onClick: () => {
+                      this.close();
+                      w.onOpen();
+                    },
+                  },
+                  icon("wallet", 18),
+                  h("span", { class: "item-title mono" }, w.label),
+                ),
+              ),
+            ),
+          ]
+        : null;
+
     const renderActions = () => {
       if (!config.hasKey) {
         replace(
@@ -260,6 +289,7 @@ export class Overlay {
           ),
           h("div", { class: "section-label label" }, t("menu.copy")),
           copyRow(),
+          walletRows(),
         );
         foot.remove();
         return;
@@ -301,6 +331,7 @@ export class Overlay {
         h("div", { class: "list" }, items),
         h("div", { class: "section-label label" }, t("menu.copy")),
         copyRow(),
+        walletRows(),
       );
       setFoot(null);
       panel.appendChild(foot);

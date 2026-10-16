@@ -30,8 +30,8 @@ To improve a language, edit `src/shared/locales/<code>.ts`, `public/_locales/<co
 
 | Folder | What is in it |
 |---|---|
-| `src/background` | Service worker: routing, budgets, caching, page fetching, provider clients |
-| `src/content` | The script on x.com: reads posts, the AI button, menu and result card |
+| `src/background` | Service worker: routing, budgets, caching, page fetching, provider clients; `wallet/` holds the keyless wallet-card lookups (ENS, Basenames, web3.bio, Ethos, EAS, GoPlus, DexScreener) |
+| `src/content` | The script on x.com: reads posts, the AI button, menu, result card and wallet cards |
 | `src/popup`, `src/options` | Toolbar popup and settings page |
 | `src/shared` | Models and prices, router, prompts, pricing, usage, languages, markdown, readable-text extraction |
 | `src/ui` | DOM helpers, controls and design tokens shared by the pages |

@@ -129,6 +129,7 @@
     hasKey: params.get("nokey") !== "1",
     shortcuts: true,
     includeThread: true,
+    wallets: params.get("wallets") !== "0",
   };
 
   const decisionFor = (action) => {
@@ -164,7 +165,38 @@
     }
   }
 
-  function connect() {
+  /** Wallet cards stream from the harness server, which runs the extension's real lookup. */
+  function walletPort() {
+    const handlers = [];
+    const controller = new AbortController();
+    const emit = (e) => !controller.signal.aborted && handlers.forEach((fn) => fn(e));
+    return {
+      onMessage: { addListener: (fn) => handlers.push(fn) },
+      onDisconnect: { addListener() {} },
+      disconnect: () => controller.abort(),
+      async postMessage({ query }) {
+        try {
+          const res = await fetch(`/wallet?query=${encodeURIComponent(query)}`, { signal: controller.signal });
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = "";
+          for (;;) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop();
+            for (const line of lines) if (line.trim()) emit(JSON.parse(line));
+          }
+        } catch {
+          emit({ type: "error", code: "unknown" });
+        }
+      },
+    };
+  }
+
+  function connect(info) {
+    if (info?.name === "postsight-wallet") return walletPort();
     const handlers = [];
     const disconnects = [];
     let closed = false;

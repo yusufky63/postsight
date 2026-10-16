@@ -24,6 +24,8 @@ Controla lo que gastas. Cada resultado muestra tokens, búsquedas web, coste y t
 
 Lee lo que enlazan los posts. Postsight lee los Artículos de X y, con tu permiso, las páginas de noticias y blogs que enlaza un post, para que un post que solo contiene un enlace no se juzgue por el titular.
 
+Tarjetas de billetera (opcional). Pasa el cursor sobre una dirección 0x o un nombre .eth en un post para ver su nombre ENS o Basename, los perfiles vinculados, las reseñas de Ethos, la verificación de Coinbase, las alertas de seguridad de GoPlus y, si es un token, sus datos de mercado de DexScreener y las comprobaciones del contrato. La tarjeta también indica si los registros de la billetera nombran al autor del post. Fuentes públicas, sin claves, y no se envía nada hasta que pasas el cursor.
+
 Privacidad desde el diseño. Las claves se quedan en tu navegador y solo van al proveedor que elegiste. No hay servidor de Postsight ni seguimiento.
 
 Disponible en English, Türkçe, Deutsch, Español, Français, Português, Italiano, Русский, 日本語, 한국어, 简体中文 y Bahasa Indonesia.

@@ -24,6 +24,8 @@ Sai sempre quanto spendi. Ogni risultato mostra token, ricerche web, costo e tem
 
 Legge ciò a cui rimandano i post. Postsight legge gli articoli di X e, con il tuo permesso, le pagine di notizie e i blog linkati in un post, così un post con solo un link non viene giudicato dal titolo.
 
+Schede wallet (facoltative). Passa il mouse su un indirizzo 0x o un nome .eth in un post per vedere il nome ENS o Basename, i profili collegati, le recensioni Ethos, la verifica Coinbase, le segnalazioni di sicurezza GoPlus e, per un token, i dati di mercato di DexScreener e i controlli del contratto. La scheda dice anche se i record del wallet indicano l'autore del post. Fonti pubbliche, nessuna chiave, e non viene inviato nulla finché non passi il mouse.
+
 Pensato per la privacy. Le chiavi restano nel tuo browser e vanno solo al provider che hai scelto. Non c'è nessun server di Postsight e nessun tracciamento.
 
 Disponibile in English, Türkçe, Deutsch, Español, Français, Português, Italiano, Русский, 日本語, 한국어, 简体中文 e Bahasa Indonesia.

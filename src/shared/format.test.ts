@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isUrlText, shortUrl } from "./format";
+import { formatAge, formatCompactUsd, formatEth, formatPrice, isUrlText, shortUrl } from "./format";
 import { parseInline } from "./markdown";
 
 const LONG =
@@ -48,5 +48,27 @@ describe("links in answers", () => {
   it("shortens a markdown label that is itself an address", () => {
     const [link] = parseInline(`[${LONG}](${LONG})`);
     expect(link?.type === "link" && link.children).toEqual([{ type: "text", text: shortUrl(LONG) }]);
+  });
+});
+
+describe("wallet card numbers", () => {
+  it("keeps tiny token prices readable", () => {
+    expect(formatPrice(0.000003969, "en")).toBe("$0.00000397");
+    expect(formatPrice(1.5, "en")).toBe("$1.50");
+    expect(formatPrice(0.25, "en")).toBe("$0.25");
+  });
+
+  it("shortens large amounts and ether", () => {
+    expect(formatCompactUsd(28_883_227, "en")).toBe("$28.9M");
+    expect(formatEth(5.76972533, false, "en")).toBe("5.7697 ETH");
+    expect(formatEth(1234.56, false, "en")).toBe("1,234.6 ETH");
+    expect(formatEth(0, true, "en")).toBe("<0.0001 ETH");
+  });
+
+  it("says how long ago a token was listed", () => {
+    const now = Date.UTC(2026, 9, 16);
+    expect(formatAge(now - 3 * 365 * 86_400_000, "en", now)).toBe("3 years ago");
+    expect(formatAge(now - 2 * 86_400_000, "en", now)).toBe("2 days ago");
+    expect(formatAge(now - 3 * 3_600_000, "en", now)).toBe("3 hours ago");
   });
 });

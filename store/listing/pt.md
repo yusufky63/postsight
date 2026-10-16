@@ -24,6 +24,8 @@ Saiba quanto você gasta. Cada resultado mostra tokens, buscas na web, custo e t
 
 Lê o que os posts linkam. O Postsight lê Artigos do X e, com sua permissão, as páginas de notícias e blogs para as quais um post aponta, para que um post só com link não seja julgado pela manchete.
 
+Cartões de carteira (opcional). Passe o mouse sobre um endereço 0x ou um nome .eth em um post para ver o nome ENS ou Basename, os perfis ligados, as avaliações do Ethos, a verificação da Coinbase, os alertas de segurança do GoPlus e, se for um token, os dados de mercado do DexScreener e as verificações do contrato. O cartão também diz se os registros da carteira citam o autor do post. Fontes públicas, sem chaves, e nada é enviado até você passar o mouse.
+
 Privado desde a concepção. As chaves ficam no seu navegador e vão só para o provedor que você escolheu. Não há servidor do Postsight nem rastreamento.
 
 Disponível em English, Türkçe, Deutsch, Español, Français, Português, Italiano, Русский, 日本語, 한국어, 简体中文 e Bahasa Indonesia.

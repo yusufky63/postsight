@@ -24,6 +24,8 @@ Ketahui pengeluaran Anda. Setiap hasil menampilkan token, pencarian web, biaya, 
 
 Membaca apa yang dirujuk postingan. Postsight membaca X Article dan, dengan izin Anda, halaman berita dan blog yang ditautkan postingan, sehingga postingan yang hanya berisi tautan tidak dinilai dari judulnya saja.
 
+Kartu dompet (opsional). Arahkan kursor ke alamat 0x atau nama .eth di postingan untuk melihat nama ENS atau Basename-nya, profil yang tertaut, ulasan Ethos, verifikasi Coinbase, peringatan keamanan GoPlus, dan untuk token, data pasar DexScreener serta pemeriksaan kontraknya. Kartu juga memberi tahu apakah catatan dompet menyebut penulis postingan. Sumber publik, tanpa kunci, dan tidak ada yang dikirim sampai Anda mengarahkan kursor.
+
 Privat sejak awal. Kunci tetap di browser Anda dan hanya dikirim ke penyedia yang Anda pilih. Tidak ada server Postsight dan tidak ada pelacakan.
 
 Tersedia dalam English, Türkçe, Deutsch, Español, Français, Português, Italiano, Русский, 日本語, 한국어, 简体中文, dan Bahasa Indonesia.

@@ -1,6 +1,6 @@
 {
   "name": "postsight",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "private": true,
   "description": "Verify, research, translate and summarize posts on X with Claude, OpenAI or DeepSeek.",
   "license": "MIT",
@@ -29,7 +29,8 @@
     "site:og": "node site/og.mjs"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "0.135.0"
+    "@anthropic-ai/sdk": "0.135.0",
+    "viem": "2.57.2"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

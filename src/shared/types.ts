@@ -104,6 +104,8 @@ export interface Settings {
   includeThread: boolean;
   /** Read the web pages a post links to (needs the optional all-sites permission). */
   readLinks: boolean;
+  /** Hover cards for wallet addresses and ENS names in posts (needs the optional wallet-source hosts). */
+  walletCards: boolean;
   detail: Detail;
   actions: Record<ActionId, boolean>;
   shortcuts: boolean;

@@ -20,6 +20,7 @@ export const DEFAULT_SETTINGS: Settings = {
   includeImages: true,
   includeThread: true,
   readLinks: true,
+  walletCards: false,
   detail: "standard",
   actions: { verify: true, research: true, summarize: true, translate: true, explain: true, reply: true, ask: true },
   shortcuts: true,

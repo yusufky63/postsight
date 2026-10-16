@@ -27,6 +27,8 @@ export interface ContentConfig {
   hasKey: boolean;
   shortcuts: boolean;
   includeThread: boolean;
+  /** Wallet cards are on and their hosts are allowed. */
+  wallets: boolean;
 }
 
 export interface RunJob {
@@ -34,6 +36,8 @@ export interface RunJob {
   tweet: TweetData;
   route: RouteChoice;
   question?: string;
+  /** What a wallet card found, for researching that wallet; sent to the model, not shown. */
+  facts?: string;
   force?: boolean;
 }
 

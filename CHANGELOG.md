@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0 (2026-10-16)
+
+- Wallet cards (optional, off by default): hover a 0x address or a .eth name in a post to see its ENS name or Basename (checked both ways) and text records, balances and transaction counts on Ethereum and Base, profiles from web3.bio, Ethos reviews, Coinbase verification on Base, GoPlus security flags, and for a token its DexScreener market data and GoPlus contract checks.
+- A wallet card says when the wallet's records name the post's author or another X account, and warns when an address's checksum does not match.
+- "Research with AI" on a wallet card asks your model about that wallet with the facts the card found.
+- The post menu lists the wallets in a post, so their cards can be opened with the keyboard.
+- Wallet cards use public sources only, without keys; they ask for access to those hosts when turned on, and send nothing until you hover an address.
+
 ## 1.0.1 (2026-10-16)
 
 - Renamed from Sift to Postsight.

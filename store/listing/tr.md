@@ -24,6 +24,8 @@ Ne harcadığını bil. Her sonuçta token, web araması, maliyet ve süre gör�
 
 Gönderinin gösterdiğini okur. Postsight X Makalelerini ve izin verirsen gönderinin bağlantı verdiği haber ve blog sayfalarını okur; sadece bağlantıdan oluşan bir gönderi başlığına göre değerlendirilmez.
 
+Cüzdan kartları (isteğe bağlı). Gönderideki bir 0x adresinin ya da .eth isminin üzerine gel; ENS ismini ya da Basename'ini, bağlı profilleri, Ethos değerlendirmelerini, Coinbase doğrulamasını, GoPlus güvenlik uyarılarını ve token ise DexScreener piyasa verisiyle kontrat kontrollerini gör. Kart, cüzdanın kayıtlarında gönderinin yazarının geçip geçmediğini de söyler. Herkese açık kaynaklar, anahtar yok; üzerine gelene kadar hiçbir şey gönderilmez.
+
 Gizlilik öncelikli. Anahtarlar tarayıcında kalır ve yalnızca seçtiğin sağlayıcıya gider. Postsight sunucusu ve takip yoktur.
 
 English, Türkçe, Deutsch, Español, Français, Português, Italiano, Русский, 日本語, 한국어, 简体中文 ve Bahasa Indonesia dillerinde.
