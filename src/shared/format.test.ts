@@ -3,12 +3,12 @@ import { isUrlText, shortUrl } from "./format";
 import { parseInline } from "./markdown";
 
 const LONG =
-  "https://msn.com/el-gr/news/other/%CF%83%CE%BA%CE%B7%CE%BD%CE%AD%CF%82-%CF%87%CE%AC%CE%BF%CF%85%CF%82-%CF%83%CF%84%CE%B7%CE%BD-%CE%B1%CE%BB%CE%B2%CE%B1%CE%BD%CE%AF%CE%B1/ar-AA2ej0J2?ocid=msedgdhp&pc=U531&cvid=6ad0647a45b747358f747590950bea6a";
+  "https://example.com/el-gr/recipes/%CF%83%CF%85%CE%BD%CF%84%CE%B1%CE%B3%CE%AE-%CE%B3%CE%B9%CE%B1-%CF%83%CF%80%CE%B1%CE%BD%CE%B1%CE%BA%CF%8C%CF%80%CE%B9%CF%84%CE%B1-%CE%BC%CE%B5-%CF%86%CF%81%CE%AD%CF%83%CE%BA%CE%BF-%CF%83%CF%80%CE%B1%CE%BD%CE%AC%CE%BA%CE%B9-%CE%BA%CE%B1%CE%B9-%CF%86%CE%AD%CF%84%CE%B1-%CF%83%CF%84%CE%BF%CE%BD-%CF%86%CE%BF%CF%8D%CF%81%CE%BD%CE%BF/r-AA2ej0J2?ocid=newsletter&pc=U531&cvid=6ad0647a45b747358f747590950bea6a";
 
 describe("shortUrl", () => {
   it("decodes, drops scheme and query, and cuts long addresses", () => {
     const short = shortUrl(LONG);
-    expect(short.startsWith("msn.com/el-gr/news/other/σκηνές-χάους")).toBe(true);
+    expect(short.startsWith("example.com/el-gr/recipes/συνταγή-για-σπανακόπιτα")).toBe(true);
     expect(short).not.toContain("%");
     expect(short).not.toContain("?");
     expect([...short].length).toBeLessThanOrEqual(60);
@@ -27,7 +27,7 @@ describe("shortUrl", () => {
 
 describe("isUrlText", () => {
   it("tells addresses from mentions, hashtags and cashtags", () => {
-    expect(isUrlText("msn.com/el-gr/news")).toBe(true);
+    expect(isUrlText("example.com/el-gr/recipes")).toBe(true);
     expect(isUrlText("https://github.com/owner/repo")).toBe(true);
     expect(isUrlText("@someone")).toBe(false);
     expect(isUrlText("#news")).toBe(false);
@@ -41,7 +41,7 @@ describe("links in answers", () => {
     const [link] = parseInline(LONG);
     expect(link?.type).toBe("link");
     if (link?.type !== "link") return;
-    expect(link.href).toContain("ocid=msedgdhp");
+    expect(link.href).toContain("ocid=newsletter");
     expect(link.children).toEqual([{ type: "text", text: shortUrl(LONG) }]);
   });
 

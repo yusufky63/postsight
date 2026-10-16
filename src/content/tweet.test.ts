@@ -7,16 +7,16 @@ import { extractTweet, postText, readText } from "./tweet";
 // the visible part ends in an ellipsis.
 const POST = `
   <article data-testid="tweet">
-    <div data-testid="User-Name"><a href="/news"><span>News Desk</span></a><a href="/news"><span>@news</span></a></div>
-    <a href="/news/status/42"><time datetime="2026-10-16T08:00:00.000Z">Oct 16</time></a>
-    <div data-testid="tweetText" lang="el">Σκηνές χάους <a href="https://t.co/abc"><span>https://</span><span>msn.com/el-gr/news/other/</span><span>%CF%83%CE%BA%CE%B7%CE%BD%CE%AD%CF%82-%CF%87%CE%AC%CE%BF%CF%85%CF%82-%CF%83%CF%84%CE%B7%CE%BD-%CE%B1%CE%BB%CE%B2%CE%B1%CE%BD%CE%AF%CE%B1-%CF%80%CE%B5%CF%84%CF%81%CE%BF%CF%80%CF%8C%CE%BB%CE%B5%CE%BC%CE%BF%CF%82/ar-AA2ej0J2?ocid=msedgdhp&amp;pc=U531</span><span>…</span></a> via <a href="/someone">@someone</a></div>
+    <div data-testid="User-Name"><a href="/kitchen"><span>Kitchen Notes</span></a><a href="/kitchen"><span>@kitchen</span></a></div>
+    <a href="/kitchen/status/42"><time datetime="2026-10-16T08:00:00.000Z">Oct 16</time></a>
+    <div data-testid="tweetText" lang="el">Σπανακόπιτα για όλη την οικογένεια <a href="https://t.co/abc"><span>https://</span><span>example.com/el-gr/recipes/</span><span>%CF%83%CF%85%CE%BD%CF%84%CE%B1%CE%B3%CE%AE-%CE%B3%CE%B9%CE%B1-%CF%83%CF%80%CE%B1%CE%BD%CE%B1%CE%BA%CF%8C%CF%80%CE%B9%CF%84%CE%B1-%CE%BC%CE%B5-%CF%86%CF%81%CE%AD%CF%83%CE%BA%CE%BF-%CF%83%CF%80%CE%B1%CE%BD%CE%AC%CE%BA%CE%B9-%CE%BA%CE%B1%CE%B9-%CF%86%CE%AD%CF%84%CE%B1-%CF%83%CF%84%CE%BF%CE%BD-%CF%86%CE%BF%CF%8D%CF%81%CE%BD%CE%BF/r-AA2ej0J2?ocid=newsletter&amp;pc=U531</span><span>…</span></a> via <a href="/someone">@someone</a></div>
   </article>`;
 
 describe("reading links from a post", () => {
   it("sends a short, decoded link to the model and leaves mentions alone", () => {
     document.body.innerHTML = POST;
     const tweet = extractTweet(document.querySelector("article")!)!;
-    expect(tweet.text).toContain("msn.com/el-gr/news/other/σκηνές-χάους");
+    expect(tweet.text).toContain("example.com/el-gr/recipes/συνταγή-για-σπανακόπιτα");
     expect(tweet.text).not.toContain("%CF");
     expect(tweet.text).not.toContain("ocid=");
     expect(tweet.text).toContain("@someone");
@@ -26,8 +26,8 @@ describe("reading links from a post", () => {
   it("keeps the whole address when copying", () => {
     document.body.innerHTML = POST;
     const article = document.querySelector("article")!;
-    expect(postText(article)).toContain("ocid=msedgdhp");
-    expect(readText(article.querySelector('[data-testid="tweetText"]')!, true)).toContain("https://msn.com");
+    expect(postText(article)).toContain("ocid=newsletter");
+    expect(readText(article.querySelector('[data-testid="tweetText"]')!, true)).toContain("https://example.com");
   });
 });
 
@@ -37,7 +37,7 @@ describe("other kinds of posts", () => {
       <article data-testid="tweet">
         <div data-testid="User-Name"><a href="/writer"><span>Writer</span></a><span>@writer</span></div>
         <a href="/writer/status/7"><time datetime="2026-10-16T08:00:00.000Z">Oct 16</time></a>
-        <div data-testid="tweetText"><a href="https://t.co/xyz"><span>https://</span><span>x.com/i/article/2110261256766566403</span></a></div>
+        <div data-testid="tweetText"><a href="https://t.co/xyz"><span>https://</span><span>x.com/i/article/1900000000000000001</span></a></div>
       </article>`;
     const tweet = extractTweet(document.querySelector("article")!)!;
     expect(tweet.isArticle).toBe(true);

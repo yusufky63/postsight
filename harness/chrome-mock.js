@@ -52,25 +52,29 @@
   const sample = {
     // A model that echoes the full link, to check the card still shows it short.
     translate: [
-      "Arnavutluk'ta şiddetli sahneler: protestocular polisle taş atışıyor ",
-      "https://msn.com/el-gr/news/other/%CF%83%CE%BA%CE%B7%CE%BD%CE%AD%CF%82-%CF%87%CE%AC%CE%BF%CF%85%CF%82-%CF%83%CF%84%CE%B7%CE%BD-%CE%B1%CE%BB%CE%B2%CE%B1%CE%BD%CE%AF%CE%B1-%CF%80%CE%B5%CF%84%CF%81%CE%BF%CF%80%CF%8C%CE%BB%CE%B5%CE%BC%CE%BF%CF%82/ar-AA2ej0J2?ocid=msedgdhp&pc=U531&cvid=6ad0647a45b747358f747590950bea6a",
+      "Sulu patatesli omlet 20 dakikada: püf noktası patatesi kısık ateşte yağda pişirmek. Tarifin tamamı: ",
+      "https://example.com/es/recetas/tortilla-de-patatas-jugosa-en-veinte-minutos-con-cebolla-caramelizada?utm_source=x&utm_medium=social&utm_campaign=otono",
     ],
     verify: [
-      "VERDICT: misleading | CONFIDENCE: 78\n",
+      "VERDICT: false | CONFIDENCE: 92\n",
       "## Claims\n",
-      "- **Global sea ice hit a record low this week** - **partly true**. Antarctic extent was the lowest for the date in the satellite record, but Arctic extent was within the normal range ([NSIDC](https://nsidc.org/sea-ice-today)).\n",
-      "- **Scientists say it will never recover** - **unsupported**. The cited study models a range of outcomes and does not make that claim.\n\n",
+      "- **Visible from the Moon with the naked eye** - **false**. From about 384,000 km no single human-made structure can be made out; the wall is long but only a few metres wide ([Wikipedia](https://en.wikipedia.org/wiki/Great_Wall_of_China)).\n",
+      "- **The only structure visible from space** - **false**. From low orbit, cities, airports and highways are easier to spot than the wall, which blends into the terrain.\n\n",
       "## Context\n",
-      "- The chart crops the y-axis, which makes a 4% drop look like a collapse.\n",
-      "- The account frequently posts climate content with strong framing.\n\n",
+      "- The claim is an old myth that predates spaceflight.\n",
+      "- China's first astronaut, Yang Liwei, said in 2003 that he could not see the wall from orbit.\n\n",
       "## Bottom line\n",
-      "The record is real for Antarctica only; the post stretches it to a global, permanent loss.",
+      "A popular myth: the Great Wall cannot be seen from the Moon, and is hard to spot even from low orbit.",
+    ],
+    summarize: [
+      "**TL;DR:** The team fixed CI cache misses by keying caches on the lockfile hash instead of the branch name.\n",
+      "- Cache hit rate on CI is now 94%.\n",
+      "- The write-up explains why branch-based keys kept missing.",
     ],
   };
   const sources = [
-    { url: "https://nsidc.org/sea-ice-today/analyses", title: "Sea Ice Today: October analysis" },
-    { url: "https://www.nature.com/articles/s41558-026-0001", title: "Projected Antarctic sea ice under warming scenarios" },
-    { url: "https://apnews.com/article/antarctic-sea-ice-record", title: "Antarctic sea ice reaches record low for October" },
+    { url: "https://en.wikipedia.org/wiki/Great_Wall_of_China", title: "Great Wall of China" },
+    { url: "https://en.wikipedia.org/wiki/Yang_Liwei", title: "Yang Liwei" },
   ];
 
   const store = {
@@ -80,7 +84,7 @@
     history: [
       {
         key: "h1",
-        tweet: { id: "1846000000000000001", url: "https://x.com/example/status/1846000000000000001", authorName: "Climate Desk", handle: "climatedesk", text: "Global sea ice just hit a record low this week. Scientists say it will never recover." },
+        tweet: { id: "1846000000000000001", url: "https://x.com/triviadaily/status/1846000000000000001", authorName: "Trivia Daily", handle: "triviadaily", text: "Fun fact: the Great Wall of China is the only human-made structure you can see from the Moon with the naked eye." },
         result: { action: "verify", text: sample.verify.join(""), sources, provider: "anthropic", model: "claude-sonnet-5-5", modelLabel: "Claude Sonnet 5.5", usage: { inputTokens: 9400, cachedInputTokens: 0, outputTokens: 610, webSearches: 2 }, costUsd: 0.0449, ms: 8400, ts: now - 3 * day, cached: false, useWeb: true, auto: true },
       },
     ],

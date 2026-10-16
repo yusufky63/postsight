@@ -215,21 +215,33 @@
       // Links are marked up the way X does it: hidden scheme and tail around a visible middle.
       const posts = [
         {
-          name: "Ειδήσεις",
-          handle: "eidiseis",
+          name: "Cocina Fácil",
+          handle: "cocinafacil",
           id: "1846000000000000004",
-          lang: "el",
-          html: 'Σκηνές χάους στην Αλβανία: πετροπόλεμος διαδηλωτών με αστυνομικούς <a href="https://t.co/abc"><span style="display:none">https://</span><span>msn.com/el-gr/news/other/</span><span style="display:none">%CF%83%CE%BA%CE%B7%CE%BD%CE%AD%CF%82-%CF%87%CE%AC%CE%BF%CF%85%CF%82-%CF%83%CF%84%CE%B7%CE%BD-%CE%B1%CE%BB%CE%B2%CE%B1%CE%BD%CE%AF%CE%B1-%CF%80%CE%B5%CF%84%CF%81%CE%BF%CF%80%CF%8C%CE%BB%CE%B5%CE%BC%CE%BF%CF%82/ar-AA2ej0J2?ocid=msedgdhp&amp;pc=U531&amp;cvid=6ad0647a45b747358f747590950bea6a</span><span>…</span></a>',
+          lang: "es",
+          html: 'Tortilla de patatas jugosa en 20 minutos: el truco está en confitar la patata a fuego lento. Receta completa: <a href="https://t.co/abc"><span style="display:none">https://</span><span>example.com/es/recetas/</span><span style="display:none">tortilla-de-patatas-jugosa-en-veinte-minutos-con-cebolla-caramelizada?utm_source=x&amp;utm_medium=social&amp;utm_campaign=otono</span><span>…</span></a>',
         },
-        { name: "Climate Desk", handle: "climatedesk", id: "1846000000000000001", lang: "en", text: "Global sea ice just hit a record low this week. Scientists say it will never recover." },
-        { name: "Örnek Haber", handle: "ornekhaber", id: "1846000000000000002", lang: "tr", text: "Yarın İstanbul'da toplu taşıma ücretsiz mi olacak? Belediye henüz resmi bir açıklama yapmadı." },
+        {
+          name: "Trivia Daily",
+          handle: "triviadaily",
+          id: "1846000000000000001",
+          lang: "en",
+          text: "Fun fact: the Great Wall of China is the only human-made structure you can see from the Moon with the naked eye.",
+        },
+        {
+          name: "Hava Notları",
+          handle: "havanotlari",
+          id: "1846000000000000002",
+          lang: "tr",
+          text: "Hafta sonu İstanbul'da hava güneşli. Pazar akşamı hafif yağmur bekleniyor, şemsiyeyi unutmayın.",
+        },
         {
           name: "Dev Notes",
           handle: "devnotes",
           id: "1846000000000000003",
           lang: "en",
           text: "Shipped: our build cache now hits 94% on CI. Wrote up what changed and why the old keys kept missing.",
-          card: "devnotes.blog · How we fixed our CI cache keys",
+          card: "example.dev · How we fixed our CI cache keys",
         },
       ];
       const main = document.querySelector("main");

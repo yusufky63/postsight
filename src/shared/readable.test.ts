@@ -48,20 +48,20 @@ describe("extractReadable", () => {
 describe("parseXArticle", () => {
   // Same shape as X's logged-out post page: blocks of [key, type, text] JSON inside a JS string.
   const blocks = [
-    ["a1", "unstyled", "Hanwha and Magnet Defense show an uncrewed vessel"],
-    ["a2", "header-two", "Development"],
-    ["a3", "unstyled", 'A scale model was shown, with "modular" weapons.'],
-    ["a4", "unordered-list-item", "Reconnaissance"],
+    ["a1", "unstyled", "The city library opens a new reading room on Monday"],
+    ["a2", "header-two", "What changes"],
+    ["a3", "unstyled", 'It has "quiet" desks and long opening hours.'],
+    ["a4", "unordered-list-item", "Open until 22:00"],
   ];
-  const html = `<meta property="og:description" content="Hanwha and Magnet Defense reveal the M38" />
+  const html = `<meta property="og:description" content="A new reading room at the city library" />
     <script>$_TSR.router=($R=>$R[0]={l:$R[7]={articleDocument:$R[8]={contentKey:${JSON.stringify(JSON.stringify(blocks))},entityMap:[]}}})</script>`;
 
   it("rebuilds the article text from the embedded blocks", () => {
     const article = parseXArticle(html);
-    expect(article?.title).toBe("Hanwha and Magnet Defense reveal the M38");
+    expect(article?.title).toBe("A new reading room at the city library");
     expect(article?.site).toBe("X Article");
     expect(article?.text).toBe(
-      'Hanwha and Magnet Defense show an uncrewed vessel\n\n## Development\n\nA scale model was shown, with "modular" weapons.\n\n- Reconnaissance',
+      'The city library opens a new reading room on Monday\n\n## What changes\n\nIt has "quiet" desks and long opening hours.\n\n- Open until 22:00',
     );
   });
 
@@ -72,7 +72,7 @@ describe("parseXArticle", () => {
 
 describe("tcoTarget", () => {
   it("reads the destination from t.co's redirect page", () => {
-    const html = `<head><noscript><META http-equiv="refresh" content="0;URL=https://x.com/i/article/2110261256766566403"></noscript><title>https://x.com/i/article/2110261256766566403</title></head>`;
-    expect(tcoTarget(html)).toBe("https://x.com/i/article/2110261256766566403");
+    const html = `<head><noscript><META http-equiv="refresh" content="0;URL=https://x.com/i/article/1900000000000000001"></noscript><title>https://x.com/i/article/1900000000000000001</title></head>`;
+    expect(tcoTarget(html)).toBe("https://x.com/i/article/1900000000000000001");
   });
 });
