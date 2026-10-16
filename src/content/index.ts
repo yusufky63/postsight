@@ -15,6 +15,8 @@ let config: ContentConfig | null = null;
 let theme: "light" | "dark" = "light";
 let hovered: Element | null = null;
 const cards = new Map<string, Card>();
+/** Each badge host, with the post it belongs to and its button. */
+const triggers = new WeakMap<Element, { article: Element; button: HTMLButtonElement }>();
 const overlay = new Overlay();
 
 const t = () => translator(config?.lang ?? "en");
@@ -165,12 +167,30 @@ function addTrigger(article: Element): void {
   const button = h("button", { class: "trigger", type: "button", title: label, "aria-label": label, "aria-haspopup": "menu", "aria-expanded": "false" }, icon("lens", 15), h("span", null, "AI"));
   if (cards.get(postIdOf(article) ?? "")) button.setAttribute("data-active", "true");
   root.appendChild(button);
-  for (const type of ["click", "mousedown", "mouseup", "pointerdown", "pointerup", "touchstart", "touchend"]) {
-    host.addEventListener(type, (e) => e.stopPropagation());
-  }
-  button.addEventListener("click", () => openMenu(article, button));
+  triggers.set(host, { article, button });
 
   placeTrigger(host, article, caret, place.row, place.item);
+}
+
+
+/**
+ * X handles pointer and click events high up the page, and the header the badge sits
+ * in can belong to a link or a menu. Events on the badge are therefore taken at the
+ * window in the capture phase, before any of X's listeners run, and the menu is
+ * opened from here rather than from a listener on the button itself.
+ */
+function onBadgeEvent(e: Event): void {
+  const host = e.composedPath().find((n): n is Element => n instanceof Element && n.hasAttribute(TRIGGER));
+  if (!host) return;
+  e.stopPropagation();
+  if (e.type !== "click") return;
+  e.preventDefault();
+  const entry = triggers.get(host);
+  if (entry?.article.isConnected) openMenu(entry.article, entry.button);
+}
+
+for (const type of ["pointerdown", "pointerup", "mousedown", "mouseup", "click", "auxclick", "dblclick", "touchstart", "touchend"]) {
+  window.addEventListener(type, onBadgeEvent, true);
 }
 
 function scan(): void {

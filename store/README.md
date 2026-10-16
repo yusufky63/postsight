@@ -19,7 +19,7 @@ Upload that zip. Bump `version` in `package.json` for every new upload; the buil
 | File | Size | Use |
 |---|---|---|
 | `public/icons/icon-128.png` | 128 x 128 | Store icon |
-| `screenshots/*.png` | 1280 x 800 | Screenshots (up to 5 on Chrome, 10 on Edge) |
+| `screenshots/*.png` | 1280 x 800 | Screenshots (up to 5 on Chrome, 10 on Edge). Only the settings pages are here; take the ones of posts on x.com itself with the extension installed, so the store shows X as it really looks. |
 | `promo/small-tile.png` | 440 x 280 | Chrome small promo tile |
 
 ## Single purpose

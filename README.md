@@ -2,8 +2,6 @@
 
 An AI button on every post on X: fact-check, research, summarize, translate and explain it with your own Claude, OpenAI or DeepSeek API key, and see exactly what each answer cost.
 
-![A fact-check card under a post on X](store/screenshots/1-verify.png)
-
 ## What it does
 
 - **Verify**: a verdict (accurate, mostly accurate, mixed, misleading, false, unverifiable, opinion, satire), a confidence score, claim-by-claim notes and the sources behind them, from live web search on Claude and OpenAI.
