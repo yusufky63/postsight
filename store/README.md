@@ -14,6 +14,8 @@ Upload that zip. Bump `version` in `package.json` for every new upload; the buil
 
 `listing/<code>.md` holds the name, short description and description for each language. The name and short description inside the package come from `public/_locales/<code>/messages.json`, so the store picks them up per language automatically.
 
+Describe what Postsight does, not which services it reads. The Chrome Web Store rejected the first 1.1.0 description as keyword spam (violation "Yellow Argon") because its wallet paragraph named every data source, so keep provider and service names out of the description (the AI providers a user brings a key for are the exception) and do not list the interface languages by name. The sources are named in `PRIVACY.md` and the permission justifications instead.
+
 ## Images
 
 | File | Size | Use |

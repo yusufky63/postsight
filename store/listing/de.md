@@ -24,8 +24,8 @@ Kosten im Blick. Jedes Ergebnis zeigt Tokens, Websuchen, Kosten und Dauer. Leg M
 
 Liest, worauf Posts verweisen. Postsight liest X Articles und, mit deiner Erlaubnis, die Nachrichten- und Blogseiten, auf die ein Post verlinkt. So wird ein Post, der nur aus einem Link besteht, nicht nach seiner Überschrift beurteilt.
 
-Wallet-Karten (optional). Fahre über eine 0x-Adresse oder einen .eth-Namen in einem Post und sieh ENS-Namen oder Basename, verknüpfte Profile, Ethos-Bewertungen, Coinbase-Verifizierung, GoPlus-Sicherheitswarnungen und bei einem Token die Marktdaten von DexScreener und Contract-Prüfungen. Die Karte zeigt auch, ob die Einträge der Wallet den Autor des Posts nennen. Öffentliche Quellen, keine Schlüssel, und gesendet wird erst, wenn du darüberfährst.
+Wallet-Karten (optional). Fahre über eine Wallet-Adresse oder einen .eth-Namen in einem Post und sieh, wer dahintersteckt: Namen, verknüpfte Profile, Reputation und Sicherheitswarnungen, bei einem Token auch Marktdaten, einen Testhandel und wer ihn erstellt hat. Die Karte sagt außerdem, ob die Wallet dem Autor des Posts gehört. Sie nutzt öffentliche Quellen, braucht keinen Schlüssel und sendet nichts, bevor du darüberfährst.
 
 Privat von Grund auf. Schlüssel bleiben in deinem Browser und gehen nur an den Anbieter, den du gewählt hast. Es gibt keinen Postsight-Server und kein Tracking.
 
-Verfügbar in diesen Sprachen: English, Türkçe, Deutsch, Español, Français, Português, Italiano, Русский, 日本語, 한국어, 简体中文 und Bahasa Indonesia.
+In 12 Sprachen verfügbar.
