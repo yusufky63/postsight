@@ -6,7 +6,7 @@ The public website for the Postsight extension: a landing page, the privacy poli
 |---|---|
 | `/`, `/tr/` | `site/src/content.ts`; action names, tier names and model defaults come from `src/shared/locales/*.ts` and `src/shared/models.ts`, screenshots from `store/screenshots/` |
 | `/privacy`, `/tr/privacy` | `PRIVACY.md`, rendered at build time with the extension's own Markdown parser. The Turkish page wraps the English policy with a short Turkish note. |
-| `/support`, `/tr/support` | GitHub links in `site/src/config.ts`; the FAQ is `help.q1`..`help.q7` and `help.a1`..`help.a7` from the locale files |
+| `/support`, `/tr/support` | GitHub links in `site/src/config.ts`; the FAQ is `help.q1`..`help.q8` and `help.a1`..`help.a8` from the locale files |
 
 Edit `PRIVACY.md`, the locales or the screenshots and the next build picks the change up. The build fails if `PRIVACY.md` loses its `# ` title.
 

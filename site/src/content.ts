@@ -49,6 +49,18 @@ export type Copy = {
     prices: (date: string) => string;
   };
   reads: { eyebrow: string; title: string; lead: string; langTitle: string; langLead: string };
+  wallets: {
+    eyebrow: string;
+    title: string;
+    lead: string;
+    authorTitle: string;
+    author: string;
+    claims: string;
+    check: string;
+    source: string;
+    /** Rows of [what the card shows, where it comes from], under a group title. */
+    groups: { title: string; rows: [string, string][] }[];
+  };
   privacy: { eyebrow: string; title: string; lead: string; facts: { label: string; text: string }[]; link: string; shotAlt: string };
   install: {
     eyebrow: string;
@@ -110,7 +122,7 @@ const en: Copy = {
   meta: {
     homeTitle: "Postsight: AI fact-check and research for posts on X",
     homeDescription:
-      "A Chrome and Edge extension that adds an AI badge to every post on X: fact-check, research, summarize and translate it with your own Claude, OpenAI or DeepSeek key.",
+      "A Chrome and Edge extension that adds an AI badge to every post on X: fact-check, research, summarize and translate it with your own Claude, OpenAI or DeepSeek key, and see who is behind the wallet addresses in it.",
     privacyDescription:
       "What Postsight stores, what it sends to the AI provider you choose, and what it never does. No server, no account, no analytics.",
     supportTitle: "Support",
@@ -118,7 +130,7 @@ const en: Copy = {
       "Report a bug, ask for a feature or report a vulnerability privately, and read answers to common questions about Postsight.",
     notFoundTitle: "Page not found",
     ogAlt: "Postsight: fact-check any post on X with your own Claude, OpenAI or DeepSeek key.",
-    ogLine: "Verify, research, summarize and translate posts with your own Claude, OpenAI or DeepSeek key.",
+    ogLine: "Research, summarize and translate with your own Claude, OpenAI or DeepSeek key, and see who is behind the wallets in a post.",
   },
   nav: {
     skip: "Skip to content",
@@ -135,7 +147,7 @@ const en: Copy = {
   hero: {
     eyebrow: "Browser extension for X · Chrome and Edge",
     title: "Fact-check any post on X.",
-    lead: "Postsight adds a violet AI badge to every post. Click it to verify, research, summarize, translate or explain the post with your own Claude, OpenAI or DeepSeek key, and see what each answer cost.",
+    lead: "Postsight adds a violet AI badge to every post. Click it to verify, research, summarize, translate or explain the post with your own Claude, OpenAI or DeepSeek key, and see what each answer cost. Hover a wallet address in a post to see who is behind it.",
     download: "Download the latest release",
     source: "Build from source",
     facts: ["MIT license", "No account", "No tracking", "12 languages"],
@@ -178,18 +190,57 @@ const en: Copy = {
   reads: {
     eyebrow: "03 — Context and languages",
     title: "Reads what the post points to",
-    lead: "A link-only post is not judged by its headline. Postsight reads X Articles from X's public post page and, with your permission, the news and blog pages a post links to. Pages are fetched without your cookies. With wallet cards on, hovering a 0x address or a .eth name shows who is behind it: names checked both ways, linked profiles, reputation, security flags and, for a token, its market and contract checks, all from public sources.",
+    lead: "A link-only post is not judged by its headline. Postsight reads X Articles from X's public post page and, with your permission, the news and blog pages a post links to. Pages are fetched without your cookies.",
     langTitle: "12 languages",
     langLead: "For the interface and the answers. Translate goes into your language, or into your second language when the post is already in yours.",
   },
+  wallets: {
+    eyebrow: "04 — Wallet cards",
+    title: "Who is behind an address in a post",
+    lead: "Turn on wallet cards and every 0x address and .eth name in a post gets a dashed underline. Hover one for its names, profiles, reputation and security flags; for a token, its market, a test trade and who created it. Public sources only, no key needed, and nothing is sent until you hover.",
+    authorTitle: "Checked against the post's author",
+    author: "The card says when the wallet's names, the token's listed X account or the creator wallet's name point to the post's author, and when they point to someone else. An address whose letter case breaks its checksum gets a warning before anything else.",
+    claims: "Names, profile links and a token's listed accounts are what their owners published: a match is a hint, not proof.",
+    check: "What the card shows",
+    source: "Source",
+    groups: [
+      {
+        title: "Every address",
+        rows: [
+          ["Names, checked in both directions, and their records", "ENS on Ethereum, Basenames on Base"],
+          ["Balance and transactions", "Public Ethereum and Base nodes"],
+          ["Linked profiles", "Name records, web3.bio"],
+          ["Reviews and verification", "Ethos, Coinbase verification on Base"],
+          ["Security flags", "GoPlus"],
+        ],
+      },
+      {
+        title: "Tokens",
+        rows: [
+          ["Price, liquidity, market cap, volume, paid listings", "DexScreener"],
+          ["Score, top holders, the team's links", "GeckoTerminal"],
+          ["A test buy and sell with the real fees", "Honeypot.is"],
+          ["Contract checks", "GoPlus"],
+          ["Who created it", "Clanker, Blockscout, GoPlus, GeckoTerminal"],
+        ],
+      },
+      {
+        title: "With your own explorer key (optional)",
+        rows: [
+          ["Creator on any chain, verified contract name", "Etherscan or Blockscout PRO"],
+          ["When a wallet first transacted", "Etherscan"],
+        ],
+      },
+    ],
+  },
   privacy: {
-    eyebrow: "04 — Privacy",
+    eyebrow: "05 — Privacy",
     title: "Your keys stay in your browser",
     lead: "There is no Postsight server, no account, no analytics and no advertising. A post leaves your browser only when you run an action on it, and only to the provider you chose.",
     facts: [
       { label: "Keys", text: "Kept in the extension's local storage on this device and never synced. The script on x.com cannot read them." },
       { label: "Requests", text: "Sent straight to api.anthropic.com, api.openai.com or api.deepseek.com with your own key." },
-      { label: "Pages", text: "X Articles, short links and linked pages are fetched without your cookies." },
+      { label: "Pages and wallets", text: "X Articles, short links and linked pages are fetched without your cookies. Wallet cards send only the address you hover." },
       { label: "Actions", text: "Postsight never posts, likes, replies or follows. Reply ideas are drafts you copy." },
     ],
     link: "Read the privacy policy",
@@ -197,7 +248,7 @@ const en: Copy = {
       "The Providers settings page: an API key field with Save key and Test buttons, a monthly budget in USD and the model used for each tier.",
   },
   install: {
-    eyebrow: "05 — Install",
+    eyebrow: "06 — Install",
     title: "Install from GitHub",
     lead: "Postsight is free and open source under the MIT license. Install the packaged release, or build it yourself.",
     releaseTitle: "From the latest release",
@@ -271,14 +322,14 @@ const tr: Copy = {
   meta: {
     homeTitle: "Postsight: X gönderileri için yapay zekâ ile doğrulama ve araştırma",
     homeDescription:
-      "X'teki her gönderiye AI rozeti ekleyen Chrome ve Edge eklentisi: kendi Claude, OpenAI ya da DeepSeek anahtarınla doğrula, araştır, özetle ve çevir.",
+      "X'teki her gönderiye AI rozeti ekleyen Chrome ve Edge eklentisi: kendi Claude, OpenAI ya da DeepSeek anahtarınla doğrula, araştır, özetle ve çevir; gönderideki cüzdan adreslerinin arkasında kim olduğunu gör.",
     privacyDescription:
       "Postsight neyi saklar, seçtiğin yapay zekâ sağlayıcısına neyi gönderir ve neyi asla yapmaz. Sunucu, hesap ve analitik yok.",
     supportTitle: "Destek",
     supportDescription: "Hata bildir, özellik iste ya da güvenlik açığını gizli olarak bildir; Postsight hakkında sık sorulan soruların yanıtlarını oku.",
     notFoundTitle: "Sayfa bulunamadı",
     ogAlt: "Postsight: X gönderilerini kendi Claude, OpenAI ya da DeepSeek anahtarınla doğrula.",
-    ogLine: "Gönderileri kendi Claude, OpenAI ya da DeepSeek anahtarınla doğrula, araştır, özetle ve çevir.",
+    ogLine: "Kendi Claude, OpenAI ya da DeepSeek anahtarınla araştır, özetle, çevir; gönderideki cüzdanların arkasında kim olduğunu gör.",
   },
   nav: {
     skip: "İçeriğe geç",
@@ -295,7 +346,7 @@ const tr: Copy = {
   hero: {
     eyebrow: "X için tarayıcı eklentisi · Chrome ve Edge",
     title: "X gönderilerini doğrula.",
-    lead: "Postsight, X'teki her gönderiye mor bir AI rozeti ekler. Tıkla; gönderiyi kendi Claude, OpenAI ya da DeepSeek anahtarınla doğrula, araştır, özetle, çevir ya da açıkla ve her yanıtın maliyetini gör.",
+    lead: "Postsight, X'teki her gönderiye mor bir AI rozeti ekler. Tıkla; gönderiyi kendi Claude, OpenAI ya da DeepSeek anahtarınla doğrula, araştır, özetle, çevir ya da açıkla ve her yanıtın maliyetini gör. Gönderideki bir cüzdan adresinin üzerine gel, arkasında kim olduğunu gör.",
     download: "Son sürümü indir",
     source: "Kaynaktan derle",
     facts: ["MIT lisansı", "Hesap yok", "Takip yok", "12 dil"],
@@ -337,18 +388,57 @@ const tr: Copy = {
   reads: {
     eyebrow: "03 — Bağlam ve diller",
     title: "Gönderinin gösterdiğini okur",
-    lead: "Sadece bağlantıdan oluşan bir gönderi başlığına göre değerlendirilmez. Postsight X Makalelerini X'in herkese açık gönderi sayfasından, izin verirsen gönderinin bağlantı verdiği haber ve blog sayfalarını da okur. Sayfalar çerezlerin olmadan çekilir. Cüzdan kartları açıksa bir 0x adresinin ya da .eth isminin üzerine gelmek arkasında kim olduğunu gösterir: iki yönde kontrol edilen isimler, bağlı profiller, itibar, güvenlik uyarıları ve token ise piyasa ile kontrat kontrolleri; hepsi herkese açık kaynaklardan.",
+    lead: "Sadece bağlantıdan oluşan bir gönderi başlığına göre değerlendirilmez. Postsight X Makalelerini X'in herkese açık gönderi sayfasından, izin verirsen gönderinin bağlantı verdiği haber ve blog sayfalarını da okur. Sayfalar çerezlerin olmadan çekilir.",
     langTitle: "12 dil",
     langLead: "Arayüz ve yanıtlar için. Çeviri senin diline yapılır; gönderi zaten senin dilindeyse ikinci diline.",
   },
+  wallets: {
+    eyebrow: "04 — Cüzdan kartları",
+    title: "Gönderideki adresin arkasında kim var",
+    lead: "Cüzdan kartlarını açınca gönderideki her 0x adresi ve .eth ismi kesik çizgiyle işaretlenir. Üzerine gel; isimlerini, profillerini, itibarını ve güvenlik uyarılarını, token ise market verisini, test alım-satımını ve deployer'ını gör. Yalnızca herkese açık kaynaklar, anahtar gerekmez; üzerine gelene kadar hiçbir şey gönderilmez.",
+    authorTitle: "Gönderinin yazarıyla karşılaştırılır",
+    author: "Kart; cüzdanın isimleri, tokenın listelediği X hesabı ya da deployer cüzdanının ismi gönderinin yazarını gösteriyorsa bunu, başka birini gösteriyorsa onu söyler. Büyük-küçük harfleri checksum'la uyuşmayan bir adres için her şeyden önce uyarı çıkar.",
+    claims: "İsimler, profil bağlantıları ve tokenın listelediği hesaplar sahiplerinin yayımladığı iddialardır: eşleşme bir ipucudur, kanıt değildir.",
+    check: "Kartın gösterdiği",
+    source: "Kaynak",
+    groups: [
+      {
+        title: "Her adres",
+        rows: [
+          ["İki yönde kontrol edilen isimler ve kayıtları", "Ethereum'da ENS, Base'de Basenames"],
+          ["Bakiye ve işlemler", "Herkese açık Ethereum ve Base node'ları"],
+          ["Bağlı profiller", "İsim kayıtları, web3.bio"],
+          ["Değerlendirmeler ve doğrulama", "Ethos, Base'de Coinbase doğrulaması"],
+          ["Güvenlik uyarıları", "GoPlus"],
+        ],
+      },
+      {
+        title: "Tokenlar",
+        rows: [
+          ["Fiyat, likidite, market cap, volume, ücretli listelemeler", "DexScreener"],
+          ["Skor, top holder'lar, ekibin bağlantıları", "GeckoTerminal"],
+          ["Gerçek fee'lerle test alım-satımı", "Honeypot.is"],
+          ["Kontrat kontrolleri", "GoPlus"],
+          ["Deployer", "Clanker, Blockscout, GoPlus, GeckoTerminal"],
+        ],
+      },
+      {
+        title: "Kendi explorer anahtarınla (isteğe bağlı)",
+        rows: [
+          ["Her zincirde deployer, verified kontrat adı", "Etherscan ya da Blockscout PRO"],
+          ["Cüzdanın ilk işlem tarihi", "Etherscan"],
+        ],
+      },
+    ],
+  },
   privacy: {
-    eyebrow: "04 — Gizlilik",
+    eyebrow: "05 — Gizlilik",
     title: "Anahtarların tarayıcında kalır",
     lead: "Postsight sunucusu, hesap, analitik ve reklam yoktur. Bir gönderi yalnızca onun üzerinde bir işlem çalıştırdığında ve yalnızca seçtiğin sağlayıcıya gider.",
     facts: [
       { label: "Anahtarlar", text: "Bu cihazda eklentinin yerel deposunda tutulur, senkronlanmaz. x.com'daki betik onları okuyamaz." },
       { label: "İstekler", text: "Kendi anahtarınla doğrudan api.anthropic.com, api.openai.com ya da api.deepseek.com adresine gider." },
-      { label: "Sayfalar", text: "X Makaleleri, kısa bağlantılar ve bağlantılı sayfalar çerezlerin olmadan çekilir." },
+      { label: "Sayfalar ve cüzdanlar", text: "X Makaleleri, kısa bağlantılar ve bağlantılı sayfalar çerezlerin olmadan çekilir. Cüzdan kartları yalnızca üzerine geldiğin adresi gönderir." },
       { label: "İşlemler", text: "Postsight paylaşmaz, beğenmez, yanıtlamaz, takip etmez. Yanıt önerileri kopyaladığın taslaklardır." },
     ],
     link: "Gizlilik politikasını oku",
@@ -356,7 +446,7 @@ const tr: Copy = {
       "Sağlayıcılar ayar sayfası: Save key ve Test butonlu API anahtarı alanı, USD cinsinden aylık bütçe ve her seviye için kullanılan model.",
   },
   install: {
-    eyebrow: "05 — Kurulum",
+    eyebrow: "06 — Kurulum",
     title: "GitHub'dan kur",
     lead: "Postsight ücretsizdir ve MIT lisanslı açık kaynaktır. Paketlenmiş sürümü kur ya da kendin derle.",
     releaseTitle: "Son sürümden",
@@ -427,7 +517,7 @@ const tr: Copy = {
 
 export const COPY: Record<Lang, Copy> = { en, tr };
 
-/** The help questions and answers from the extension's Help section. */
+/** The help questions and answers from the extension's Help section (the eighth is about wallet cards). */
 export function faq(lang: Lang): { q: string; a: string }[] {
   const ui = COPY[lang].ui;
   const n = [1, 2, 3, 4, 5, 6, 7, 8] as const;

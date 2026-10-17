@@ -22,7 +22,13 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       - run: pnpm package
+      # The notes are this version's section of CHANGELOG.md, not the whole file.
+      - name: Write the release notes
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v v="$version" 'index($0, "## " v " ") == 1 { found = 1; next } /^## / { if (found) exit } found' CHANGELOG.md > release-notes.md
+          test -s release-notes.md
       - name: Attach the store package to the release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" release/*.zip --title "Postsight $GITHUB_REF_NAME" --notes-file CHANGELOG.md
+        run: gh release create "$GITHUB_REF_NAME" release/*.zip --title "Postsight $GITHUB_REF_NAME" --notes-file release-notes.md

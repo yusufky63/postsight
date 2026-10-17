@@ -127,6 +127,31 @@ export function homePage(lang: Lang, data: SiteData): Markup {
   </div>
 </section>`;
 
+  // Sources are named as the card names them; the table says where each line on a card comes from.
+  const wallets = html`<section class="section frame" id="wallets" aria-labelledby="wallets-title">
+  <div class="split split-top">
+    <div>
+      ${sectionHead("wallets-title", c.wallets.eyebrow, c.wallets.title, c.wallets.lead)}
+      <div class="note-block">
+        <h3 class="display-medium h3">${c.wallets.authorTitle}</h3>
+        <p class="secondary">${c.wallets.author}</p>
+        <p class="small muted">${c.wallets.claims}</p>
+      </div>
+    </div>
+    <div class="card">
+      <table class="tiers checks">
+        <thead><tr><th scope="col">${c.wallets.check}</th><th scope="col">${c.wallets.source}</th></tr></thead>
+        ${c.wallets.groups.map(
+          (g) => html`<tbody>
+          <tr class="group"><th scope="rowgroup" colspan="2">${g.title}</th></tr>
+          ${g.rows.map(([what, from]) => html`<tr><th scope="row">${what}</th><td>${from}</td></tr>`)}
+        </tbody>`,
+        )}
+      </table>
+    </div>
+  </div>
+</section>`;
+
   const privacy = html`<section class="section frame" aria-labelledby="privacy-title">
   <div class="split split-wide-media">
     <div>
@@ -177,6 +202,7 @@ pnpm build</code></pre>
 ${actions}
 ${routing}
 ${reads}
+${wallets}
 ${privacy}
 ${install}`;
 }
