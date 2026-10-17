@@ -74,7 +74,7 @@ export function shortAddress(address: string): string {
  * The first seven run for every address. The token sections start once DexScreener
  * finds the address trading, and "creator" once the address turns out to be a contract.
  */
-export type WalletSection = "names" | "chains" | "profiles" | "ethos" | "coinbase" | "flags" | "token" | "security" | "market" | "simulation" | "orders" | "launchpad" | "creator";
+export type WalletSection = "names" | "chains" | "profiles" | "ethos" | "coinbase" | "flags" | "token" | "security" | "market" | "simulation" | "orders" | "launchpad" | "creator" | "explorer";
 export const WALLET_SECTIONS: readonly WalletSection[] = ["names", "chains", "profiles", "ethos", "coinbase", "flags", "token"];
 
 /** Who answers each section, for the "did not answer" line. */
@@ -92,6 +92,7 @@ export const SECTION_SOURCE: Record<WalletSection, string> = {
   orders: "DexScreener",
   launchpad: "Clanker",
   creator: "Blockscout",
+  explorer: "Etherscan",
 };
 
 export type ChainId = "ethereum" | "base";
@@ -194,6 +195,17 @@ export interface CreatorFact {
   /** Percent of the supply the creator holds. */
   percent?: number;
   source: string;
+  /** The factory contract the creator deployed through, when Etherscan knows it. */
+  via?: Hex;
+}
+
+/** What Etherscan knows about a contract's code (with the reader's own key). */
+export interface ContractFact {
+  verified: boolean;
+  /** The contract name in the verified source. */
+  name?: string;
+  proxy: boolean;
+  implementation?: Hex;
 }
 
 export interface NameFact {
@@ -225,6 +237,10 @@ export interface WalletCard {
   token?: TokenFact | null;
   /** Who deployed the contract; null once looked for and not found. */
   creator?: CreatorFact | null;
+  /** The contract's verified source, from Etherscan with the reader's key. */
+  contract?: ContractFact | null;
+  /** Unix ms the address first took part in a transaction, per chain (Etherscan, reader's key). */
+  firstSeen?: { chain: ChainId; ts: number }[];
   pending: WalletSection[];
   failed: WalletSection[];
 }
@@ -348,6 +364,8 @@ export function walletFacts(card: WalletCard, author: string | null): string {
   if (card.checksumMismatch) lines.push("warning: the address's letter case does not match its checksum");
   for (const n of card.names) lines.push(`primary ${n.source === "basename" ? "Basename" : "ENS name"}: ${n.name} (checked both ways)`);
   for (const [key, value] of Object.entries(card.texts)) lines.push(`text record ${key}: ${value}`);
+  for (const seen of card.firstSeen ?? []) lines.push(`first transaction on ${seen.chain}: ${new Date(seen.ts).toISOString().slice(0, 10)}`);
+  if (card.contract) lines.push(card.contract.verified ? `verified contract source: ${card.contract.name ?? "unnamed"}${card.contract.proxy ? " (a proxy)" : ""}` : "contract source not verified on Etherscan");
   for (const c of card.chains) {
     const eth = weiToEth(c.balanceWei);
     const code = { none: "no code", delegated: "EIP-7702 delegated wallet", smart: "smart-account proxy (Coinbase Smart Wallet or Safe)", contract: "contract" }[c.code];
@@ -376,7 +394,7 @@ export function walletFacts(card: WalletCard, author: string | null): string {
   } else if (card.token === null) lines.push("no DEX trading pairs on DexScreener");
   if (card.creator) {
     const c = card.creator;
-    lines.push(`contract created by ${c.address}${c.factory ? " (a factory or launchpad contract)" : ""} (source: ${c.source})${c.names.length ? `, primary name ${c.names.map((n) => n.name).join(", ")}` : ""}${c.x ? `, whose name lists @${c.x} on X` : ""}${c.percent !== undefined ? `, holding ${c.percent.toFixed(2)}% of the supply` : ""}`);
+    lines.push(`contract created by ${c.address}${c.factory ? " (a factory or launchpad contract)" : ""}${c.via ? ` through factory ${c.via}` : ""} (source: ${c.source})${c.names.length ? `, primary name ${c.names.map((n) => n.name).join(", ")}` : ""}${c.x ? `, whose name lists @${c.x} on X` : ""}${c.percent !== undefined ? `, holding ${c.percent.toFixed(2)}% of the supply` : ""}`);
   }
   const tokenLink = tokenAuthorLink(card, author);
   if (tokenLink) {

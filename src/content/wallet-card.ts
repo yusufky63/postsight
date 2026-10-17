@@ -1,4 +1,4 @@
-import { formatAge, formatCompactUsd, formatEth, formatInt, formatPercent, formatPrice, formatTokens, regionName, shortUrl } from "../shared/format";
+import { formatAge, formatCompactUsd, formatEth, formatInt, formatMonthYear, formatPercent, formatPrice, formatTokens, regionName, shortUrl } from "../shared/format";
 import type { MessageKey } from "../shared/i18n";
 import { translator } from "../shared/i18n";
 import type { UiLang } from "../shared/types";
@@ -342,12 +342,14 @@ export class WalletPopover {
         const active = card.chains.filter((c) => c.balanceWei !== "0" || (counts(c) && c.txCount > 0));
         const lines = active.map((c) => {
           const eth = weiToEth(c.balanceWei);
+          const since = card.firstSeen?.find((s) => s.chain === c.chain);
           return h(
             "div",
             { class: "wc-chain" },
             h("span", { class: "wc-chain-name" }, chainLabel(c.chain)),
             h("span", { class: "mono" }, formatEth(eth.value, eth.tiny, lang)),
             counts(c) && c.txCount > 0 ? muted(t("wallet.sent", { count: formatInt(c.txCount, lang) })) : null,
+            since ? muted(t("wallet.since", { date: formatMonthYear(since.ts, lang) })) : null,
           );
         });
         // An idle contract has nothing to say here; an idle wallet is worth saying so.
@@ -400,6 +402,16 @@ export class WalletPopover {
         );
       }
 
+      if (card.contract) {
+        const c = card.contract;
+        body.push(
+          row(
+            t("wallet.contract"),
+            h("div", { class: "wc-badges" }, c.verified ? badge("positive", c.name ? t("wallet.contractVerified", { name: c.name }) : t("sig.open_source")) : badge("warning", t("sig.closed_source")), c.proxy ? badge("neutral", t("sig.proxy")) : null),
+          ),
+        );
+      }
+
       if (card.token) body.push(this.tokenBlock(card, lang, ["token", "security", "market", "simulation", "orders"].some((s) => pending(s as WalletCard["pending"][number]))));
       else if (pending("token") && kind === "contract") body.push(row(t("wallet.token"), skeleton()));
 
@@ -410,6 +422,7 @@ export class WalletPopover {
         const name = c.names[0]?.name;
         const details = [
           c.factory ? t("wallet.creatorFactory") : "",
+          c.via ? t("wallet.creatorThrough") : "",
           c.x ? `@${c.x}` : "",
           c.percent !== undefined ? t("wallet.creatorHolds", { percent: formatPercent(c.percent, lang) }) : "",
           t("wallet.creatorVia", { source: c.source }),
@@ -513,7 +526,9 @@ export class WalletPopover {
       .join(" · ");
 
     // Every warning is shown; the reassuring checks fill up the rest of eight places.
-    const signals = tokenSignals(tk, lang);
+    // The contract row already says whether the source is verified and whether it is a proxy.
+    const shownElsewhere = card.contract ? new Set(["open_source", "closed_source", "proxy"]) : new Set<string>();
+    const signals = tokenSignals(tk, lang).filter((s) => !shownElsewhere.has(s.key));
     const serious = signals.filter((s) => s.level === "danger" || s.level === "warning");
     const shown = [...serious, ...signals.filter((s) => s.level !== "danger" && s.level !== "warning").slice(0, Math.max(0, 8 - serious.length))];
     return h(

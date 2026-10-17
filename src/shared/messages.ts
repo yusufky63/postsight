@@ -76,6 +76,7 @@ export type Request =
   | { type: "estimate"; action: ActionId; features: PostFeatures; route: RouteChoice }
   | { type: "test-key"; provider: ProviderId }
   | { type: "balance" }
+  | { type: "test-etherscan" }
   | { type: "open-options"; section?: string };
 
 export function sendRequest<T>(request: Request): Promise<T> {

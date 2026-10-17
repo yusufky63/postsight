@@ -120,6 +120,10 @@ export const it: Record<MessageKey, string> = {
   "wallet.top10": "Primi 10 detentori",
   "wallet.gtScore": "Punteggio GeckoTerminal {score}/100",
   "wallet.launchpad": "Lanciato su {name}",
+  "wallet.contract": "Contratto",
+  "wallet.contractVerified": "Codice verificato: {name}",
+  "wallet.creatorThrough": "tramite un contratto factory",
+  "wallet.since": "dal {date}",
 
   "flag.cybercrime": "Crimine informatico",
   "flag.money_laundering": "Riciclaggio di denaro",
@@ -339,6 +343,9 @@ export const it: Record<MessageKey, string> = {
   "features.walletsHint": "Chrome chiede una volta l'accesso alle fonti pubbliche consultate: {hosts}. Non viene inviato nulla finché non passi il mouse su un indirizzo, e poi solo quell'indirizzo o nome, senza i tuoi cookie.",
   "features.walletsMore": "Le schede wallet ora possono leggere anche fonti sui token (GeckoTerminal, Honeypot.is, Blockscout, Clanker).",
   "features.walletsAllow": "Consenti",
+  "features.etherscanKey": "Chiave API di Etherscan (facoltativa)",
+  "features.etherscanHint": "Aggiunge chi ha creato un contratto su qualsiasi chain, il suo nome verificato e quando un wallet ha fatto la prima transazione. Basta una chiave gratuita di etherscan.io. Resta su questo dispositivo e viene inviata solo ad api.etherscan.io.",
+  "features.etherscanOk": "La chiave Etherscan funziona",
   "features.uiLang": "Lingua dell'interfaccia",
   "features.outputLang": "Lingua delle risposte",
 
@@ -364,5 +371,5 @@ export const it: Record<MessageKey, string> = {
   "help.q7": "Cosa viene inviato al modello?",
   "help.a7": "Il testo del post, il nome utente dell'autore, l'orario, il post citato, il testo dell'anteprima del link, il sondaggio, la nota della community, i link alle immagini (solo ai modelli che possono vederle) e, nella pagina di un post, il resto del thread dell'autore. Per un articolo di X, Postsight legge l'articolo dalla pagina pubblica del post su X; per i link legge la pagina collegata, se lo hai consentito. Le pagine vengono scaricate senza i tuoi cookie. Nient'altro del tuo account o della tua timeline viene inviato.",
   "help.q8": "Cosa controllano le schede wallet e cosa inviano?",
-  "help.a8": "Con le schede wallet attive, passare il mouse su un indirizzo 0x o un nome .eth in un post lo cerca in fonti pubbliche che non richiedono chiavi: ENS su Ethereum e Basenames su Base (nomi verificati in entrambe le direzioni, con i loro record di testo), saldi e numero di transazioni da nodi pubblici Ethereum e Base, profili web3.bio, recensioni Ethos, attestazioni di verifica Coinbase su Base e segnalazioni di sicurezza GoPlus. Per un token si aggiungono le coppie di scambio e le inserzioni a pagamento di DexScreener, il punteggio e la distribuzione dei detentori di GeckoTerminal, un acquisto e una vendita di prova su Honeypot.is e chi lo ha creato (secondo Clanker, Blockscout, GoPlus o GeckoTerminal). A questi servizi va solo l'indirizzo o il nome, senza i tuoi cookie, e le risposte restano su questo dispositivo fino a un giorno. Nomi, link ai profili e gli account indicati da un token sono dichiarazioni del proprietario: una corrispondenza è un indizio, non una prova.",
+  "help.a8": "Con le schede wallet attive, passare il mouse su un indirizzo 0x o un nome .eth in un post lo cerca in fonti pubbliche che non richiedono chiavi: ENS su Ethereum e Basenames su Base (nomi verificati in entrambe le direzioni, con i loro record di testo), saldi e numero di transazioni da nodi pubblici Ethereum e Base, profili web3.bio, recensioni Ethos, attestazioni di verifica Coinbase su Base e segnalazioni di sicurezza GoPlus. Per un token si aggiungono le coppie di scambio e le inserzioni a pagamento di DexScreener, il punteggio e la distribuzione dei detentori di GeckoTerminal, un acquisto e una vendita di prova su Honeypot.is e chi lo ha creato (secondo Clanker, Blockscout, GoPlus o GeckoTerminal). A questi servizi va solo l'indirizzo o il nome, senza i tuoi cookie, e le risposte restano su questo dispositivo fino a un giorno. Nomi, link ai profili e gli account indicati da un token sono dichiarazioni del proprietario: una corrispondenza è un indizio, non una prova. Con la tua chiave API di Etherscan nelle impostazioni, le schede mostrano anche chi ha creato un contratto su qualsiasi chain, il suo nome verificato e quando un wallet ha fatto la prima transazione.",
 };

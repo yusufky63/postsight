@@ -29,6 +29,7 @@
     shortcuts: true,
     cacheResults: true,
     customModels: [],
+    walletCards: params.get("perms") === "1",
   };
 
   const entry = (ago, provider, model, action, inTok, outTok, searches, cost) => ({
@@ -245,6 +246,7 @@
     },
     storage,
     tabs: { create: async () => ({}), query: async () => [] },
-    permissions: { contains: async () => false, request: async () => true },
+    // ?perms=1 behaves as if every optional host was allowed, to show the settings that depend on them.
+    permissions: { contains: async () => params.get("perms") === "1", request: async () => true },
   };
 })();

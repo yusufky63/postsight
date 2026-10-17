@@ -120,6 +120,10 @@ export const tr: Record<MessageKey, string> = {
   "wallet.top10": "İlk 10 sahip",
   "wallet.gtScore": "GeckoTerminal puanı {score}/100",
   "wallet.launchpad": "{name} üzerinde çıkarıldı",
+  "wallet.contract": "Kontrat",
+  "wallet.contractVerified": "Doğrulanmış kaynak: {name}",
+  "wallet.creatorThrough": "bir fabrika kontratı üzerinden",
+  "wallet.since": "{date} tarihinden beri",
 
   "flag.cybercrime": "Siber suç",
   "flag.money_laundering": "Kara para aklama",
@@ -339,6 +343,9 @@ export const tr: Record<MessageKey, string> = {
   "features.walletsHint": "Chrome, okuduğu herkese açık kaynaklar için bir kez izin ister: {hosts}. Bir adresin üzerine gelene kadar hiçbir şey gönderilmez; sonra yalnızca o adres ya da isim, çerezlerin olmadan gönderilir.",
   "features.walletsMore": "Cüzdan kartları artık token kaynaklarını da okuyabilir (GeckoTerminal, Honeypot.is, Blockscout, Clanker).",
   "features.walletsAllow": "İzin ver",
+  "features.etherscanKey": "Etherscan API anahtarı (isteğe bağlı)",
+  "features.etherscanHint": "Her zincirde bir kontratı kimin oluşturduğunu, doğrulanmış adını ve bir cüzdanın ilk işlemini ekler. etherscan.io'dan alınan ücretsiz bir anahtar yeterli. Bu cihazda kalır ve yalnızca api.etherscan.io'ya gönderilir.",
+  "features.etherscanOk": "Etherscan anahtarı çalışıyor",
   "features.uiLang": "Arayüz dili",
   "features.outputLang": "Yanıt dili",
 
@@ -364,5 +371,5 @@ export const tr: Record<MessageKey, string> = {
   "help.q7": "Modele ne gönderiliyor?",
   "help.a7": "Gönderi metni, yazarın kullanıcı adı, zamanı, alıntılanan gönderi, bağlantı önizleme metni, anket, topluluk notu, görsel bağlantıları (yalnızca görselleri görebilen modellere) ve gönderi sayfasındaysan yazarın floodunun geri kalanı. X Makalelerinde Postsight makaleyi X'in herkese açık gönderi sayfasından okur; bağlantılarda izin verdiysen bağlantılı sayfayı okur. Sayfalar çerezlerin olmadan çekilir. Hesabından ya da akışından başka hiçbir şey gönderilmez.",
   "help.q8": "Cüzdan kartları neyi kontrol eder, ne gönderir?",
-  "help.a8": "Cüzdan kartları açıkken gönderideki bir 0x adresinin ya da .eth isminin üzerine gelmek, onu anahtar gerektirmeyen herkese açık kaynaklarda sorgular: Ethereum'da ENS ve Base'de Basenames (isimler iki yönde de kontrol edilir, metin kayıtlarıyla birlikte), herkese açık Ethereum ve Base düğümlerinden bakiye ve işlem sayıları, web3.bio profilleri, Ethos değerlendirmeleri, Base üzerindeki Coinbase doğrulama onayları ve GoPlus güvenlik uyarıları. Token için bunlara DexScreener işlem pariteleri ve ücretli listelemeler, GeckoTerminal puanı ve sahip dağılımı, Honeypot.is test alım-satımı ve tokenı kimin oluşturduğu (Clanker, Blockscout, GoPlus ya da GeckoTerminal'den) eklenir. Bu kaynaklara yalnızca adres ya da isim, çerezlerin olmadan gönderilir; yanıtlar bu cihazda en fazla bir gün saklanır. İsimler, profil bağlantıları ve tokenın listelediği hesaplar sahibinin yayımladığı iddialardır; eşleşme bir ipucudur, kanıt değildir.",
+  "help.a8": "Cüzdan kartları açıkken gönderideki bir 0x adresinin ya da .eth isminin üzerine gelmek, onu anahtar gerektirmeyen herkese açık kaynaklarda sorgular: Ethereum'da ENS ve Base'de Basenames (isimler iki yönde de kontrol edilir, metin kayıtlarıyla birlikte), herkese açık Ethereum ve Base düğümlerinden bakiye ve işlem sayıları, web3.bio profilleri, Ethos değerlendirmeleri, Base üzerindeki Coinbase doğrulama onayları ve GoPlus güvenlik uyarıları. Token için bunlara DexScreener işlem pariteleri ve ücretli listelemeler, GeckoTerminal puanı ve sahip dağılımı, Honeypot.is test alım-satımı ve tokenı kimin oluşturduğu (Clanker, Blockscout, GoPlus ya da GeckoTerminal'den) eklenir. Bu kaynaklara yalnızca adres ya da isim, çerezlerin olmadan gönderilir; yanıtlar bu cihazda en fazla bir gün saklanır. İsimler, profil bağlantıları ve tokenın listelediği hesaplar sahibinin yayımladığı iddialardır; eşleşme bir ipucudur, kanıt değildir. Ayarlara kendi Etherscan API anahtarını eklersen kartlar, her zincirde bir kontratı kimin oluşturduğunu, kontratın doğrulanmış adını ve bir cüzdanın ilk işlem tarihini de gösterir.",
 };

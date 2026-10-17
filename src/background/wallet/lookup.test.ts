@@ -3,11 +3,14 @@ import type { WalletCard } from "../../shared/wallet";
 import { tokenAuthorLink } from "../../shared/wallet";
 // Imported here, not inside the tests, so loading viem is not timed as part of the first test.
 import { lookupWallet } from "./lookup";
+import type * as Etherscan from "./etherscan";
 import type * as Sources from "./sources";
 
 const TOKEN = "0x1111111111111111111111111111111111111111";
 const DEV = "0x2222222222222222222222222222222222222222";
 const FACTORY = "0x3333333333333333333333333333333333333333";
+/** A Base token that did not come from Clanker. */
+const PLAIN = "0x4444444444444444444444444444444444444444";
 
 vi.mock("./chain", () => ({
   ensAddress: vi.fn(async (name: string) => (name === "vitalik.eth" ? "0xd8da6bf26964af9d7eed9e03e53415d37aa96045" : null)),
@@ -16,7 +19,7 @@ vi.mock("./chain", () => ({
   basenamePrimary: vi.fn(async () => null),
   ensTexts: vi.fn(async (name: string) => (name === "dev.eth" ? { "com.twitter": "postauthor" } : { "com.twitter": "VitalikButerin" })),
   basenameTexts: vi.fn(async () => ({})),
-  chainFact: vi.fn(async (chain: "ethereum" | "base", address: string) => ({ chain, balanceWei: "1", txCount: 3, code: address === TOKEN && chain === "base" ? "contract" : "none" })),
+  chainFact: vi.fn(async (chain: "ethereum" | "base", address: string) => ({ chain, balanceWei: "1", txCount: 3, code: (address === TOKEN || address === PLAIN) && chain === "base" ? "contract" : "none" })),
   codeAt: vi.fn(async (_chain: string, address: string) => (address.toLowerCase() === FACTORY ? "contract" : "none")),
 }));
 
@@ -27,18 +30,28 @@ vi.mock("./sources", async (importOriginal) => {
     ...real,
     web3bioProfiles: vi.fn(async () => []),
     ethosUser: vi.fn(async (address: string) => {
-      if (address === TOKEN) return null;
+      if (address === TOKEN || address === PLAIN) return null;
       throw new Error("down");
     }),
     coinbaseVerification: vi.fn(async () => null),
     addressFlags: vi.fn(async () => []),
-    dexToken: vi.fn(async (address: string) => (address === TOKEN ? { name: "Project", symbol: "PRJ", chain: "base", pairs: 1, socials: { x: ["projectx"] } } : null)),
+    dexToken: vi.fn(async (address: string) => (address === TOKEN || address === PLAIN ? { name: "Project", symbol: "PRJ", chain: "base", pairs: 1, socials: { x: ["projectx"] } } : null)),
     tokenSecurity: vi.fn(async () => ({ signals: [], holders: 10, creator: FACTORY, creatorPercent: 0.5 })),
     dexOrders: vi.fn(async () => ["tokenProfile"]),
     geckoInfo: vi.fn(async () => ({ socials: { x: ["projectx"], website: "https://project.example" }, score: 70, top10: 40, holders: 1200 })),
     honeypotSimulation: vi.fn(async () => ({ honeypot: false, buyTax: 0, sellTax: 1, transferTax: 0 })),
-    clankerLaunch: vi.fn(async () => ({ deployer: DEV, url: `https://www.clanker.world/clanker/${TOKEN}`, socials: { x: ["projectx_two"] } })),
+    clankerLaunch: vi.fn(async (address: string) => (address === PLAIN ? null : { deployer: DEV, url: `https://www.clanker.world/clanker/${TOKEN}`, socials: { x: ["projectx_two"] } })),
     blockscoutCreator: vi.fn(async () => null),
+  };
+});
+
+vi.mock("./etherscan", async (importOriginal) => {
+  const real = await importOriginal<typeof Etherscan>();
+  return {
+    ...real,
+    contractCreation: vi.fn(async () => ({ creator: DEV, factory: FACTORY })),
+    contractSource: vi.fn(async () => ({ verified: true, name: "ProjectToken", proxy: false })),
+    firstActivity: vi.fn(async (chainId: number) => (chainId === 1 ? Date.UTC(2017, 2, 1) : null)),
   };
 });
 
@@ -114,5 +127,23 @@ describe("lookupWallet", () => {
     expect(last.token?.simulation).toBeUndefined();
     expect(last.token?.launchpad).toBeUndefined();
     expect(last.creator).toEqual({ address: FACTORY, factory: true, source: "GoPlus", percent: 0.5, names: [] });
+  });
+
+  it("with an Etherscan key, names a non-launchpad token's creator and its verified contract", async () => {
+    const cards: WalletCard[] = [];
+    await lookupWallet(PLAIN, (c) => cards.push(c), new AbortController().signal, { extras: true, etherscanKey: "test" });
+    const last = cards.at(-1)!;
+    expect(last.pending).toEqual([]);
+    expect(last.creator).toMatchObject({ address: DEV, source: "Etherscan", via: FACTORY, names: [{ name: "dev.eth", source: "ens" }] });
+    expect(last.contract).toEqual({ verified: true, name: "ProjectToken", proxy: false });
+    expect(last.firstSeen).toBeUndefined();
+  });
+
+  it("with an Etherscan key, dates a wallet's first transaction", async () => {
+    const cards: WalletCard[] = [];
+    await lookupWallet("vitalik.eth", (c) => cards.push(c), new AbortController().signal, { extras: true, etherscanKey: "test" });
+    const last = cards.at(-1)!;
+    expect(last.firstSeen).toEqual([{ chain: "ethereum", ts: Date.UTC(2017, 2, 1) }]);
+    expect(last.contract).toBeUndefined();
   });
 });

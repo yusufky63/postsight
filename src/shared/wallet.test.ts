@@ -177,5 +177,8 @@ describe("token checks", () => {
     expect(facts).toContain("Honeypot.is test trade: buy and sell went through");
     expect(facts).toContain("contract created by 0xfbfEaF0DA0F2fdE5c66dF570133aE35f3eB58c9A (source: Blockscout), holding 0.00% of the supply");
     expect(facts).toContain("the token's team lists @pepecoineth on X, not the post's author @someone");
+    const withExplorer = walletFacts({ ...card, contract: { verified: true, name: "PepeToken", proxy: false }, firstSeen: [{ chain: "base", ts: Date.UTC(2024, 0, 2) }] }, null);
+    expect(withExplorer).toContain("verified contract source: PepeToken");
+    expect(withExplorer).toContain("first transaction on base: 2024-01-02");
   });
 });

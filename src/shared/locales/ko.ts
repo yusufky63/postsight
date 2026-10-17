@@ -120,6 +120,10 @@ export const ko: Record<MessageKey, string> = {
   "wallet.top10": "상위 10개 보유자",
   "wallet.gtScore": "GeckoTerminal 점수 {score}/100",
   "wallet.launchpad": "{name}에서 출시",
+  "wallet.contract": "컨트랙트",
+  "wallet.contractVerified": "검증된 소스: {name}",
+  "wallet.creatorThrough": "팩토리 컨트랙트를 통해",
+  "wallet.since": "{date}부터",
 
   "flag.cybercrime": "사이버 범죄",
   "flag.money_laundering": "자금 세탁",
@@ -339,6 +343,9 @@ export const ko: Record<MessageKey, string> = {
   "features.walletsHint": "Chrome이 조회하는 공개 정보원에 대한 접근 권한을 한 번 요청해요: {hosts}. 주소에 마우스를 올리기 전에는 아무것도 보내지 않고, 올린 뒤에도 그 주소나 이름만 쿠키 없이 보내요.",
   "features.walletsMore": "이제 지갑 카드가 토큰 정보원도 읽을 수 있어요(GeckoTerminal, Honeypot.is, Blockscout, Clanker).",
   "features.walletsAllow": "허용",
+  "features.etherscanKey": "Etherscan API 키(선택)",
+  "features.etherscanHint": "모든 체인에서 컨트랙트를 누가 만들었는지, 검증된 이름, 지갑의 첫 거래 시점을 더해요. etherscan.io의 무료 키로 충분해요. 키는 이 기기에 저장되고 api.etherscan.io로만 보내요.",
+  "features.etherscanOk": "Etherscan 키가 작동해요",
   "features.uiLang": "표시 언어",
   "features.outputLang": "답변 언어",
 
@@ -364,5 +371,5 @@ export const ko: Record<MessageKey, string> = {
   "help.q7": "모델에는 무엇이 전송되나요?",
   "help.a7": "게시물 텍스트, 작성자 아이디, 게시 시간, 인용 게시물, 링크 미리보기 텍스트, 투표, 커뮤니티 노트, 이미지 링크(이미지를 볼 수 있는 모델에만), 그리고 게시물 페이지에서는 작성자 스레드의 나머지 부분이에요. X 아티클은 Postsight가 X의 공개 게시물 페이지에서 읽어요. 링크는 허용한 경우에 링크된 페이지를 읽어요. 페이지는 쿠키 없이 가져와요. 그 밖에 계정이나 타임라인의 정보는 전송되지 않아요.",
   "help.q8": "지갑 카드는 무엇을 확인하고 무엇을 보내나요?",
-  "help.a8": "지갑 카드를 켜면 게시물의 0x 주소나 .eth 이름에 마우스를 올렸을 때 키가 필요 없는 공개 정보원에서 조회해요: 이더리움의 ENS와 Base의 Basenames(이름은 양방향으로 확인하고 텍스트 레코드도 함께), 공개 이더리움·Base 노드의 잔액과 거래 수, web3.bio 프로필, Ethos 리뷰, Base의 Coinbase 인증 증명, GoPlus 보안 경고. 토큰이라면 DexScreener 거래 페어와 유료 등록, GeckoTerminal 점수와 보유자 분포, Honeypot.is 테스트 매수·매도, 그리고 생성자(Clanker, Blockscout, GoPlus 또는 GeckoTerminal 기준)도 더해져요. 이 서비스들에는 주소나 이름만 쿠키 없이 보내고, 응답은 이 기기에 최대 하루 동안 보관해요. 이름, 프로필 링크, 토큰이 등록한 계정은 소유자가 공개한 주장이라서 일치하더라도 단서일 뿐 증거는 아니에요.",
+  "help.a8": "지갑 카드를 켜면 게시물의 0x 주소나 .eth 이름에 마우스를 올렸을 때 키가 필요 없는 공개 정보원에서 조회해요: 이더리움의 ENS와 Base의 Basenames(이름은 양방향으로 확인하고 텍스트 레코드도 함께), 공개 이더리움·Base 노드의 잔액과 거래 수, web3.bio 프로필, Ethos 리뷰, Base의 Coinbase 인증 증명, GoPlus 보안 경고. 토큰이라면 DexScreener 거래 페어와 유료 등록, GeckoTerminal 점수와 보유자 분포, Honeypot.is 테스트 매수·매도, 그리고 생성자(Clanker, Blockscout, GoPlus 또는 GeckoTerminal 기준)도 더해져요. 이 서비스들에는 주소나 이름만 쿠키 없이 보내고, 응답은 이 기기에 최대 하루 동안 보관해요. 이름, 프로필 링크, 토큰이 등록한 계정은 소유자가 공개한 주장이라서 일치하더라도 단서일 뿐 증거는 아니에요. 설정에 직접 Etherscan API 키를 추가하면 카드에 모든 체인의 컨트랙트 생성자, 검증된 이름, 지갑의 첫 거래 시점도 보여요.",
 };

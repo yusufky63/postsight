@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatAge, formatCompactUsd, formatEth, formatPrice, isUrlText, shortUrl } from "./format";
+import { formatAge, formatCompactUsd, formatEth, formatMonthYear, formatPrice, isUrlText, shortUrl } from "./format";
 import { parseInline } from "./markdown";
 
 const LONG =
@@ -70,5 +70,6 @@ describe("wallet card numbers", () => {
     expect(formatAge(now - 3 * 365 * 86_400_000, "en", now)).toBe("3 years ago");
     expect(formatAge(now - 2 * 86_400_000, "en", now)).toBe("2 days ago");
     expect(formatAge(now - 3 * 3_600_000, "en", now)).toBe("3 hours ago");
+    expect(formatMonthYear(Date.UTC(2017, 2, 15), "en")).toBe("Mar 2017");
   });
 });

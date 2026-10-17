@@ -96,6 +96,11 @@ export function formatPercent(value: number, lang: UiLang): string {
   return new Intl.NumberFormat(LOCALE(lang), { style: "percent", maximumFractionDigits: value !== 0 && Math.abs(value) < 1 ? 2 : 1 }).format(value / 100);
 }
 
+/** "Mar 2021": when a wallet first took part in a transaction. */
+export function formatMonthYear(ts: number, lang: UiLang): string {
+  return new Intl.DateTimeFormat(LOCALE(lang), { month: "short", year: "numeric" }).format(ts);
+}
+
 /** "3 days ago", "2 years ago": how long a token has been trading. */
 export function formatAge(ts: number, lang: UiLang, now = Date.now()): string {
   const days = (now - ts) / 86_400_000;

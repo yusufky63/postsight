@@ -79,6 +79,7 @@
     "https://api.honeypot.is/*",
     "https://eth.blockscout.com/*",
     "https://www.clanker.world/*",
+    "https://api.etherscan.io/*",
     "<all_urls>"
   ]
 }

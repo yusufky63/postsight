@@ -120,6 +120,10 @@ export const zh: Record<MessageKey, string> = {
   "wallet.top10": "前 10 名持有人",
   "wallet.gtScore": "GeckoTerminal 评分 {score}/100",
   "wallet.launchpad": "在 {name} 上发行",
+  "wallet.contract": "合约",
+  "wallet.contractVerified": "已验证源代码：{name}",
+  "wallet.creatorThrough": "通过工厂合约",
+  "wallet.since": "自 {date} 起",
 
   "flag.cybercrime": "网络犯罪",
   "flag.money_laundering": "洗钱",
@@ -339,6 +343,9 @@ export const zh: Record<MessageKey, string> = {
   "features.walletsHint": "Chrome 会请求一次访问其读取的公开数据源：{hosts}。在你悬停到地址之前不会发送任何内容，之后也只发送该地址或名称，不携带你的 Cookie。",
   "features.walletsMore": "钱包卡片现在也可以读取代币数据源（GeckoTerminal、Honeypot.is、Blockscout、Clanker）。",
   "features.walletsAllow": "允许",
+  "features.etherscanKey": "Etherscan API 密钥（可选）",
+  "features.etherscanHint": "在任何链上补充合约的创建者、已验证的合约名称，以及钱包的首次交易时间。etherscan.io 的免费密钥即可。密钥保存在此设备上，只发送给 api.etherscan.io。",
+  "features.etherscanOk": "Etherscan 密钥可用",
   "features.uiLang": "界面语言",
   "features.outputLang": "回答语言",
 
@@ -364,5 +371,5 @@ export const zh: Record<MessageKey, string> = {
   "help.q7": "哪些内容会发送给模型？",
   "help.a7": "帖子文本、作者用户名、发布时间、引用的帖子、链接预览文本、投票、社区笔记、图片链接（仅发送给能识别图片的模型），以及在帖子页面上作者帖子串的其余部分。对于 X Article，Postsight 会从 X 的公开帖子页面读取文章；对于链接，如果你已允许，Postsight 会读取链接页面。获取页面时不携带你的 Cookie。不会发送你账户或时间线中的任何其他内容。",
   "help.q8": "钱包卡片会检查什么、发送什么？",
-  "help.a8": "开启钱包卡片后，将鼠标悬停在帖子中的 0x 地址或 .eth 名称上，会在无需密钥的公开数据源中查询：Ethereum 上的 ENS 和 Base 上的 Basenames（双向核对名称，并读取其文本记录）、公共 Ethereum 和 Base 节点上的余额和交易数、web3.bio 资料、Ethos 评价、Base 上的 Coinbase 验证证明以及 GoPlus 安全提示。对于代币，还会加上 DexScreener 交易对和付费推广、GeckoTerminal 评分和持有人分布、Honeypot.is 的测试买卖，以及创建者（来自 Clanker、Blockscout、GoPlus 或 GeckoTerminal）。发送给这些服务的只有地址或名称，不携带你的 Cookie，结果在此设备上最多保存一天。名称、资料链接和代币列出的账号是所有者自行发布的声明，因此匹配只是线索，而非证据。",
+  "help.a8": "开启钱包卡片后，将鼠标悬停在帖子中的 0x 地址或 .eth 名称上，会在无需密钥的公开数据源中查询：Ethereum 上的 ENS 和 Base 上的 Basenames（双向核对名称，并读取其文本记录）、公共 Ethereum 和 Base 节点上的余额和交易数、web3.bio 资料、Ethos 评价、Base 上的 Coinbase 验证证明以及 GoPlus 安全提示。对于代币，还会加上 DexScreener 交易对和付费推广、GeckoTerminal 评分和持有人分布、Honeypot.is 的测试买卖，以及创建者（来自 Clanker、Blockscout、GoPlus 或 GeckoTerminal）。发送给这些服务的只有地址或名称，不携带你的 Cookie，结果在此设备上最多保存一天。名称、资料链接和代币列出的账号是所有者自行发布的声明，因此匹配只是线索，而非证据。在设置中添加你自己的 Etherscan API 密钥后，卡片还会显示任何链上合约的创建者、其已验证的名称以及钱包的首次交易时间。",
 };

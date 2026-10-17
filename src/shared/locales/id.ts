@@ -120,6 +120,10 @@ export const id: Record<MessageKey, string> = {
   "wallet.top10": "10 pemegang teratas",
   "wallet.gtScore": "Skor GeckoTerminal {score}/100",
   "wallet.launchpad": "Diluncurkan di {name}",
+  "wallet.contract": "Kontrak",
+  "wallet.contractVerified": "Kode sumber terverifikasi: {name}",
+  "wallet.creatorThrough": "melalui kontrak pabrik",
+  "wallet.since": "sejak {date}",
 
   "flag.cybercrime": "Kejahatan siber",
   "flag.money_laundering": "Pencucian uang",
@@ -339,6 +343,9 @@ export const id: Record<MessageKey, string> = {
   "features.walletsHint": "Chrome meminta akses sekali ke sumber publik yang dibaca: {hosts}. Tidak ada yang dikirim sampai Anda mengarahkan kursor ke sebuah alamat, lalu hanya alamat atau nama itu, tanpa cookie Anda.",
   "features.walletsMore": "Kartu dompet sekarang juga bisa membaca sumber token (GeckoTerminal, Honeypot.is, Blockscout, Clanker).",
   "features.walletsAllow": "Izinkan",
+  "features.etherscanKey": "Kunci API Etherscan (opsional)",
+  "features.etherscanHint": "Menambahkan siapa pembuat kontrak di jaringan mana pun, nama terverifikasinya, dan kapan dompet pertama kali bertransaksi. Kunci gratis dari etherscan.io sudah cukup. Kunci disimpan di perangkat ini dan hanya dikirim ke api.etherscan.io.",
+  "features.etherscanOk": "Kunci Etherscan berfungsi",
   "features.uiLang": "Bahasa antarmuka",
   "features.outputLang": "Bahasa jawaban",
 
@@ -364,5 +371,5 @@ export const id: Record<MessageKey, string> = {
   "help.q7": "Apa yang dikirim ke model?",
   "help.a7": "Teks postingan, nama pengguna penulis, waktu, postingan yang dikutip, teks pratinjau tautan, jajak pendapat, Catatan Komunitas, tautan gambar (hanya ke model yang bisa melihat gambar), dan, di halaman postingan, sisa utas penulis. Untuk X Article, Postsight membaca artikelnya dari halaman postingan publik X; untuk tautan, Postsight membaca halaman yang ditautkan jika Anda mengizinkannya. Halaman diambil tanpa cookie Anda. Tidak ada hal lain dari akun atau linimasa Anda yang dikirim.",
   "help.q8": "Apa yang diperiksa kartu dompet, dan apa yang dikirim?",
-  "help.a8": "Saat kartu dompet aktif, mengarahkan kursor ke alamat 0x atau nama .eth di postingan akan mencarinya di sumber publik yang tidak butuh kunci: ENS di Ethereum dan Basenames di Base (nama diperiksa dua arah, beserta catatan teksnya), saldo dan jumlah transaksi dari node publik Ethereum dan Base, profil web3.bio, ulasan Ethos, atestasi verifikasi Coinbase di Base, dan peringatan keamanan GoPlus. Untuk token, ditambah pasangan perdagangan dan listing berbayar DexScreener, skor dan sebaran pemegang dari GeckoTerminal, uji beli dan jual di Honeypot.is, serta siapa pembuatnya (menurut Clanker, Blockscout, GoPlus, atau GeckoTerminal). Hanya alamat atau nama yang dikirim ke layanan itu, tanpa cookie Anda, dan jawabannya disimpan di perangkat ini paling lama sehari. Nama, tautan profil, dan akun yang dicantumkan token adalah klaim pemiliknya, jadi kecocokan hanyalah petunjuk, bukan bukti.",
+  "help.a8": "Saat kartu dompet aktif, mengarahkan kursor ke alamat 0x atau nama .eth di postingan akan mencarinya di sumber publik yang tidak butuh kunci: ENS di Ethereum dan Basenames di Base (nama diperiksa dua arah, beserta catatan teksnya), saldo dan jumlah transaksi dari node publik Ethereum dan Base, profil web3.bio, ulasan Ethos, atestasi verifikasi Coinbase di Base, dan peringatan keamanan GoPlus. Untuk token, ditambah pasangan perdagangan dan listing berbayar DexScreener, skor dan sebaran pemegang dari GeckoTerminal, uji beli dan jual di Honeypot.is, serta siapa pembuatnya (menurut Clanker, Blockscout, GoPlus, atau GeckoTerminal). Hanya alamat atau nama yang dikirim ke layanan itu, tanpa cookie Anda, dan jawabannya disimpan di perangkat ini paling lama sehari. Nama, tautan profil, dan akun yang dicantumkan token adalah klaim pemiliknya, jadi kecocokan hanyalah petunjuk, bukan bukti. Dengan kunci API Etherscan Anda sendiri di pengaturan, kartu juga menampilkan siapa pembuat kontrak di jaringan mana pun, nama terverifikasinya, dan kapan dompet pertama kali bertransaksi.",
 };

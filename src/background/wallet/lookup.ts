@@ -1,8 +1,9 @@
 import { getAddress, isAddress as isChecksummed } from "viem";
-import type { Hex, NameFact, TextKey, WalletCard, WalletSection } from "../../shared/wallet";
+import type { ChainId, Hex, NameFact, TextKey, WalletCard, WalletSection } from "../../shared/wallet";
 import { emptyCard, isAddress, xHandle } from "../../shared/wallet";
 import { DAY, HOUR, MINUTE, cached } from "./cache";
 import { basenameAddress, basenamePrimary, basenameTexts, chainFact, codeAt, ensAddress, ensPrimary, ensTexts } from "./chain";
+import { contractCreation, contractSource, etherscanChain, firstActivity } from "./etherscan";
 import type { ClankerLaunch, GeckoInfo, TokenSecurity } from "./sources";
 import {
   addressFlags,
@@ -62,6 +63,8 @@ async function creatorIdentity(address: Hex): Promise<{ names: NameFact[]; x?: s
 export interface LookupOptions {
   /** The token sources (GeckoTerminal, Honeypot.is, Blockscout, Clanker) are allowed too. */
   extras: boolean;
+  /** The reader's own Etherscan key, when they added one and allowed api.etherscan.io. */
+  etherscanKey?: string;
 }
 
 /**
@@ -99,6 +102,7 @@ export async function lookupWallet(query: string, emit: (card: WalletCard) => vo
 
   const address = card.address as Hex;
   const a = address.toLowerCase();
+  const key = opts.etherscanKey;
   // Sections start as earlier ones reveal what the address is; the lookup ends when all have.
   const tasks: Promise<void>[] = [];
   const run = (name: WalletSection, work: () => Promise<void>): Promise<void> => {
@@ -201,7 +205,13 @@ export async function lookupWallet(query: string, emit: (card: WalletCard) => vo
         // Clanker and Blockscout answer fast and name the creator directly: ask them first.
         await launched;
         const launch = clanker as ClankerLaunch | null;
-        let found: { address: Hex; source: string } | null = launch?.deployer ? { address: launch.deployer, source: "Clanker" } : null;
+        let found: { address: Hex; source: string; via?: Hex } | null = launch?.deployer ? { address: launch.deployer, source: "Clanker" } : null;
+        const chainId = etherscanChain(chain);
+        if (!found && key && chainId) {
+          // The sender of the creating transaction, and the factory it went through: on every chain Etherscan indexes.
+          const creation = await cached(`creation:${chainId}:${a}`, 30 * DAY, () => contractCreation(chainId, address, key, signal), DAY).catch(() => null);
+          if (creation) found = { address: creation.creator, source: "Etherscan", ...(creation.factory ? { via: creation.factory } : {}) };
+        }
         if (!found && chain === "ethereum" && opts.extras) {
           // Blockscout sits behind bot protection at times; GoPlus and GeckoTerminal still know the creator then.
           const creator = await cached(`creator:eth:${a}`, 7 * DAY, () => blockscoutCreator(address, signal), DAY).catch(() => null);
@@ -223,7 +233,7 @@ export async function lookupWallet(query: string, emit: (card: WalletCard) => vo
         const code = chain === "ethereum" || chain === "base" ? await cached(`code:${chain}:${who.toLowerCase()}`, 7 * DAY, () => codeAt(chain, who)) : "none";
         const factory = code === "contract";
         const identity = factory ? { names: [] } : await creatorIdentity(who);
-        card.creator = { address: getAddress(who), factory, source: found.source, ...identity };
+        card.creator = { address: getAddress(who), factory, source: found.source, ...(found.via ? { via: getAddress(found.via) } : {}), ...identity };
         send();
         // The share the creator holds comes from the slower sources; it follows when they answer.
         await Promise.all(waits);
@@ -235,6 +245,33 @@ export async function lookupWallet(query: string, emit: (card: WalletCard) => vo
       });
     })(),
   );
+
+  // With the reader's Etherscan key: a contract's verified name, or when a wallet first transacted.
+  if (key) {
+    tasks.push(
+      (async () => {
+        await Promise.all([chainsDone, tokenDone]);
+        const contractChain = card.token?.chain ?? card.chains.find((c) => c.code === "contract")?.chain;
+        const contractId = contractChain ? etherscanChain(contractChain) : undefined;
+        const active = card.chains.filter((c) => c.code !== "contract" && (c.txCount > 0 || c.balanceWei !== "0"));
+        if (!contractId && !active.length) return;
+        await run("explorer", async () => {
+          if (contractId) {
+            card.contract = await cached(`source:${contractId}:${a}`, 7 * DAY, () => contractSource(contractId, address, key, signal), DAY);
+            return;
+          }
+          const seen = await Promise.all(
+            active.map(async (c) => {
+              const id = etherscanChain(c.chain)!;
+              const ts = await cached(`first:${id}:${a}`, 30 * DAY, () => firstActivity(id, address, key, signal), HOUR);
+              return ts ? { chain: c.chain, ts } : null;
+            }),
+          );
+          card.firstSeen = seen.filter((s): s is { chain: ChainId; ts: number } => s !== null).sort((x, y) => x.ts - y.ts);
+        });
+      })(),
+    );
+  }
 
   for (let i = 0; i < tasks.length; i++) await tasks[i];
 }

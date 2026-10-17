@@ -79,6 +79,8 @@ const RPS: Record<string, number> = {
   "api.honeypot.is": 2,
   "eth.blockscout.com": 2,
   "www.clanker.world": 1,
+  // The free Etherscan plan allows 5 a second; a little under keeps 429s away.
+  "api.etherscan.io": 4,
 };
 
 const limiters = new Map<string, Limiter>();

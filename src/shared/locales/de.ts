@@ -120,6 +120,10 @@ export const de: Record<MessageKey, string> = {
   "wallet.top10": "Top-10-Halter",
   "wallet.gtScore": "GeckoTerminal-Score {score}/100",
   "wallet.launchpad": "Gestartet auf {name}",
+  "wallet.contract": "Contract",
+  "wallet.contractVerified": "Verifizierter Quellcode: {name}",
+  "wallet.creatorThrough": "über einen Factory-Contract",
+  "wallet.since": "seit {date}",
 
   "flag.cybercrime": "Cyberkriminalität",
   "flag.money_laundering": "Geldwäsche",
@@ -339,6 +343,9 @@ export const de: Record<MessageKey, string> = {
   "features.walletsHint": "Chrome fragt einmal nach Zugriff auf die öffentlichen Quellen, die gelesen werden: {hosts}. Erst wenn du über eine Adresse fährst, wird etwas gesendet, und dann nur diese Adresse oder dieser Name, ohne deine Cookies.",
   "features.walletsMore": "Wallet-Karten können jetzt auch Token-Quellen lesen (GeckoTerminal, Honeypot.is, Blockscout, Clanker).",
   "features.walletsAllow": "Erlauben",
+  "features.etherscanKey": "Etherscan-API-Schlüssel (optional)",
+  "features.etherscanHint": "Ergänzt, wer einen Contract auf einer beliebigen Chain erstellt hat, seinen verifizierten Namen und wann eine Wallet zum ersten Mal eine Transaktion hatte. Ein kostenloser Schlüssel von etherscan.io genügt. Er bleibt auf diesem Gerät und geht nur an api.etherscan.io.",
+  "features.etherscanOk": "Etherscan-Schlüssel funktioniert",
   "features.uiLang": "Sprache der Oberfläche",
   "features.outputLang": "Sprache der Antworten",
 
@@ -364,5 +371,5 @@ export const de: Record<MessageKey, string> = {
   "help.q7": "Was wird an das Modell gesendet?",
   "help.a7": "Der Text des Posts, der Nutzername des Autors, die Uhrzeit, der zitierte Post, der Text der Linkvorschau, die Umfrage, die Community Note, Bild-Links (nur an Modelle, die Bilder sehen können) und auf einer Post-Seite der restliche Thread des Autors. Bei einem X Article liest Postsight den Artikel von der öffentlichen Post-Seite auf X; bei Links liest es die verlinkte Seite, wenn du das erlaubt hast. Seiten werden ohne deine Cookies abgerufen. Sonst wird nichts aus deinem Konto oder deiner Timeline gesendet.",
   "help.q8": "Was prüfen Wallet-Karten, und was senden sie?",
-  "help.a8": "Sind Wallet-Karten an, wird eine 0x-Adresse oder ein .eth-Name in einem Post beim Darüberfahren in öffentlichen Quellen ohne Schlüssel nachgeschlagen: ENS auf Ethereum und Basenames auf Base (Namen in beide Richtungen geprüft, samt Texteinträgen), Guthaben und Transaktionszahlen von öffentlichen Ethereum- und Base-Knoten, web3.bio-Profile, Ethos-Bewertungen, Coinbase-Verifizierungsnachweise auf Base und GoPlus-Sicherheitswarnungen. Bei einem Token kommen DexScreener-Handelspaare und bezahlte Einträge, der GeckoTerminal-Score und die Verteilung der Halter, ein Testkauf und -verkauf bei Honeypot.is und der Ersteller hinzu (von Clanker, Blockscout, GoPlus oder GeckoTerminal). Nur die Adresse oder der Name geht an diese Dienste, ohne deine Cookies, und die Antworten bleiben bis zu einem Tag auf diesem Gerät. Namen, Profil-Links und die Konten, die ein Token angibt, sind Angaben ihrer Inhaber; eine Übereinstimmung ist ein Hinweis, kein Beweis.",
+  "help.a8": "Sind Wallet-Karten an, wird eine 0x-Adresse oder ein .eth-Name in einem Post beim Darüberfahren in öffentlichen Quellen ohne Schlüssel nachgeschlagen: ENS auf Ethereum und Basenames auf Base (Namen in beide Richtungen geprüft, samt Texteinträgen), Guthaben und Transaktionszahlen von öffentlichen Ethereum- und Base-Knoten, web3.bio-Profile, Ethos-Bewertungen, Coinbase-Verifizierungsnachweise auf Base und GoPlus-Sicherheitswarnungen. Bei einem Token kommen DexScreener-Handelspaare und bezahlte Einträge, der GeckoTerminal-Score und die Verteilung der Halter, ein Testkauf und -verkauf bei Honeypot.is und der Ersteller hinzu (von Clanker, Blockscout, GoPlus oder GeckoTerminal). Nur die Adresse oder der Name geht an diese Dienste, ohne deine Cookies, und die Antworten bleiben bis zu einem Tag auf diesem Gerät. Namen, Profil-Links und die Konten, die ein Token angibt, sind Angaben ihrer Inhaber; eine Übereinstimmung ist ein Hinweis, kein Beweis. Mit deinem eigenen Etherscan-API-Schlüssel in den Einstellungen zeigen die Karten außerdem, wer einen Contract auf einer beliebigen Chain erstellt hat, seinen verifizierten Namen und wann eine Wallet zum ersten Mal eine Transaktion hatte.",
 };
