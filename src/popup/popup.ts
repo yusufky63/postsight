@@ -16,6 +16,30 @@ import { h, icon, replace } from "../ui/dom";
 const app = document.getElementById("app")!;
 let balanceLine: HTMLElement | null = null;
 
+/*
+ * The browser opens the popup at the size of its first frame, and the content comes a
+ * moment later from storage: without this the popup opens as a small empty box and then
+ * jumps open. It starts at the height it had last time instead.
+ */
+const HEIGHT_KEY = "popupHeight";
+try {
+  const last = Number(localStorage.getItem(HEIGHT_KEY));
+  if (last > 0) document.body.style.minHeight = `${Math.min(last, 600)}px`;
+} catch {
+  // No storage for the page: the popup still opens, just from its default size.
+}
+
+function rememberHeight(): void {
+  requestAnimationFrame(() => {
+    try {
+      localStorage.setItem(HEIGHT_KEY, String(app.scrollHeight));
+    } catch {
+      // Same as above.
+    }
+    document.body.style.minHeight = "";
+  });
+}
+
 function openOptions(section?: string): void {
   void chrome.tabs.create({ url: chrome.runtime.getURL(`options.html${section ? `#${section}` : ""}`) });
   window.close();
@@ -54,6 +78,7 @@ async function render(): Promise<void> {
       languageSection(),
       footer(),
     );
+    rememberHeight();
     return;
   }
 
@@ -142,6 +167,7 @@ async function render(): Promise<void> {
   );
 
   replace(app, head, modelSection, usageSection, languageSection(), footer());
+  rememberHeight();
   if (balanceLine) void showBalance(balanceLine, t);
 
   function languageSection(): HTMLElement {
