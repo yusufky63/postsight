@@ -12,9 +12,13 @@ import { summarizeUsage } from "../shared/usage";
 import { tokensLeft } from "../ui/budget";
 import { budgetBar, languageSelect, segmented, select, toggle } from "../ui/controls";
 import { h, icon, replace } from "../ui/dom";
+import { loadUpdateStatus, updateBanner } from "../ui/update";
+import type { UpdateStatus } from "../shared/update";
 
 const app = document.getElementById("app")!;
 let balanceLine: HTMLElement | null = null;
+/** Filled in after the first paint: a stale check waits on GitHub, and the popup should not. */
+let update: UpdateStatus | null = null;
 
 /*
  * The browser opens the popup at the size of its first frame, and the content comes a
@@ -63,11 +67,14 @@ async function render(): Promise<void> {
   );
   head.querySelector("input")?.setAttribute("aria-label", t("popup.toggle"));
   head.querySelector(".switch")?.setAttribute("title", t("popup.toggle"));
+  const banner = updateBanner(update, t);
+  const updateSection = banner ? h("section", { class: "pop-section" }, banner) : null;
 
   if (keyed.size === 0) {
     replace(
       app,
       head,
+      updateSection,
       h(
         "section",
         { class: "pop-section" },
@@ -166,7 +173,7 @@ async function render(): Promise<void> {
     ),
   );
 
-  replace(app, head, modelSection, usageSection, languageSection(), footer());
+  replace(app, head, updateSection, modelSection, usageSection, languageSection(), footer());
   rememberHeight();
   if (balanceLine) void showBalance(balanceLine, t);
 
@@ -214,4 +221,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "local" && (changes.settings || changes.secrets || changes.usage)) void render();
 });
 
-void render();
+void render().then(async () => {
+  update = await loadUpdateStatus();
+  if (update?.latest) void render();
+});

@@ -454,6 +454,22 @@ select.select:focus {
   background: var(--positive-soft);
   color: var(--positive-fg);
 }
+.banner[data-tone="primary"] {
+  background: var(--primary-soft);
+  color: var(--text);
+  border: 1px solid var(--primary);
+}
+.update-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  line-height: 1.45;
+}
+.update-banner > span {
+  flex: 1 1 240px;
+}
 .banner[data-tone="neutral"] {
   background: var(--surface);
   color: var(--text-secondary);

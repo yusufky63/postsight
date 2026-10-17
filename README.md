@@ -19,6 +19,8 @@ An AI button on every post on X: fact-check, research, summarize, translate and 
 
 **From a release.** Download `postsight-<version>.zip` from [Releases](https://github.com/yusufky63/postsight/releases), unzip it, open `chrome://extensions` (or `edge://extensions`), turn on Developer mode, choose **Load unpacked** and pick the unzipped folder.
 
+A copy loaded this way does not update itself. Once a day it asks GitHub for the latest release, and the popup and settings say when a newer version is out: unzip it over the same folder and press **Reload** on the extensions page. The check can be turned off under Help, Updates in Settings. Copies from the Chrome Web Store or Edge Add-ons are updated by the store, and the popup offers a restart once the store has downloaded a new version.
+
 **From source.** Node 22+ and pnpm:
 
 ```bash

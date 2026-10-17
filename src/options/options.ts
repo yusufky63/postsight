@@ -47,6 +47,8 @@ import { budgetBar, languageSelect, segmented, select, toggle, toast } from "../
 import { h, icon, replace } from "../ui/dom";
 import type { Child } from "../ui/dom";
 import { linkify, renderMarkdown } from "../ui/render";
+import { loadUpdateStatus, updateBanner } from "../ui/update";
+import type { UpdateStatus } from "../shared/update";
 
 type SectionId = "providers" | "routing" | "budget" | "models" | "features" | "history" | "help";
 const SECTION_IDS: SectionId[] = ["providers", "routing", "budget", "models", "features", "history", "help"];
@@ -73,6 +75,9 @@ const state = {
   canWallets: false,
   /** The token sources added in 1.1 are allowed too; older grants cover only the core hosts. */
   canTokenSources: false,
+  /** Whether a newer version is out; loaded after the first paint. */
+  update: null as UpdateStatus | null,
+  checkingUpdate: false,
   /** The reader's own explorer keys for wallet cards, and each field's state. */
   explorers: {
     etherscan: { saved: "", draft: "", reveal: false, test: undefined as TestState | undefined },
@@ -82,6 +87,8 @@ const state = {
 
 const app = document.getElementById("app")!;
 const containers = new Map<SectionId, HTMLElement>();
+/** The new-version notice above the sections, so it shows whichever section is open. */
+const updateSlot = h("div");
 let t: Translate = translator("en");
 
 // ---------- persistence ----------
@@ -1073,7 +1080,74 @@ function renderHelp(): Child {
   const faqs = [1, 2, 3, 4, 5, 6, 7, 8].map((n) =>
     h("details", { class: "faq" }, h("summary", null, t(`help.q${n}` as MessageKey)), h("p", null, t(`help.a${n}` as MessageKey))),
   );
-  return [h("div", { class: "module" }, faqs), h("span", { class: "mono xs muted" }, `Postsight ${__POSTSIGHT_VERSION__} · ${t("models.intro", { date: PRICES_CHECKED })}`)];
+  return [
+    updatesModule(),
+    h("div", { class: "module" }, faqs),
+    h("span", { class: "mono xs muted" }, `Postsight ${__POSTSIGHT_VERSION__} · ${t("models.intro", { date: PRICES_CHECKED })}`),
+  ];
+}
+
+function updatesModule(): HTMLElement {
+  const u = state.update;
+  const github = u?.source !== "store";
+  let status: string | null = null;
+  if (state.checkingUpdate) status = t("update.checking");
+  else if (u && github && !u.off) {
+    const parts = [u.failed ? t("update.failed") : u.latest ? null : t("update.upToDate", { current: u.current })];
+    if (u.checkedAt) parts.push(t("update.checked", { time: formatDateTime(u.checkedAt, state.lang) }));
+    status = parts.filter(Boolean).join(" · ");
+  }
+  return h(
+    "div",
+    { class: "module" },
+    h(
+      "div",
+      { class: "module-head" },
+      h("span", { class: "label" }, t("update.title")),
+      h("span", { class: "mono xs muted" }, t("update.version", { current: __POSTSIGHT_VERSION__ })),
+    ),
+    h(
+      "div",
+      { class: "module-body stack" },
+      updateBanner(u, t),
+      github
+        ? [
+            toggle(t("update.check"), state.settings.checkUpdates, (v) => void setCheckUpdates(v)),
+            h("span", { class: "xs muted" }, t("update.checkHint")),
+          ]
+        : h("span", { class: "xs muted" }, t("update.store")),
+      github && state.settings.checkUpdates
+        ? h(
+            "div",
+            { class: "row" },
+            h("button", { class: "btn btn-sm", type: "button", disabled: state.checkingUpdate, onClick: () => void refreshUpdate(true) }, t("update.checkNow")),
+            status ? h("span", { class: "xs muted" }, status) : null,
+          )
+        : null,
+    ),
+  );
+}
+
+function renderUpdateSlot(): void {
+  const banner = updateBanner(state.update, t);
+  replace(updateSlot, banner);
+  updateSlot.hidden = !banner;
+}
+
+async function refreshUpdate(force = false): Promise<void> {
+  if (force) {
+    state.checkingUpdate = true;
+    renderSection("help");
+  }
+  state.update = await loadUpdateStatus(force);
+  state.checkingUpdate = false;
+  renderSection("help");
+  renderUpdateSlot();
+}
+
+async function setCheckUpdates(on: boolean): Promise<void> {
+  await save((s) => (s.checkUpdates = on));
+  await refreshUpdate();
 }
 
 // ---------- layout ----------
@@ -1138,9 +1212,10 @@ function renderAll(): void {
         ),
       ),
     ),
-    h("div", { class: "shell" }, h("nav", { class: "nav", "aria-label": t("opt.title") }, navLinks), h("main", { class: "content" }, sections)),
+    h("div", { class: "shell" }, h("nav", { class: "nav", "aria-label": t("opt.title") }, navLinks), h("main", { class: "content" }, updateSlot, sections)),
   );
   for (const id of SECTION_IDS) renderSection(id);
+  renderUpdateSlot();
 
   observer?.disconnect();
   observer = new IntersectionObserver(
@@ -1177,6 +1252,7 @@ async function init(): Promise<void> {
   const hash = location.hash.slice(1);
   if (hash) document.getElementById(hash)?.scrollIntoView();
   void loadBalance();
+  void refreshUpdate();
 
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== "local") return;

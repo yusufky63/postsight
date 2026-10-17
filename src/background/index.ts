@@ -31,6 +31,7 @@ import { listOpenAIModels, runOpenAI } from "./providers/openai";
 import { BLOCKSCOUT_PRO_ORIGIN, checkBlockscoutKey } from "./wallet/blockscout";
 import { ETHERSCAN_ORIGIN, checkKey } from "./wallet/etherscan";
 import { HttpError } from "./wallet/net";
+import { applyUpdate, updateStatus, watchStoreUpdates } from "./update";
 import { lookupWallet, validQuery } from "./wallet/lookup";
 
 const RUNNERS: Record<ProviderId, (req: ProviderRequest, cb: ProviderCallbacks) => Promise<ProviderResult>> = {
@@ -362,6 +363,10 @@ async function handle(request: Request): Promise<unknown> {
       return balance();
     case "test-explorer":
       return testExplorer(request.explorer === "blockscout" ? "blockscout" : "etherscan");
+    case "update-status":
+      return updateStatus(request.force === true);
+    case "apply-update":
+      return applyUpdate();
     case "open-options": {
       const url = chrome.runtime.getURL(`options.html${request.section ? `#${request.section}` : ""}`);
       await chrome.tabs.create({ url });
@@ -402,3 +407,5 @@ chrome.permissions.onRemoved.addListener(broadcastConfig);
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === "install") void chrome.runtime.openOptionsPage();
 });
+
+watchStoreUpdates();

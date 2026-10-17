@@ -110,6 +110,8 @@ export interface Settings {
   actions: Record<ActionId, boolean>;
   shortcuts: boolean;
   cacheResults: boolean;
+  /** Copies installed from the GitHub zip ask GitHub once a day whether a newer release is out. */
+  checkUpdates: boolean;
   customModels: ModelInfo[];
 }
 

@@ -77,6 +77,8 @@ export type Request =
   | { type: "test-key"; provider: ProviderId }
   | { type: "balance" }
   | { type: "test-explorer"; explorer: "etherscan" | "blockscout" }
+  | { type: "update-status"; force?: boolean }
+  | { type: "apply-update" }
   | { type: "open-options"; section?: string };
 
 export function sendRequest<T>(request: Request): Promise<T> {
