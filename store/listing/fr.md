@@ -24,8 +24,8 @@ Maîtrisez vos dépenses. Chaque résultat affiche les tokens, les recherches we
 
 Lit ce vers quoi pointent les posts. Postsight lit les X Articles et, avec votre autorisation, les pages d'actualité et de blog vers lesquelles renvoie un post : un post qui ne contient qu'un lien n'est donc pas jugé sur son seul titre.
 
-Fiches de portefeuille (facultatif). Survolez une adresse 0x ou un nom .eth dans un post pour voir son nom ENS ou son Basename, les profils liés, les avis Ethos, la vérification Coinbase, les alertes de sécurité GoPlus et, pour un jeton, ses données de marché DexScreener et les contrôles du contrat. La fiche indique aussi si les enregistrements du portefeuille citent l'auteur du post. Sources publiques, sans clé, et rien n'est envoyé avant le survol.
+Fiches de portefeuille (facultatif). Survolez une adresse de portefeuille ou un nom .eth dans un post pour voir qui se cache derrière : ses noms, profils liés, réputation et alertes de sécurité, et pour un token ses données de marché, un échange test et son créateur. La fiche indique aussi si le portefeuille appartient à l'auteur du post. Elle utilise des sources publiques, ne demande aucune clé et n'envoie rien tant que vous ne survolez pas.
 
 Confidentialité dès la conception. Les clés restent dans votre navigateur et ne sont envoyées qu'au fournisseur choisi. Il n'y a ni serveur Postsight ni suivi.
 
-Disponible dans ces langues : English, Türkçe, Deutsch, Español, Français, Português, Italiano, Русский, 日本語, 한국어, 简体中文 et Bahasa Indonesia.
+Disponible en 12 langues.

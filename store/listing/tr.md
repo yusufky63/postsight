@@ -24,8 +24,8 @@ Ne harcadığını bil. Her sonuçta token, web araması, maliyet ve süre gör�
 
 Gönderinin gösterdiğini okur. Postsight X Makalelerini ve izin verirsen gönderinin bağlantı verdiği haber ve blog sayfalarını okur; sadece bağlantıdan oluşan bir gönderi başlığına göre değerlendirilmez.
 
-Cüzdan kartları (isteğe bağlı). Gönderideki bir 0x adresinin ya da .eth isminin üzerine gel; ENS ismini ya da Basename'ini, bağlı profilleri, Ethos değerlendirmelerini, Coinbase doğrulamasını ve GoPlus güvenlik uyarılarını gör. Token ise kart DexScreener'dan fiyat, likidite ve market cap, GeckoTerminal skoru ve top holder'lar, Honeypot.is ile gerçek fee'lerle test alım-satımı, kontrat kontrolleri ve deployer'ı ekler. Cüzdanın isimleri, tokenın listelediği X hesabı ya da deployer'ı gönderinin yazarını gösteriyorsa ya da başka birini gösteriyorsa bunu söyler. Herkese açık kaynaklar, anahtar gerekmez; üzerine gelene kadar hiçbir şey gönderilmez. Kendi Etherscan ya da Blockscout PRO anahtarın, daha fazla zincirde deployer ve verified kontrat adlarını ekler.
+Cüzdan kartları (isteğe bağlı). Gönderideki bir cüzdan adresinin ya da .eth isminin üzerine gel, arkasında kim olduğunu gör: isimleri, bağlı profilleri, itibarı ve güvenlik uyarıları; token ise market verisi, test alım-satımı ve deployer'ı. Kart, cüzdanın gönderinin yazarına ait olup olmadığını da söyler. Herkese açık kaynakları kullanır, anahtar gerektirmez ve üzerine gelene kadar hiçbir şey göndermez.
 
 Gizlilik öncelikli. Anahtarlar tarayıcında kalır ve yalnızca seçtiğin sağlayıcıya gider. Postsight sunucusu ve takip yoktur.
 
-English, Türkçe, Deutsch, Español, Français, Português, Italiano, Русский, 日本語, 한국어, 简体中文 ve Bahasa Indonesia dillerinde.
+12 dilde kullanılabilir.
