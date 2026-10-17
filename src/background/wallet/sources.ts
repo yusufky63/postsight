@@ -289,6 +289,7 @@ export function normalizeDexPairs(raw: unknown, address: Hex): TokenFact | null 
     chain,
     priceUsd: asBase.length ? num(top.priceUsd) : undefined,
     liquidityUsd: onChain.reduce((sum, p) => sum + liquidity(p), 0) || undefined,
+    marketCapUsd: num(top.marketCap),
     fdvUsd: num(top.fdv),
     volume24hUsd: onChain.reduce((sum, p) => sum + (num(obj(p.volume).h24) ?? 0), 0) || undefined,
     createdAt: created.length ? Math.min(...created) : undefined,

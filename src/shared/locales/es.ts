@@ -98,6 +98,7 @@ export const es: Record<MessageKey, string> = {
   "wallet.token": "Token",
   "wallet.price": "Precio",
   "wallet.liquidity": "Liquidez",
+  "wallet.marketCap": "Cap. de mercado",
   "wallet.fdv": "FDV",
   "wallet.volume": "Volumen 24 h",
   "wallet.listed": "Listado",

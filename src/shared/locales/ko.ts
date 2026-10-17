@@ -98,6 +98,7 @@ export const ko: Record<MessageKey, string> = {
   "wallet.token": "토큰",
   "wallet.price": "가격",
   "wallet.liquidity": "유동성",
+  "wallet.marketCap": "시가총액",
   "wallet.fdv": "FDV",
   "wallet.volume": "24시간 거래량",
   "wallet.listed": "상장",

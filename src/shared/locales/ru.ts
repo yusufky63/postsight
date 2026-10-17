@@ -98,6 +98,7 @@ export const ru: Record<MessageKey, string> = {
   "wallet.token": "Токен",
   "wallet.price": "Цена",
   "wallet.liquidity": "Ликвидность",
+  "wallet.marketCap": "Капитализация",
   "wallet.fdv": "FDV",
   "wallet.volume": "Объём за 24 ч",
   "wallet.listed": "В листинге",

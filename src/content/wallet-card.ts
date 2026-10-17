@@ -512,7 +512,9 @@ export class WalletPopover {
     const stats: [string, string][] = [];
     if (tk.priceUsd !== undefined) stats.push([t("wallet.price"), formatPrice(tk.priceUsd, lang)]);
     if (tk.liquidityUsd !== undefined) stats.push([t("wallet.liquidity"), formatCompactUsd(tk.liquidityUsd, lang)]);
-    if (tk.fdvUsd !== undefined) stats.push([t("wallet.fdv"), formatCompactUsd(tk.fdvUsd, lang)]);
+    if (tk.marketCapUsd !== undefined) stats.push([t("wallet.marketCap"), formatCompactUsd(tk.marketCapUsd, lang)]);
+    // FDV says something only where it differs from the market cap (supply still to unlock).
+    if (tk.fdvUsd !== undefined && Math.round(tk.fdvUsd) !== Math.round(tk.marketCapUsd ?? -1)) stats.push([t("wallet.fdv"), formatCompactUsd(tk.fdvUsd, lang)]);
     if (tk.volume24hUsd !== undefined) stats.push([t("wallet.volume"), formatCompactUsd(tk.volume24hUsd, lang)]);
     if (tk.createdAt !== undefined) stats.push([t("wallet.listed"), formatAge(tk.createdAt, lang)]);
     if (tk.top10 !== undefined) stats.push([t("wallet.top10"), formatPercent(tk.top10, lang)]);

@@ -97,6 +97,7 @@ export const en = {
   "wallet.token": "Token",
   "wallet.price": "Price",
   "wallet.liquidity": "Liquidity",
+  "wallet.marketCap": "Market cap",
   "wallet.fdv": "FDV",
   "wallet.volume": "24h volume",
   "wallet.listed": "Listed",

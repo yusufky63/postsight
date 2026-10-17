@@ -146,6 +146,7 @@ export interface TokenFact {
   chain: string;
   priceUsd?: number;
   liquidityUsd?: number;
+  marketCapUsd?: number;
   fdvUsd?: number;
   volume24hUsd?: number;
   /** Unix ms the oldest listed pair was created. */
@@ -379,7 +380,7 @@ export function walletFacts(card: WalletCard, author: string | null): string {
   if (card.flags) lines.push(card.flags.length ? `GoPlus address flags: ${card.flags.map((f) => f.key).join(", ")}` : "GoPlus: no address flags");
   if (card.token) {
     const tk = card.token;
-    lines.push(`token ${tk.name ?? ""} (${tk.symbol ?? "?"}) on ${tk.chain}: price ${tk.priceUsd ?? "?"} USD, liquidity ${tk.liquidityUsd ?? "?"} USD, FDV ${tk.fdvUsd ?? "?"} USD, ${tk.pairs} pairs${tk.createdAt ? `, first pair ${new Date(tk.createdAt).toISOString().slice(0, 10)}` : ""}`);
+    lines.push(`token ${tk.name ?? ""} (${tk.symbol ?? "?"}) on ${tk.chain}: price ${tk.priceUsd ?? "?"} USD, liquidity ${tk.liquidityUsd ?? "?"} USD, market cap ${tk.marketCapUsd ?? "?"} USD, FDV ${tk.fdvUsd ?? "?"} USD, ${tk.pairs} pairs${tk.createdAt ? `, first pair ${new Date(tk.createdAt).toISOString().slice(0, 10)}` : ""}`);
     if (tk.signals?.length) lines.push(`GoPlus token checks: ${tk.signals.map((s) => `${s.key}=${s.level}${s.value ? ` (${s.value})` : ""}`).join(", ")}`);
     if (tk.socials?.x.length) lines.push(`X accounts the token's team listed: ${tk.socials.x.map((h) => `@${h}`).join(", ")}`);
     if (tk.socials?.website) lines.push(`token website: ${tk.socials.website}`);

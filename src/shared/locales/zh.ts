@@ -98,6 +98,7 @@ export const zh: Record<MessageKey, string> = {
   "wallet.token": "代币",
   "wallet.price": "价格",
   "wallet.liquidity": "流动性",
+  "wallet.marketCap": "市值",
   "wallet.fdv": "FDV",
   "wallet.volume": "24 小时成交量",
   "wallet.listed": "上线",

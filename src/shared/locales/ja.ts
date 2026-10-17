@@ -98,6 +98,7 @@ export const ja: Record<MessageKey, string> = {
   "wallet.token": "トークン",
   "wallet.price": "価格",
   "wallet.liquidity": "流動性",
+  "wallet.marketCap": "時価総額",
   "wallet.fdv": "FDV",
   "wallet.volume": "24時間の出来高",
   "wallet.listed": "上場",

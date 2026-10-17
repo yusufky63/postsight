@@ -98,6 +98,7 @@ export const id: Record<MessageKey, string> = {
   "wallet.token": "Token",
   "wallet.price": "Harga",
   "wallet.liquidity": "Likuiditas",
+  "wallet.marketCap": "Kapitalisasi pasar",
   "wallet.fdv": "FDV",
   "wallet.volume": "Volume 24 jam",
   "wallet.listed": "Terdaftar",
