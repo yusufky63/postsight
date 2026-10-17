@@ -117,6 +117,10 @@ export function codeKind(code: string | undefined): ChainFact["code"] {
   return SMART_ACCOUNT_CODE.some((re) => re.test(code)) ? "smart" : "contract";
 }
 
+export async function codeAt(chain: ChainId, address: Hex): Promise<ChainFact["code"]> {
+  return codeKind(await clients[chain].getCode({ address }));
+}
+
 export async function chainFact(chain: ChainId, address: Hex): Promise<ChainFact> {
   const client = clients[chain];
   const [balance, txCount, code] = await Promise.all([client.getBalance({ address }), client.getTransactionCount({ address }), client.getCode({ address })]);

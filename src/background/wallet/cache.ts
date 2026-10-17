@@ -23,16 +23,18 @@ let lastPrune = 0;
 export async function cached<T>(key: string, ttlMs: number, load: () => Promise<T>, emptyTtlMs = ttlMs): Promise<T> {
   const id = PREFIX + key;
   const now = Date.now();
+  // Callers fill in what they get (a token gains its market data, its test trade), so
+  // every caller gets its own copy and the cached answer stays as the source gave it.
   const hot = memory.get(id) as Entry<T> | undefined;
-  if (hot && hot.exp > now) return hot.v;
+  if (hot && hot.exp > now) return structuredClone(hot.v);
   const stored = (await chrome.storage.local.get(id))[id] as Entry<T> | undefined;
   if (stored && stored.exp > now) {
     memory.set(id, stored);
-    return stored.v;
+    return structuredClone(stored.v);
   }
   const value = await load();
   const empty = value === null || (Array.isArray(value) && value.length === 0);
-  const entry: Entry<T> = { v: value, exp: now + (empty ? emptyTtlMs : ttlMs) };
+  const entry: Entry<T> = { v: structuredClone(value), exp: now + (empty ? emptyTtlMs : ttlMs) };
   memory.set(id, entry);
   await chrome.storage.local.set({ [id]: entry });
   if (now - lastPrune > PRUNE_EVERY_MS) {

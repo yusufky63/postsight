@@ -1,3 +1,6 @@
+import { formatPercent } from "./format";
+import type { UiLang } from "./languages";
+
 /*
  * Wallet cards: hover an address or an ENS / Basename in a post and see who is behind
  * it. This module is the contract between the x.com script and the service worker,
@@ -9,8 +12,8 @@ export type Hex = `0x${string}`;
 
 export const WALLET_PORT = "postsight-wallet";
 
-/** Every host a lookup talks to, asked for together as one optional permission. */
-export const WALLET_ORIGINS = [
+/** The hosts every card needs: names, balances, profiles, reputation, security and markets. */
+export const CORE_ORIGINS = [
   "https://ethereum-rpc.publicnode.com/*",
   "https://eth.drpc.org/*",
   "https://mainnet.base.org/*",
@@ -21,6 +24,15 @@ export const WALLET_ORIGINS = [
   "https://api.gopluslabs.io/*",
   "https://api.dexscreener.com/*",
 ];
+
+/**
+ * Token sources added after the first wallet cards: a reader who allowed only the core
+ * hosts keeps working cards, without these sections, until they allow these too.
+ */
+export const TOKEN_ORIGINS = ["https://api.geckoterminal.com/*", "https://api.honeypot.is/*", "https://eth.blockscout.com/*", "https://www.clanker.world/*"];
+
+/** Every host a lookup talks to, asked for together as one optional permission. */
+export const WALLET_ORIGINS = [...CORE_ORIGINS, ...TOKEN_ORIGINS];
 
 export const WALLET_HOSTS = WALLET_ORIGINS.map((o) => o.replace(/^https:\/\//, "").replace(/\/\*$/, ""));
 
@@ -58,8 +70,11 @@ export function shortAddress(address: string): string {
   return isAddress(address) ? `${address.slice(0, 6)}…${address.slice(-4)}` : address;
 }
 
-/** "security" (GoPlus token checks) runs inside "token", so it is never pending on its own. */
-export type WalletSection = "names" | "chains" | "profiles" | "ethos" | "coinbase" | "flags" | "token" | "security";
+/**
+ * The first seven run for every address. The token sections start once DexScreener
+ * finds the address trading, and "creator" once the address turns out to be a contract.
+ */
+export type WalletSection = "names" | "chains" | "profiles" | "ethos" | "coinbase" | "flags" | "token" | "security" | "market" | "simulation" | "orders" | "launchpad" | "creator";
 export const WALLET_SECTIONS: readonly WalletSection[] = ["names", "chains", "profiles", "ethos", "coinbase", "flags", "token"];
 
 /** Who answers each section, for the "did not answer" line. */
@@ -72,6 +87,11 @@ export const SECTION_SOURCE: Record<WalletSection, string> = {
   flags: "GoPlus",
   token: "DexScreener",
   security: "GoPlus",
+  market: "GeckoTerminal",
+  simulation: "Honeypot.is",
+  orders: "DexScreener",
+  launchpad: "Clanker",
+  creator: "Blockscout",
 };
 
 export type ChainId = "ethereum" | "base";
@@ -134,6 +154,46 @@ export interface TokenFact {
   /** GoPlus token checks; undefined while unknown, [] when GoPlus had nothing to say. */
   signals?: Signal[];
   holders?: number;
+  /** The token's own links, as its team listed them on DexScreener, GeckoTerminal or Clanker. */
+  socials?: TokenSocials;
+  /** GeckoTerminal's 0-100 score from pool, trading, age, info and holder spread. */
+  gtScore?: number;
+  /** Percent of the supply the ten largest holders own. */
+  top10?: number;
+  /** A test buy and sell; null when there is no pool Honeypot.is can trade against. */
+  simulation?: Simulation | null;
+  /** DexScreener orders the team paid for and DexScreener approved. */
+  paid?: string[];
+  launchpad?: { name: string; url: string };
+}
+
+export interface TokenSocials {
+  /** X handles, first listed first; teams sometimes list different ones in different places. */
+  x: string[];
+  website?: string;
+  telegram?: string;
+  discord?: string;
+  farcaster?: string;
+}
+
+export interface Simulation {
+  honeypot: boolean;
+  /** Percentages, 0-100. */
+  buyTax?: number;
+  sellTax?: number;
+  transferTax?: number;
+}
+
+export interface CreatorFact {
+  address: Hex;
+  /** Created by a launchpad or factory contract rather than by a person's wallet. */
+  factory: boolean;
+  names: NameFact[];
+  /** The X account the creator's primary name lists. */
+  x?: string;
+  /** Percent of the supply the creator holds. */
+  percent?: number;
+  source: string;
 }
 
 export interface NameFact {
@@ -163,6 +223,8 @@ export interface WalletCard {
   flags?: Signal[];
   /** null once DexScreener listed no trading pairs. */
   token?: TokenFact | null;
+  /** Who deployed the contract; null once looked for and not found. */
+  creator?: CreatorFact | null;
   pending: WalletSection[];
   failed: WalletSection[];
 }
@@ -222,6 +284,36 @@ export function authorLink(card: Pick<WalletCard, "texts" | "profiles">, author:
   return own ? { handle: own, own: true } : { handle: accounts[0] ?? "", own: false };
 }
 
+export type TokenLink = { kind: "token-own" | "creator-own" | "token-other"; handle: string };
+
+/**
+ * A token measured against the post's author: is the author the X account the token's
+ * team listed, or the one the creator wallet's name lists? Both are claims made by
+ * the team or the creator, not checks by X.
+ */
+export function tokenAuthorLink(card: Pick<WalletCard, "token" | "creator">, author: string | null): TokenLink | null {
+  if (!author) return null;
+  const same = (h?: string) => !!h && h.toLowerCase() === author.toLowerCase();
+  const listed = card.token?.socials?.x ?? [];
+  const own = listed.find(same);
+  if (own) return { kind: "token-own", handle: own };
+  if (card.creator?.x && same(card.creator.x)) return { kind: "creator-own", handle: card.creator.x };
+  return listed[0] ? { kind: "token-other", handle: listed[0] } : null;
+}
+
+/** The token team's links as chips: X accounts, website, Telegram, Discord, Farcaster. */
+export function tokenChips(socials: TokenSocials | undefined): ProfileLink[] {
+  if (!socials) return [];
+  const bare = (url: string) => url.replace(/^https?:\/\/(www\.)?/i, "").replace(/\/+$/, "");
+  const out: ProfileLink[] = socials.x.map((handle) => ({ platform: "twitter", handle }));
+  if (socials.website) out.push({ platform: "website", handle: socials.website });
+  for (const platform of ["telegram", "discord", "farcaster"] as const) {
+    const url = socials[platform];
+    if (url) out.push({ platform, handle: bare(url), url });
+  }
+  return out.slice(0, 8);
+}
+
 /** The kind of thing the address is, from what is known so far. */
 export function walletKind(card: Pick<WalletCard, "chains" | "token">): "wallet" | "contract" | "token" | null {
   if (card.token) return "token";
@@ -271,7 +363,31 @@ export function walletFacts(card: WalletCard, author: string | null): string {
     const tk = card.token;
     lines.push(`token ${tk.name ?? ""} (${tk.symbol ?? "?"}) on ${tk.chain}: price ${tk.priceUsd ?? "?"} USD, liquidity ${tk.liquidityUsd ?? "?"} USD, FDV ${tk.fdvUsd ?? "?"} USD, ${tk.pairs} pairs${tk.createdAt ? `, first pair ${new Date(tk.createdAt).toISOString().slice(0, 10)}` : ""}`);
     if (tk.signals?.length) lines.push(`GoPlus token checks: ${tk.signals.map((s) => `${s.key}=${s.level}${s.value ? ` (${s.value})` : ""}`).join(", ")}`);
+    if (tk.socials?.x.length) lines.push(`X accounts the token's team listed: ${tk.socials.x.map((h) => `@${h}`).join(", ")}`);
+    if (tk.socials?.website) lines.push(`token website: ${tk.socials.website}`);
+    if (tk.gtScore !== undefined) lines.push(`GeckoTerminal score: ${Math.round(tk.gtScore)}/100`);
+    if (tk.top10 !== undefined) lines.push(`top 10 holders own ${tk.top10.toFixed(1)}% of the supply`);
+    if (tk.simulation) {
+      const s = tk.simulation;
+      lines.push(`Honeypot.is test trade: ${s.honeypot ? "the sell failed (honeypot)" : "buy and sell went through"}, buy tax ${s.buyTax ?? "?"}%, sell tax ${s.sellTax ?? "?"}%, transfer tax ${s.transferTax ?? "?"}%`);
+    } else if (tk.simulation === null) lines.push("Honeypot.is found no pool it can test-trade against");
+    if (tk.paid?.length) lines.push(`paid DexScreener orders: ${tk.paid.join(", ")}`);
+    if (tk.launchpad) lines.push(`launched on ${tk.launchpad.name}`);
   } else if (card.token === null) lines.push("no DEX trading pairs on DexScreener");
+  if (card.creator) {
+    const c = card.creator;
+    lines.push(`contract created by ${c.address}${c.factory ? " (a factory or launchpad contract)" : ""} (source: ${c.source})${c.names.length ? `, primary name ${c.names.map((n) => n.name).join(", ")}` : ""}${c.x ? `, whose name lists @${c.x} on X` : ""}${c.percent !== undefined ? `, holding ${c.percent.toFixed(2)}% of the supply` : ""}`);
+  }
+  const tokenLink = tokenAuthorLink(card, author);
+  if (tokenLink) {
+    lines.push(
+      tokenLink.kind === "token-own"
+        ? `the post's author @${tokenLink.handle} is an X account the token's team listed`
+        : tokenLink.kind === "creator-own"
+          ? `the creator wallet's name lists @${tokenLink.handle}, the post's author`
+          : `the token's team lists @${tokenLink.handle} on X, not the post's author @${author}`,
+    );
+  }
   const silent = failedSources(card);
   if (silent.length) lines.push(`sources that did not answer: ${silent.join(", ")}`);
   return lines.join("\n");
@@ -319,4 +435,28 @@ export function profileUrl(p: ProfileLink): string | undefined {
     default:
       return undefined;
   }
+}
+
+const PAID_SIGNAL: Record<string, string> = { tokenProfile: "dex_profile", communityTakeover: "dex_cto", tokenAd: "dex_ad", trendingBarAd: "dex_trending" };
+const taxLevel = (pct: number): Signal["level"] => (pct > 20 ? "danger" : pct > 5 ? "warning" : "ok");
+
+/**
+ * Every check on a token as one list: the test trade first, since it is measured
+ * rather than read from the code, then GoPlus without the checks the trade already
+ * answered, then what the team paid DexScreener for.
+ */
+export function tokenSignals(token: TokenFact, lang: UiLang): Signal[] {
+  const sim = token.simulation;
+  const out: Signal[] = [];
+  if (sim) {
+    out.push(sim.honeypot ? { key: "sim_honeypot", level: "danger" } : { key: "sim_ok", level: "ok" });
+    if (sim.buyTax !== undefined) out.push({ key: "sim_buy_tax", level: taxLevel(sim.buyTax), value: formatPercent(sim.buyTax, lang) });
+    if (sim.sellTax !== undefined) out.push({ key: "sim_sell_tax", level: taxLevel(sim.sellTax), value: formatPercent(sim.sellTax, lang) });
+    if (sim.transferTax) out.push({ key: "sim_transfer_tax", level: taxLevel(sim.transferTax), value: formatPercent(sim.transferTax, lang) });
+  }
+  const answered = new Set(sim ? ["honeypot", "not_honeypot", "buy_tax", "sell_tax"] : []);
+  out.push(...(token.signals ?? []).filter((s) => !answered.has(s.key)));
+  for (const order of token.paid ?? []) if (PAID_SIGNAL[order]) out.push({ key: PAID_SIGNAL[order], level: "info" });
+  const rank = { danger: 0, warning: 1, info: 2, ok: 3 } as const;
+  return out.sort((a, b) => rank[a.level] - rank[b.level]);
 }

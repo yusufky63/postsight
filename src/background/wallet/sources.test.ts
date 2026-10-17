@@ -1,7 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { codeKind, legacyReverseNode } from "./chain";
 import { checksumMismatch, validQuery } from "./lookup";
-import { normalizeAddressFlags, normalizeCoinbase, normalizeDexPairs, normalizeEthos, normalizeTokenSecurity, normalizeWeb3Bio } from "./sources";
+import {
+  mergeSocials,
+  normalizeAddressFlags,
+  normalizeBlockscoutCreator,
+  normalizeClanker,
+  normalizeCoinbase,
+  normalizeDexPairs,
+  normalizeEthos,
+  normalizeGecko,
+  normalizeHoneypot,
+  normalizeOrders,
+  normalizeTokenSecurity,
+  normalizeWeb3Bio,
+} from "./sources";
 
 const JESSE = "0x2211d1D0020DAEA8039E46Cf1367962070d77DA9";
 const PEPE = "0x6982508145454Ce325dDbE47a25d4ec3d2311933";
@@ -150,5 +163,96 @@ describe("lookup input", () => {
     expect(checksumMismatch("0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045")).toBe(false);
     expect(checksumMismatch("0xd8da6bf26964af9d7eed9e03e53415d37aa96045")).toBe(false);
     expect(checksumMismatch("0xD8dA6BF26964aF9D7eEd9e03E53415D37aA96045")).toBe(true);
+  });
+});
+
+describe("token sources", () => {
+  it("reads the team's links from the DexScreener pair that carries a profile", () => {
+    const fact = normalizeDexPairs(
+      {
+        pairs: [
+          {
+            chainId: "ethereum",
+            baseToken: { address: PEPE, name: "Pepe", symbol: "PEPE" },
+            quoteToken: { address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" },
+            liquidity: { usd: 10 },
+            info: { websites: [{ label: "Website", url: "https://www.pepe.vip" }], socials: [{ type: "twitter", url: "https://x.com/pepecoineth" }, { type: "telegram", url: "https://t.me/pepe" }] },
+          },
+        ],
+      },
+      PEPE,
+    );
+    expect(fact?.socials).toEqual({ x: ["pepecoineth"], website: "https://www.pepe.vip", telegram: "https://t.me/pepe" });
+  });
+
+  it("merges links without duplicates or overwrites", () => {
+    expect(mergeSocials({ x: ["pepecoineth"], website: "https://a.example" }, { x: ["PepeCoinEth", "other"], website: "https://b.example", discord: "https://discord.gg/x" })).toEqual({
+      x: ["pepecoineth", "other"],
+      website: "https://a.example",
+      discord: "https://discord.gg/x",
+    });
+  });
+
+  it("keeps GoPlus's creator and its share as a percentage", () => {
+    const out = normalizeTokenSecurity({ code: 1, result: { [PEPE.toLowerCase()]: { creator_address: "0xfbfEaF0DA0F2fdE5c66dF570133aE35f3eB58c9A", creator_percent: "0.012" } } }, PEPE);
+    expect(out?.creator).toBe("0xfbfEaF0DA0F2fdE5c66dF570133aE35f3eB58c9A");
+    expect(out?.creatorPercent).toBeCloseTo(1.2);
+  });
+
+  it("reads GeckoTerminal's score, holder spread, links and developer", () => {
+    const info = normalizeGecko({
+      data: {
+        attributes: {
+          twitter_handle: "pepecoineth",
+          websites: ["https://www.pepe.vip"],
+          telegram_handle: null,
+          gt_score: 86.6,
+          holders: { count: 595074, distribution_percentage: { top_10: "36.0191" } },
+          developer_address: null,
+          developer_holding_percentage: null,
+        },
+      },
+    });
+    expect(info).toEqual({ socials: { x: ["pepecoineth"], website: "https://www.pepe.vip" }, score: 86.6, top10: 36.0191, holders: 595074, developer: undefined, developerPercent: undefined });
+    expect(normalizeGecko({ errors: [{ status: "404" }] })).toBeNull();
+  });
+
+  it("takes a Honeypot.is verdict only from a simulation that ran", () => {
+    expect(normalizeHoneypot({ simulationSuccess: true, honeypotResult: { isHoneypot: false }, simulationResult: { buyTax: 0, sellTax: 2.5, transferTax: 0 } })).toEqual({ honeypot: false, buyTax: 0, sellTax: 2.5, transferTax: 0 });
+    expect(normalizeHoneypot({ simulationSuccess: true, honeypotResult: { isHoneypot: true, honeypotReason: "sell failed" }, simulationResult: {} })?.honeypot).toBe(true);
+    expect(normalizeHoneypot({ simulationSuccess: false, simulationError: "no pair" })).toBeNull();
+  });
+
+  it("lists only DexScreener orders that were approved", () => {
+    expect(
+      normalizeOrders({
+        orders: [
+          { type: "communityTakeover", status: "cancelled" },
+          { type: "tokenProfile", status: "approved" },
+          { type: "tokenAd", status: "approved" },
+          { type: "tokenAd", status: "approved" },
+        ],
+      }),
+    ).toEqual(["tokenProfile", "tokenAd"]);
+  });
+
+  it("finds the Clanker launch for exactly this address", () => {
+    const CL = "0x005a8A8129f46afF830276a658b05A7272b50f72";
+    const launch = normalizeClanker(
+      {
+        data: [
+          { contract_address: "0x0000000000000000000000000000000000000001", msg_sender: JESSE },
+          { contract_address: CL, msg_sender: "0x73Ee023DA573097020f92534fbc26a66Ae6Ca258", socialLinks: [{ name: "website", link: "https://wose.live/" }], metadata: { socialMediaUrls: [{ platform: "x", url: "https://x.com/wose_live" }] } },
+        ],
+      },
+      CL,
+    );
+    expect(launch).toEqual({ deployer: "0x73Ee023DA573097020f92534fbc26a66Ae6Ca258", url: `https://www.clanker.world/clanker/${CL}`, socials: { x: ["wose_live"], website: "https://wose.live/" } });
+    expect(normalizeClanker({ data: [] }, CL)).toBeNull();
+  });
+
+  it("reads the creator from Blockscout", () => {
+    expect(normalizeBlockscoutCreator({ creator_address_hash: "0xfbfEaF0DA0F2fdE5c66dF570133aE35f3eB58c9A" })).toBe("0xfbfEaF0DA0F2fdE5c66dF570133aE35f3eB58c9A");
+    expect(normalizeBlockscoutCreator({ creator_address_hash: null })).toBeNull();
   });
 });

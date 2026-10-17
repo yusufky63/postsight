@@ -75,6 +75,10 @@
     "https://base.easscan.org/*",
     "https://api.gopluslabs.io/*",
     "https://api.dexscreener.com/*",
+    "https://api.geckoterminal.com/*",
+    "https://api.honeypot.is/*",
+    "https://eth.blockscout.com/*",
+    "https://www.clanker.world/*",
     "<all_urls>"
   ]
 }
