@@ -98,6 +98,7 @@ export const fr: Record<MessageKey, string> = {
   "wallet.token": "Jeton",
   "wallet.price": "Prix",
   "wallet.liquidity": "Liquidité",
+  "wallet.marketCap": "Capitalisation",
   "wallet.fdv": "FDV",
   "wallet.volume": "Volume 24 h",
   "wallet.listed": "Listé",
@@ -120,6 +121,10 @@ export const fr: Record<MessageKey, string> = {
   "wallet.top10": "10 premiers détenteurs",
   "wallet.gtScore": "Score GeckoTerminal {score}/100",
   "wallet.launchpad": "Lancé sur {name}",
+  "wallet.contract": "Contrat",
+  "wallet.contractVerified": "Code source vérifié : {name}",
+  "wallet.creatorThrough": "via un contrat de fabrique",
+  "wallet.since": "depuis {date}",
 
   "flag.cybercrime": "Cybercriminalité",
   "flag.money_laundering": "Blanchiment d'argent",
@@ -339,6 +344,9 @@ export const fr: Record<MessageKey, string> = {
   "features.walletsHint": "Chrome demande une fois l'accès aux sources publiques consultées : {hosts}. Rien n'est envoyé tant que vous ne survolez pas une adresse, et alors seulement cette adresse ou ce nom, sans vos cookies.",
   "features.walletsMore": "Les fiches de portefeuille peuvent désormais lire aussi des sources sur les jetons (GeckoTerminal, Honeypot.is, Blockscout, Clanker).",
   "features.walletsAllow": "Autoriser",
+  "features.etherscanKey": "Clé d'API Etherscan (facultatif)",
+  "features.etherscanHint": "Ajoute qui a créé un contrat sur n'importe quelle chaîne, son nom vérifié et la date de la première transaction d'un portefeuille. Une clé gratuite d'etherscan.io suffit. Elle reste sur cet appareil et n'est envoyée qu'à api.etherscan.io.",
+  "features.etherscanOk": "La clé Etherscan fonctionne",
   "features.uiLang": "Langue de l'interface",
   "features.outputLang": "Langue des réponses",
 
@@ -364,5 +372,5 @@ export const fr: Record<MessageKey, string> = {
   "help.q7": "Qu'est-ce qui est envoyé au modèle ?",
   "help.a7": "Le texte du post, l'identifiant de l'auteur, l'heure, le post cité, le texte de l'aperçu du lien, le sondage, la note de la Communauté, les liens des images (uniquement aux modèles capables de les voir) et, sur la page d'un post, le reste du fil de l'auteur. Pour un X Article, Postsight lit l'article depuis la page publique du post sur X ; pour les liens, il lit la page liée si vous l'avez autorisé. Les pages sont récupérées sans vos cookies. Rien d'autre de votre compte ou de votre fil d'actualité n'est envoyé.",
   "help.q8": "Que vérifient les fiches de portefeuille, et qu'envoient-elles ?",
-  "help.a8": "Quand les fiches de portefeuille sont activées, survoler une adresse 0x ou un nom .eth dans un post le recherche dans des sources publiques sans clé : ENS sur Ethereum et Basenames sur Base (noms vérifiés dans les deux sens, avec leurs enregistrements texte), soldes et nombres de transactions depuis des nœuds publics Ethereum et Base, profils web3.bio, avis Ethos, attestations de vérification Coinbase sur Base et alertes de sécurité GoPlus. Pour un jeton s'ajoutent les paires d'échange et les mises en avant payantes DexScreener, le score et la répartition des détenteurs de GeckoTerminal, un achat et une vente de test chez Honeypot.is et son créateur (selon Clanker, Blockscout, GoPlus ou GeckoTerminal). Seule l'adresse ou le nom leur est envoyé, sans vos cookies, et les réponses restent sur cet appareil jusqu'à un jour. Les noms, les liens de profil et les comptes indiqués par un jeton sont des déclarations de leur propriétaire : une correspondance est un indice, pas une preuve.",
+  "help.a8": "Quand les fiches de portefeuille sont activées, survoler une adresse 0x ou un nom .eth dans un post le recherche dans des sources publiques sans clé : ENS sur Ethereum et Basenames sur Base (noms vérifiés dans les deux sens, avec leurs enregistrements texte), soldes et nombres de transactions depuis des nœuds publics Ethereum et Base, profils web3.bio, avis Ethos, attestations de vérification Coinbase sur Base et alertes de sécurité GoPlus. Pour un jeton s'ajoutent les paires d'échange et les mises en avant payantes DexScreener, le score et la répartition des détenteurs de GeckoTerminal, un achat et une vente de test chez Honeypot.is et son créateur (selon Clanker, Blockscout, GoPlus ou GeckoTerminal). Seule l'adresse ou le nom leur est envoyé, sans vos cookies, et les réponses restent sur cet appareil jusqu'à un jour. Les noms, les liens de profil et les comptes indiqués par un jeton sont des déclarations de leur propriétaire : une correspondance est un indice, pas une preuve. Avec votre propre clé d'API Etherscan dans les paramètres, les fiches indiquent aussi qui a créé un contrat sur n'importe quelle chaîne, son nom vérifié et la date de la première transaction d'un portefeuille.",
 };

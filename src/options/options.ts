@@ -10,10 +10,12 @@ import type { PostFeatures } from "../shared/router";
 import { mergeSettings, resolveUiLang } from "../shared/settings";
 import {
   keyedProviders,
+  loadExplorerKeys,
   loadHistory,
   loadSecrets,
   loadSettings,
   loadUsage,
+  saveExplorerKey,
   saveHistory,
   saveSecret,
   saveSettings,
@@ -70,7 +72,11 @@ const state = {
   canWallets: false,
   /** The token sources added in 1.1 are allowed too; older grants cover only the core hosts. */
   canTokenSources: false,
+  /** The reader's own Etherscan key for wallet cards, and the field's state. */
+  etherscan: { saved: "", draft: "", reveal: false, test: undefined as TestState | undefined },
 };
+
+const ETHERSCAN_ORIGIN = "https://api.etherscan.io/*";
 
 const app = document.getElementById("app")!;
 const containers = new Map<SectionId, HTMLElement>();
@@ -813,8 +819,97 @@ function renderFeatures(): Child {
             h("button", { class: "btn btn-sm", type: "button", onClick: () => void allowTokenSources() }, t("features.walletsAllow")),
           )
         : null,
+      s.walletCards && state.canWallets ? etherscanField() : null,
     ),
   ];
+}
+
+/** An optional Etherscan key: creators on every chain, verified contract names, wallet age. */
+function etherscanField(): HTMLElement {
+  const e = state.etherscan;
+  const input = h("input", {
+    type: e.reveal ? "text" : "password",
+    autocomplete: "off",
+    spellcheck: "false",
+    placeholder: e.saved ? maskKey(e.saved) : t("prov.keyPlaceholder"),
+    "aria-label": t("features.etherscanKey"),
+  });
+  input.value = e.draft;
+  input.addEventListener("input", () => (e.draft = input.value));
+  const commit = async () => {
+    const value = e.draft.trim();
+    if (!value) return;
+    // The permission prompt has to come first, while the click still counts as the reader's gesture.
+    const granted = await chrome.permissions.request({ origins: [ETHERSCAN_ORIGIN] }).catch(() => false);
+    if (!granted) {
+      toast(t("features.readLinksDenied"));
+      return;
+    }
+    await saveExplorerKey("etherscan", value);
+    e.saved = value;
+    e.draft = "";
+    await testEtherscan();
+  };
+  input.addEventListener("keydown", (ev) => {
+    if (ev.key === "Enter") void commit();
+  });
+  const tone = e.test?.state === "ok" ? "positive-fg" : e.test?.state === "fail" ? "danger-fg" : "text-muted";
+  return h(
+    "div",
+    { class: "kv" },
+    h("span", { class: "label" }, t("features.etherscanKey")),
+    h(
+      "div",
+      { class: "row" },
+      h(
+        "label",
+        { class: "field", style: "flex:1;min-width:220px" },
+        input,
+        h(
+          "button",
+          {
+            class: "icon-btn",
+            type: "button",
+            title: e.reveal ? t("prov.hide") : t("prov.show"),
+            "aria-label": e.reveal ? t("prov.hide") : t("prov.show"),
+            onClick: () => {
+              e.reveal = !e.reveal;
+              renderSection("features");
+            },
+          },
+          icon(e.reveal ? "eyeOff" : "eye", 16),
+        ),
+      ),
+      h("button", { class: "btn btn-primary", type: "button", onClick: () => void commit() }, t("prov.save")),
+      e.saved
+        ? h(
+            "button",
+            {
+              class: "btn btn-ghost btn-danger",
+              type: "button",
+              onClick: async () => {
+                await saveExplorerKey("etherscan", "");
+                e.saved = "";
+                e.test = undefined;
+                renderSection("features");
+              },
+            },
+            t("prov.remove"),
+          )
+        : null,
+      h("a", { class: "btn btn-ghost btn-sm", href: "https://etherscan.io/apidashboard", target: "_blank", rel: "noopener noreferrer" }, t("prov.getKey"), icon("external", 14)),
+    ),
+    h("div", { class: "status-line", style: `color:var(--${tone})` }, e.test?.text ?? ""),
+    h("span", { class: "xs muted" }, t("features.etherscanHint")),
+  );
+}
+
+async function testEtherscan(): Promise<void> {
+  state.etherscan.test = { state: "testing", text: t("prov.testing") };
+  renderSection("features");
+  const res = await sendRequest<{ ok: boolean; detail?: string }>({ type: "test-etherscan" });
+  state.etherscan.test = res.ok ? { state: "ok", text: t("features.etherscanOk") } : { state: "fail", text: t("prov.fail", { msg: res.detail ?? t("error.unknown") }) };
+  renderSection("features");
 }
 
 async function changeUiLang(value: UiLangSetting): Promise<void> {
@@ -1052,6 +1147,7 @@ async function init(): Promise<void> {
   state.canReadLinks = await chrome.permissions.contains({ origins: ["<all_urls>"] }).catch(() => false);
   state.canWallets = await chrome.permissions.contains({ origins: CORE_ORIGINS }).catch(() => false);
   state.canTokenSources = await chrome.permissions.contains({ origins: TOKEN_ORIGINS }).catch(() => false);
+  state.etherscan.saved = (await loadExplorerKeys()).etherscan;
   renderAll();
   const hash = location.hash.slice(1);
   if (hash) document.getElementById(hash)?.scrollIntoView();

@@ -98,6 +98,7 @@ export const es: Record<MessageKey, string> = {
   "wallet.token": "Token",
   "wallet.price": "Precio",
   "wallet.liquidity": "Liquidez",
+  "wallet.marketCap": "Cap. de mercado",
   "wallet.fdv": "FDV",
   "wallet.volume": "Volumen 24 h",
   "wallet.listed": "Listado",
@@ -120,6 +121,10 @@ export const es: Record<MessageKey, string> = {
   "wallet.top10": "10 mayores titulares",
   "wallet.gtScore": "Puntuación de GeckoTerminal {score}/100",
   "wallet.launchpad": "Lanzado en {name}",
+  "wallet.contract": "Contrato",
+  "wallet.contractVerified": "Código verificado: {name}",
+  "wallet.creatorThrough": "a través de un contrato fábrica",
+  "wallet.since": "desde {date}",
 
   "flag.cybercrime": "Ciberdelito",
   "flag.money_laundering": "Lavado de dinero",
@@ -339,6 +344,9 @@ export const es: Record<MessageKey, string> = {
   "features.walletsHint": "Chrome pide una vez acceso a las fuentes públicas que consulta: {hosts}. No se envía nada hasta que pasas el cursor sobre una dirección, y entonces solo esa dirección o nombre, sin tus cookies.",
   "features.walletsMore": "Las tarjetas de billetera ahora también pueden leer fuentes de tokens (GeckoTerminal, Honeypot.is, Blockscout, Clanker).",
   "features.walletsAllow": "Permitir",
+  "features.etherscanKey": "Clave de API de Etherscan (opcional)",
+  "features.etherscanHint": "Añade quién creó un contrato en cualquier cadena, su nombre verificado y cuándo una billetera hizo su primera transacción. Basta con una clave gratuita de etherscan.io. Se queda en este dispositivo y solo se envía a api.etherscan.io.",
+  "features.etherscanOk": "La clave de Etherscan funciona",
   "features.uiLang": "Idioma de la interfaz",
   "features.outputLang": "Idioma de las respuestas",
 
@@ -364,5 +372,5 @@ export const es: Record<MessageKey, string> = {
   "help.q7": "¿Qué se envía al modelo?",
   "help.a7": "El texto del post, el nombre de usuario del autor, la hora, el post citado, el texto de la vista previa del enlace, la encuesta, la nota de la comunidad, los enlaces de las imágenes (solo a modelos que pueden verlas) y, en la página de un post, el resto del hilo del autor. En los Artículos de X, Postsight lee el artículo desde la página pública del post en X; en los enlaces, lee la página enlazada si lo permitiste. Las páginas se descargan sin tus cookies. No se envía nada más de tu cuenta ni de tu cronología.",
   "help.q8": "¿Qué comprueban las tarjetas de billetera y qué envían?",
-  "help.a8": "Con las tarjetas de billetera activadas, pasar el cursor sobre una dirección 0x o un nombre .eth en un post lo consulta en fuentes públicas que no necesitan clave: ENS en Ethereum y Basenames en Base (nombres comprobados en ambos sentidos, con sus registros de texto), saldos y número de transacciones de nodos públicos de Ethereum y Base, perfiles de web3.bio, reseñas de Ethos, certificaciones de verificación de Coinbase en Base y alertas de seguridad de GoPlus. Para un token se añaden los pares de trading y los anuncios de pago de DexScreener, la puntuación y el reparto de titulares de GeckoTerminal, una compra y venta de prueba en Honeypot.is y quién lo creó (según Clanker, Blockscout, GoPlus o GeckoTerminal). Solo se les envía la dirección o el nombre, sin tus cookies, y las respuestas se guardan en este dispositivo hasta un día. Los nombres, los enlaces de perfil y las cuentas que lista un token son afirmaciones de su dueño, así que una coincidencia es una pista, no una prueba.",
+  "help.a8": "Con las tarjetas de billetera activadas, pasar el cursor sobre una dirección 0x o un nombre .eth en un post lo consulta en fuentes públicas que no necesitan clave: ENS en Ethereum y Basenames en Base (nombres comprobados en ambos sentidos, con sus registros de texto), saldos y número de transacciones de nodos públicos de Ethereum y Base, perfiles de web3.bio, reseñas de Ethos, certificaciones de verificación de Coinbase en Base y alertas de seguridad de GoPlus. Para un token se añaden los pares de trading y los anuncios de pago de DexScreener, la puntuación y el reparto de titulares de GeckoTerminal, una compra y venta de prueba en Honeypot.is y quién lo creó (según Clanker, Blockscout, GoPlus o GeckoTerminal). Solo se les envía la dirección o el nombre, sin tus cookies, y las respuestas se guardan en este dispositivo hasta un día. Los nombres, los enlaces de perfil y las cuentas que lista un token son afirmaciones de su dueño, así que una coincidencia es una pista, no una prueba. Con tu propia clave de API de Etherscan en los ajustes, las tarjetas también muestran quién creó un contrato en cualquier cadena, su nombre verificado y cuándo una billetera hizo su primera transacción.",
 };

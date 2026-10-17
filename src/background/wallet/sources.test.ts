@@ -122,13 +122,14 @@ describe("DexScreener", () => {
     priceUsd: "0.000003969",
     liquidity: { usd: liquidity },
     fdv: 1642443809,
+    marketCap: 1642443809,
     volume: { h24: 1000 },
     pairCreatedAt: created,
   });
 
   it("describes the token on the chain with the deepest pool", () => {
     const fact = normalizeDexPairs({ pairs: [pair("ethereum", 2_000_000, 1681942955000), pair("ethereum", 28_000_000, 1681492871000), pair("bsc", 5_000_000, 1700000000000)] }, PEPE);
-    expect(fact).toMatchObject({ name: "Pepe", symbol: "PEPE", chain: "ethereum", priceUsd: 0.000003969, liquidityUsd: 30_000_000, pairs: 2, createdAt: 1681492871000, url: "https://dexscreener.com/ethereum/pair28000000" });
+    expect(fact).toMatchObject({ name: "Pepe", symbol: "PEPE", chain: "ethereum", priceUsd: 0.000003969, liquidityUsd: 30_000_000, marketCapUsd: 1642443809, pairs: 2, createdAt: 1681492871000, url: "https://dexscreener.com/ethereum/pair28000000" });
   });
 
   it("returns null when nothing trades", () => {

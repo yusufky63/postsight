@@ -8,7 +8,7 @@ Postsight is a browser extension that analyses posts on X (x.com) with an AI mod
 
 Everything stays in your browser's extension storage (`chrome.storage.local`) on your device and is never synced:
 
-- the API keys you enter for Claude (Anthropic), OpenAI or DeepSeek;
+- the API keys you enter for Claude (Anthropic), OpenAI or DeepSeek, and an Etherscan key if you add one for wallet cards;
 - your settings (languages, models, budgets, which actions show);
 - a usage log (time, action, model, token counts, cost) used to show spend against your budgets;
 - saved results, so the same request is not paid for twice, listed under History;
@@ -45,6 +45,8 @@ Wallet cards are off until you turn them on in Settings, which also asks your br
 - api.honeypot.is: a simulated buy and sell of a token, to measure its taxes and whether it can be sold;
 - eth.blockscout.com: who deployed a contract on Ethereum;
 - www.clanker.world: whether a Base token was launched on Clanker, and by which wallet.
+
+If you add your own Etherscan API key, cards also ask api.etherscan.io, with that key, who created a contract, the contract's verified name and when a wallet first transacted. The key goes only to api.etherscan.io.
 
 Nothing is sent until you hover an address or name, or open one from the post's menu. Names, text records, profile links and the accounts a token lists are what their owner or the token's team published; Postsight shows them as claims, not proof of identity. "Research with AI" on a card sends those facts with the post to your AI provider, like any other action. You can turn wallet cards off at any time or remove the access in your browser.
 

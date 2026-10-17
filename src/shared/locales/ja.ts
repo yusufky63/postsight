@@ -98,6 +98,7 @@ export const ja: Record<MessageKey, string> = {
   "wallet.token": "トークン",
   "wallet.price": "価格",
   "wallet.liquidity": "流動性",
+  "wallet.marketCap": "時価総額",
   "wallet.fdv": "FDV",
   "wallet.volume": "24時間の出来高",
   "wallet.listed": "上場",
@@ -120,6 +121,10 @@ export const ja: Record<MessageKey, string> = {
   "wallet.top10": "上位10保有者",
   "wallet.gtScore": "GeckoTerminalスコア {score}/100",
   "wallet.launchpad": "{name} でローンチ",
+  "wallet.contract": "コントラクト",
+  "wallet.contractVerified": "検証済みソース：{name}",
+  "wallet.creatorThrough": "ファクトリーコントラクト経由",
+  "wallet.since": "{date}から",
 
   "flag.cybercrime": "サイバー犯罪",
   "flag.money_laundering": "マネーロンダリング",
@@ -339,6 +344,9 @@ export const ja: Record<MessageKey, string> = {
   "features.walletsHint": "Chromeが参照する公開情報源へのアクセスを一度だけ求めます：{hosts}。アドレスにカーソルを合わせるまでは何も送信されず、その後もそのアドレスか名前だけがCookieなしで送信されます。",
   "features.walletsMore": "ウォレットカードはトークンの情報源も読めるようになりました（GeckoTerminal、Honeypot.is、Blockscout、Clanker）。",
   "features.walletsAllow": "許可",
+  "features.etherscanKey": "Etherscan APIキー（任意）",
+  "features.etherscanHint": "どのチェーンでもコントラクトの作成者、検証済みの名前、ウォレットの最初の取引日を追加します。etherscan.ioの無料キーで使えます。キーはこの端末に保存され、api.etherscan.ioにだけ送信されます。",
+  "features.etherscanOk": "Etherscanキーは有効です",
   "features.uiLang": "表示言語",
   "features.outputLang": "回答言語",
 
@@ -364,5 +372,5 @@ export const ja: Record<MessageKey, string> = {
   "help.q7": "モデルには何が送信されますか？",
   "help.a7": "ポストのテキスト、投稿者のユーザー名、投稿日時、引用ポスト、リンクプレビューのテキスト、アンケート、コミュニティノート、画像のリンク（画像を認識できるモデルのみ）、さらにポストページではその投稿者のスレッドの続きです。Xの記事の場合、PostsightはXの公開ポストページから記事を読み取ります。リンクの場合は、許可していればリンク先のページを読み取ります。ページはCookieなしで取得されます。アカウントやタイムラインのそれ以外の情報は送信されません。",
   "help.q8": "ウォレットカードは何を確認し、何を送信しますか？",
-  "help.a8": "ウォレットカードがオンのとき、ポスト内の0xアドレスや .eth 名にカーソルを合わせると、キー不要の公開情報源で調べます：EthereumのENSとBaseのBasenames（名前は双方向で確認し、テキストレコードも取得）、EthereumとBaseの公開ノードからの残高と取引数、web3.bioのプロフィール、Ethosのレビュー、Base上のCoinbase認証アテステーション、GoPlusのセキュリティ警告。トークンの場合は、DexScreenerの取引ペアと有料掲載、GeckoTerminalのスコアと保有者の分布、Honeypot.isでのテスト売買、そして作成者（Clanker、Blockscout、GoPlus、GeckoTerminalから）も加わります。送信されるのはアドレスか名前だけで、Cookieは含まれず、回答はこの端末に最大1日保存されます。名前、プロフィールのリンク、トークンが掲載するアカウントは所有者が公開した主張なので、一致は手がかりであって証拠ではありません。",
+  "help.a8": "ウォレットカードがオンのとき、ポスト内の0xアドレスや .eth 名にカーソルを合わせると、キー不要の公開情報源で調べます：EthereumのENSとBaseのBasenames（名前は双方向で確認し、テキストレコードも取得）、EthereumとBaseの公開ノードからの残高と取引数、web3.bioのプロフィール、Ethosのレビュー、Base上のCoinbase認証アテステーション、GoPlusのセキュリティ警告。トークンの場合は、DexScreenerの取引ペアと有料掲載、GeckoTerminalのスコアと保有者の分布、Honeypot.isでのテスト売買、そして作成者（Clanker、Blockscout、GoPlus、GeckoTerminalから）も加わります。送信されるのはアドレスか名前だけで、Cookieは含まれず、回答はこの端末に最大1日保存されます。名前、プロフィールのリンク、トークンが掲載するアカウントは所有者が公開した主張なので、一致は手がかりであって証拠ではありません。設定に自分のEtherscan APIキーを追加すると、どのチェーンでもコントラクトの作成者、その検証済みの名前、ウォレットの最初の取引日もカードに表示されます。",
 };

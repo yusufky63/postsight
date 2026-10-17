@@ -16,7 +16,35 @@ export function formatUsd(value: number | null, lang: UiLang): string {
   }).format(value);
 }
 
+/**
+ * Turkish compact numbers write "B" for bin (thousand), which a crypto reader takes for
+ * billion. There, K/M/B/T is used the way crypto sites write it, with the Turkish
+ * decimal comma kept.
+ */
+const KMB_LANGS: ReadonlySet<UiLang> = new Set(["tr"]);
+const KMB: [number, string][] = [
+  [1e12, "T"],
+  [1e9, "B"],
+  [1e6, "M"],
+  [1e3, "K"],
+];
+
+function kmb(value: number, lang: UiLang): string {
+  const one = (v: number) => new Intl.NumberFormat(LOCALE(lang), { maximumFractionDigits: 1 }).format(v);
+  const abs = Math.abs(value);
+  const i = KMB.findIndex(([n]) => abs >= n);
+  if (i < 0) return one(value);
+  const [n, suffix] = KMB[i]!;
+  // 999,96K rounds to 1.000K: that is 1M.
+  if (Math.round((abs / n) * 10) / 10 >= 1000 && i > 0) {
+    const [up, upSuffix] = KMB[i - 1]!;
+    return `${one(value / up)}${upSuffix}`;
+  }
+  return `${one(value / n)}${suffix}`;
+}
+
 export function formatTokens(value: number, lang: UiLang): string {
+  if (KMB_LANGS.has(lang)) return kmb(value, lang);
   return new Intl.NumberFormat(LOCALE(lang), { notation: "compact", maximumFractionDigits: 1 }).format(value);
 }
 
@@ -71,6 +99,7 @@ export function hostOf(url: string): string {
 
 /** Liquidity, FDV and volume read best short: $12.3M. */
 export function formatCompactUsd(value: number, lang: UiLang): string {
+  if (KMB_LANGS.has(lang)) return `$${kmb(value, lang)}`;
   return new Intl.NumberFormat(LOCALE(lang), { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(value);
 }
 
@@ -94,6 +123,11 @@ export function formatEth(value: number, tiny: boolean, lang: UiLang): string {
 /** A share given in percent (0-100): two decimals for small ones, one above 1%. */
 export function formatPercent(value: number, lang: UiLang): string {
   return new Intl.NumberFormat(LOCALE(lang), { style: "percent", maximumFractionDigits: value !== 0 && Math.abs(value) < 1 ? 2 : 1 }).format(value / 100);
+}
+
+/** "Mar 2021": when a wallet first took part in a transaction. */
+export function formatMonthYear(ts: number, lang: UiLang): string {
+  return new Intl.DateTimeFormat(LOCALE(lang), { month: "short", year: "numeric" }).format(ts);
 }
 
 /** "3 days ago", "2 years ago": how long a token has been trading. */

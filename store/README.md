@@ -36,6 +36,7 @@ Postsight helps people understand posts on X: it fact-checks, researches, summar
 | Host `t.co` | Resolves X's short links in a post the user asked about, to see which page they point to. |
 | Optional `<all_urls>` | Only if the user turns on "Read the pages posts link to": loads the page a post links to when the user runs an action on that post. Requested at runtime, can be revoked. |
 | Optional `ethereum-rpc.publicnode.com`, `eth.drpc.org`, `mainnet.base.org`, `base-rpc.publicnode.com`, `api.web3.bio`, `api.ethos.network`, `base.easscan.org`, `api.gopluslabs.io`, `api.dexscreener.com`, `api.geckoterminal.com`, `api.honeypot.is`, `eth.blockscout.com`, `www.clanker.world` | Only if the user turns on "Wallet cards": when the user hovers a wallet address or .eth name in a post, sends that address or name to these public services to show its names, profiles, reputation, security flags, and for a token its market data, a simulated trade and who created it. Requested at runtime, can be revoked. |
+| Optional `api.etherscan.io` | Only if the user adds their own Etherscan API key for wallet cards: looks up who created a contract, its verified name and when a wallet first transacted, with that key. Requested when the key is saved, can be revoked. |
 
 No remote code: all scripts ship in the package.
 

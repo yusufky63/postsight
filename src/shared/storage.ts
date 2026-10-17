@@ -6,6 +6,7 @@ const KEYS = {
   secrets: "secrets",
   usage: "usage",
   history: "history",
+  explorer: "explorerKeys",
 } as const;
 
 export const STORAGE_KEYS = KEYS;
@@ -60,4 +61,19 @@ export async function loadHistory(): Promise<HistoryEntry[]> {
 
 export async function saveHistory(entries: HistoryEntry[]): Promise<void> {
   await chrome.storage.local.set({ [KEYS.history]: entries });
+}
+
+/** Explorer API keys the reader added for wallet cards; kept apart from the AI keys. */
+export interface ExplorerKeys {
+  etherscan: string;
+}
+
+export async function loadExplorerKeys(): Promise<ExplorerKeys> {
+  return { etherscan: "", ...((await read<Partial<ExplorerKeys>>(KEYS.explorer)) ?? {}) };
+}
+
+export async function saveExplorerKey(name: keyof ExplorerKeys, key: string): Promise<void> {
+  const keys = await loadExplorerKeys();
+  keys[name] = key.trim();
+  await chrome.storage.local.set({ [KEYS.explorer]: keys });
 }

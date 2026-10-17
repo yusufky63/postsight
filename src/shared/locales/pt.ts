@@ -98,6 +98,7 @@ export const pt: Record<MessageKey, string> = {
   "wallet.token": "Token",
   "wallet.price": "Preço",
   "wallet.liquidity": "Liquidez",
+  "wallet.marketCap": "Market cap",
   "wallet.fdv": "FDV",
   "wallet.volume": "Volume 24 h",
   "wallet.listed": "Listado",
@@ -120,6 +121,10 @@ export const pt: Record<MessageKey, string> = {
   "wallet.top10": "10 maiores detentores",
   "wallet.gtScore": "Pontuação GeckoTerminal {score}/100",
   "wallet.launchpad": "Lançado no {name}",
+  "wallet.contract": "Contrato",
+  "wallet.contractVerified": "Código verificado: {name}",
+  "wallet.creatorThrough": "por meio de um contrato fábrica",
+  "wallet.since": "desde {date}",
 
   "flag.cybercrime": "Cibercrime",
   "flag.money_laundering": "Lavagem de dinheiro",
@@ -339,6 +344,9 @@ export const pt: Record<MessageKey, string> = {
   "features.walletsHint": "O Chrome pede uma vez acesso às fontes públicas consultadas: {hosts}. Nada é enviado até você passar o mouse sobre um endereço, e aí só esse endereço ou nome, sem os seus cookies.",
   "features.walletsMore": "Os cartões de carteira agora também podem ler fontes de tokens (GeckoTerminal, Honeypot.is, Blockscout, Clanker).",
   "features.walletsAllow": "Permitir",
+  "features.etherscanKey": "Chave de API do Etherscan (opcional)",
+  "features.etherscanHint": "Adiciona quem criou um contrato em qualquer rede, o nome verificado dele e quando uma carteira fez a primeira transação. Uma chave gratuita do etherscan.io basta. Ela fica neste dispositivo e só é enviada para api.etherscan.io.",
+  "features.etherscanOk": "A chave do Etherscan funciona",
   "features.uiLang": "Idioma da interface",
   "features.outputLang": "Idioma das respostas",
 
@@ -364,5 +372,5 @@ export const pt: Record<MessageKey, string> = {
   "help.q7": "O que é enviado ao modelo?",
   "help.a7": "O texto do post, o @ do autor, o horário, o post citado, o texto da prévia do link, a enquete, a nota da comunidade, os links das imagens (só para modelos que conseguem vê-las) e, na página de um post, o resto da thread do autor. Nos Artigos do X, o Postsight lê o artigo pela página pública do post no X; nos links, lê a página do link se você permitiu. As páginas são baixadas sem os seus cookies. Nada mais da sua conta ou da sua timeline é enviado.",
   "help.q8": "O que os cartões de carteira verificam e o que enviam?",
-  "help.a8": "Com os cartões de carteira ligados, passar o mouse sobre um endereço 0x ou um nome .eth em um post faz a consulta em fontes públicas que não precisam de chave: ENS na Ethereum e Basenames na Base (nomes verificados nos dois sentidos, com seus registros de texto), saldos e número de transações de nós públicos da Ethereum e da Base, perfis do web3.bio, avaliações do Ethos, atestados de verificação da Coinbase na Base e alertas de segurança do GoPlus. Para um token entram também os pares de negociação e os anúncios pagos do DexScreener, a pontuação e a distribuição de detentores do GeckoTerminal, uma compra e venda de teste no Honeypot.is e quem o criou (segundo Clanker, Blockscout, GoPlus ou GeckoTerminal). Só o endereço ou o nome é enviado, sem os seus cookies, e as respostas ficam neste dispositivo por até um dia. Nomes, links de perfil e as contas que um token lista são declarações do dono, então uma correspondência é uma pista, não uma prova.",
+  "help.a8": "Com os cartões de carteira ligados, passar o mouse sobre um endereço 0x ou um nome .eth em um post faz a consulta em fontes públicas que não precisam de chave: ENS na Ethereum e Basenames na Base (nomes verificados nos dois sentidos, com seus registros de texto), saldos e número de transações de nós públicos da Ethereum e da Base, perfis do web3.bio, avaliações do Ethos, atestados de verificação da Coinbase na Base e alertas de segurança do GoPlus. Para um token entram também os pares de negociação e os anúncios pagos do DexScreener, a pontuação e a distribuição de detentores do GeckoTerminal, uma compra e venda de teste no Honeypot.is e quem o criou (segundo Clanker, Blockscout, GoPlus ou GeckoTerminal). Só o endereço ou o nome é enviado, sem os seus cookies, e as respostas ficam neste dispositivo por até um dia. Nomes, links de perfil e as contas que um token lista são declarações do dono, então uma correspondência é uma pista, não uma prova. Com a sua própria chave de API do Etherscan nas configurações, os cartões também mostram quem criou um contrato em qualquer rede, o nome verificado dele e quando uma carteira fez a primeira transação.",
 };
