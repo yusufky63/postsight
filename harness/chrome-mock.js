@@ -28,6 +28,7 @@
     actions: { verify: true, research: true, summarize: true, translate: true, explain: true, reply: true, ask: true },
     shortcuts: true,
     cacheResults: true,
+    checkUpdates: true,
     customModels: [],
     walletCards: params.get("perms") === "1",
   };
@@ -161,6 +162,13 @@
         return { ok: true, models: ["claude-haiku-5-5", "claude-opus-5-5", "claude-sonnet-5-5"] };
       case "balance":
         return { ok: false, error: "no_key" };
+      case "update-status": {
+        // ?update=github or ?update=store shows the new-version notice for that kind of install.
+        const kind = params.get("update");
+        if (kind === "store") return { current: "1.1.0", source: "store", latest: "1.2.0" };
+        if (kind === "github") return { current: "1.1.0", source: "github", latest: "1.2.0", url: "https://github.com/yusufky63/postsight/releases/tag/v1.2.0", checkedAt: now - 3_600_000 };
+        return { current: "1.1.0", source: "github", checkedAt: now - 3_600_000 };
+      }
       default:
         return { ok: true };
     }

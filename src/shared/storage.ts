@@ -7,6 +7,8 @@ const KEYS = {
   usage: "usage",
   history: "history",
   explorer: "explorerKeys",
+  updateCheck: "updateCheck",
+  updateReady: "updateReady",
 } as const;
 
 export const STORAGE_KEYS = KEYS;

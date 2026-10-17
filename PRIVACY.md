@@ -1,6 +1,6 @@
 # Privacy policy
 
-Last updated: 2026-10-16
+Last updated: 2026-10-17
 
 Postsight is a browser extension that analyses posts on X (x.com) with an AI model you choose. This page explains what it handles and where that goes. Postsight has no server of its own, no account system, no analytics and no advertising.
 
@@ -23,7 +23,7 @@ Only when you run an action on a post (Verify, Research, Summarize, Translate, E
 - api.anthropic.com (Claude), api.openai.com (OpenAI) or api.deepseek.com (DeepSeek), with your own API key.
 - The request contains the post text, author name and handle, time, quoted post, link preview text, poll, community note, links to its images (only for models that can see images), the rest of the author's thread on a post page, the text of an X Article, and the text of linked pages if you allowed that.
 
-Each provider handles that data under its own terms and privacy policy. Postsight does not send anything to anyone else.
+Each provider handles that data under its own terms and privacy policy. Apart from the services below and the update check, Postsight does not send anything to anyone else.
 
 ## Pages Postsight fetches
 
@@ -49,6 +49,12 @@ Wallet cards are off until you turn them on in Settings, which also asks your br
 If you add your own Etherscan API key, cards also ask api.etherscan.io, with that key, who created a contract, the contract's verified name and when a wallet first transacted. The key goes only to api.etherscan.io. A Blockscout PRO API key works the same way with api.blockscout.com, for a contract's creator, its verified name and what a proxy runs.
 
 Nothing is sent until you hover an address or name, or open one from the post's menu. Names, text records, profile links and the accounts a token lists are what their owner or the token's team published; Postsight shows them as claims, not proof of identity. "Research with AI" on a card sends those facts with the post to your AI provider, like any other action. You can turn wallet cards off at any time or remove the access in your browser.
+
+## Update check
+
+A copy installed from the Chrome Web Store or Edge Add-ons is updated by the store and never runs this check.
+
+A copy loaded from the GitHub release zip cannot update itself, so once a day, when you open the popup or the settings page, it asks api.github.com which Postsight release is the newest, to tell you when a new version is out. The request carries no cookies and nothing about you, your keys, your settings or your posts; GitHub sees only that a request was made from your network. You can turn it off under Help, Updates in Settings.
 
 ## What Postsight does not do
 

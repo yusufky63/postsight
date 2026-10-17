@@ -41,6 +41,7 @@ describe("renderPolicy", () => {
       "what-is-sent-and-to-whom",
       "pages-postsight-fetches",
       "wallet-cards-optional",
+      "update-check",
       "what-postsight-does-not-do",
       "contact",
     ]);

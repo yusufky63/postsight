@@ -46,6 +46,7 @@ No remote code: all scripts ship in the package.
 - Collects: website content (the post the user runs an action on) and authentication information (the user's own API keys, stored locally).
 - Not sold, not used for unrelated purposes, not used for creditworthiness or lending.
 - Sent only to the AI provider the user selected, to provide the feature the user asked for.
+- Store copies never run the GitHub update check; it exists only for copies loaded from the release zip, which cannot update themselves.
 - Privacy policy URL: https://github.com/yusufky63/postsight/blob/main/PRIVACY.md until the website is deployed; after that, https://postsight.xyz/privacy (built from `PRIVACY.md`, see [site/README.md](../site/README.md)).
 
 ## Website URLs
@@ -57,6 +58,18 @@ Once https://postsight.xyz is deployed from `site/` on Vercel:
 | Privacy policy | https://postsight.xyz/privacy |
 | Homepage / official URL | https://postsight.xyz |
 | Support URL | https://postsight.xyz/support |
+
+## Publishing and updates
+
+Both stores update installed copies on their own once a new version passes review, so readers who install from a store always run the latest release. The popup then offers a restart (`chrome.runtime.onUpdateAvailable`) instead of waiting for the browser to restart.
+
+For each release:
+
+1. Bump `version` in `package.json`, add the CHANGELOG section, merge, and tag `v<version>`; the Release workflow builds `postsight-<version>.zip`.
+2. Chrome Web Store developer dashboard: open the item, Package, Upload new package, pick the zip, then Submit for review.
+3. Edge Add-ons in Partner Center: open the extension, Update, Packages, upload the same zip, then Publish.
+
+The first submission also needs the listing text, images, single purpose, permission justifications and privacy answers from this page. The version in each upload must be higher than the one live in that store.
 
 ## Developer accounts
 

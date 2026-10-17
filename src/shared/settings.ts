@@ -25,6 +25,7 @@ export const DEFAULT_SETTINGS: Settings = {
   actions: { verify: true, research: true, summarize: true, translate: true, explain: true, reply: true, ask: true },
   shortcuts: true,
   cacheResults: true,
+  checkUpdates: true,
   customModels: [],
 };
 

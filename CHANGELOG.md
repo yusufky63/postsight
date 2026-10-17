@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- A notice in the popup and at the top of Settings when a newer Postsight is out. Copies from the Chrome Web Store or Edge Add-ons get an "Update now" button once the store has downloaded it. Copies loaded from the release zip ask GitHub once a day for the latest release and link to it; the check can be turned off under Help, Updates.
+
 ## 1.1.0 (2026-10-17)
 
 ### Wallet cards (optional, off by default)
