@@ -38,6 +38,7 @@ import type {
 } from "../shared/types";
 import { spentByProvider, summarizeUsage } from "../shared/usage";
 import { parseVerdict } from "../shared/verdict";
+import { WALLET_HOSTS, WALLET_ORIGINS } from "../shared/wallet";
 import { tokensLeft } from "../ui/budget";
 import { budgetBar, languageSelect, segmented, select, toggle, toast } from "../ui/controls";
 import { h, icon, replace } from "../ui/dom";
@@ -66,6 +67,7 @@ const state = {
   balance: "",
   lastSaved: "",
   canReadLinks: false,
+  canWallets: false,
 };
 
 const app = document.getElementById("app")!;
@@ -799,6 +801,8 @@ function renderFeatures(): Child {
       toggle(t("features.cache"), s.cacheResults, (v) => void save((st) => (st.cacheResults = v))),
       toggle(t("features.readLinks"), s.readLinks && state.canReadLinks, (v) => void setReadLinks(v)),
       h("span", { class: "xs muted" }, t("features.readLinksHint")),
+      toggle(t("features.wallets"), s.walletCards && state.canWallets, (v) => void setWalletCards(v)),
+      h("span", { class: "xs muted" }, t("features.walletsHint", { hosts: WALLET_HOSTS.join(", ") })),
     ),
   ];
 }
@@ -821,6 +825,20 @@ async function setReadLinks(on: boolean): Promise<void> {
     }
   }
   await save((st) => (st.readLinks = on), ["features"]);
+}
+
+/** Wallet cards read a fixed list of public hosts, asked for in the same click that turns them on. */
+async function setWalletCards(on: boolean): Promise<void> {
+  if (on) {
+    const granted = await chrome.permissions.request({ origins: WALLET_ORIGINS }).catch(() => false);
+    state.canWallets = granted;
+    if (!granted) {
+      toast(t("features.readLinksDenied"));
+      renderSection("features");
+      return;
+    }
+  }
+  await save((st) => (st.walletCards = on), ["features"]);
 }
 
 // ---------- 06 history ----------
@@ -916,7 +934,7 @@ function renderHistory(): Child {
 // ---------- 07 help ----------
 
 function renderHelp(): Child {
-  const faqs = [1, 2, 3, 4, 5, 6, 7].map((n) =>
+  const faqs = [1, 2, 3, 4, 5, 6, 7, 8].map((n) =>
     h("details", { class: "faq" }, h("summary", null, t(`help.q${n}` as MessageKey)), h("p", null, t(`help.a${n}` as MessageKey))),
   );
   return [h("div", { class: "module" }, faqs), h("span", { class: "mono xs muted" }, `Postsight ${__POSTSIGHT_VERSION__} · ${t("models.intro", { date: PRICES_CHECKED })}`)];
@@ -1014,6 +1032,7 @@ async function init(): Promise<void> {
   const [settings, secrets, usage, history] = await Promise.all([loadSettings(), loadSecrets(), loadUsage(), loadHistory()]);
   Object.assign(state, { settings, secrets, usage, history, lang: resolveUiLang(settings.uiLang, navigator.language), lastSaved: JSON.stringify(settings) });
   state.canReadLinks = await chrome.permissions.contains({ origins: ["<all_urls>"] }).catch(() => false);
+  state.canWallets = await chrome.permissions.contains({ origins: WALLET_ORIGINS }).catch(() => false);
   renderAll();
   const hash = location.hash.slice(1);
   if (hash) document.getElementById(hash)?.scrollIntoView();

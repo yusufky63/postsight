@@ -19,12 +19,15 @@ import {
 import { ACTIONS } from "../shared/types";
 import type { HistoryEntry, LinkedPage, ProviderId, RouteChoice, RunResult, Settings, UiLang, UsageEntry } from "../shared/types";
 import { appendCapped, spentByProvider, USAGE_LIMIT } from "../shared/usage";
+import type { WalletEvent, WalletRequest } from "../shared/wallet";
+import { WALLET_ORIGINS, WALLET_PORT } from "../shared/wallet";
 import { listAnthropicModels, runAnthropic } from "./providers/anthropic";
 import type { ProviderCallbacks, ProviderRequest, ProviderResult } from "./providers/common";
 import { ProviderError } from "./providers/common";
 import { canReadAllSites, fetchWebPage, fetchXArticle } from "./pages";
 import { deepSeekBalance, listDeepSeekModels, runDeepSeek } from "./providers/deepseek";
 import { listOpenAIModels, runOpenAI } from "./providers/openai";
+import { lookupWallet, validQuery } from "./wallet/lookup";
 
 const RUNNERS: Record<ProviderId, (req: ProviderRequest, cb: ProviderCallbacks) => Promise<ProviderResult>> = {
   anthropic: runAnthropic,
@@ -156,6 +159,7 @@ async function runJob(job: RunJob, emit: (e: RunEvent) => void, signal: AbortSig
     today: new Date().toISOString().slice(0, 10),
     secondLang: secondLanguage(lang),
     pages,
+    facts: job.action === "ask" ? job.facts?.slice(0, 4000) : undefined,
   });
 
   const out = await RUNNERS[decision.provider](
@@ -242,6 +246,32 @@ chrome.runtime.onConnect.addListener((port) => {
   });
 });
 
+/** Wallet lookups need both the setting and the hosts; the reader can revoke the hosts in Chrome at any time. */
+async function walletsAllowed(settings?: Settings): Promise<boolean> {
+  const s = settings ?? (await loadSettings());
+  return s.walletCards && (await chrome.permissions.contains({ origins: WALLET_ORIGINS }).catch(() => false));
+}
+
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name !== WALLET_PORT) return;
+  const controller = new AbortController();
+  let open = true;
+  port.onDisconnect.addListener(() => {
+    open = false;
+    controller.abort();
+  });
+  const emit = (event: WalletEvent) => {
+    if (open) port.postMessage(event);
+  };
+  port.onMessage.addListener((request: WalletRequest) => {
+    void (async () => {
+      if (!validQuery(request?.query)) return emit({ type: "error", code: "unknown" });
+      if (!(await walletsAllowed())) return emit({ type: "error", code: "permission" });
+      await lookupWallet(request.query, (card) => emit({ type: "card", card }), controller.signal);
+    })().catch(() => emit({ type: "error", code: "unknown" }));
+  });
+});
+
 async function contentConfig(): Promise<ContentConfig> {
   const [settings, secrets] = await Promise.all([loadSettings(), loadSecrets()]);
   const keyed = keyedProviders(secrets);
@@ -255,6 +285,7 @@ async function contentConfig(): Promise<ContentConfig> {
     hasKey: keyed.size > 0,
     shortcuts: settings.shortcuts,
     includeThread: settings.includeThread,
+    wallets: await walletsAllowed(settings),
   };
 }
 
@@ -322,15 +353,20 @@ try {
   // Older Chrome without access levels on local storage; content scripts never read storage anyway.
 }
 
-// Content scripts cannot read storage, so they are told when settings change.
-chrome.storage.onChanged.addListener((changes, area) => {
-  if (area !== "local" || !(changes.settings || changes.secrets)) return;
+// Content scripts cannot read storage, so they are told when settings or permissions change.
+function broadcastConfig(): void {
   void chrome.tabs.query({}).then((tabs) => {
     for (const tab of tabs) {
       if (tab.id !== undefined) chrome.tabs.sendMessage(tab.id, { type: "config-changed" }).catch(() => undefined);
     }
   });
+}
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "local" && (changes.settings || changes.secrets)) broadcastConfig();
 });
+chrome.permissions.onAdded.addListener(broadcastConfig);
+chrome.permissions.onRemoved.addListener(broadcastConfig);
 
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === "install") void chrome.runtime.openOptionsPage();

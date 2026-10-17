@@ -68,3 +68,44 @@ export function hostOf(url: string): string {
     return url;
   }
 }
+
+/** Liquidity, FDV and volume read best short: $12.3M. */
+export function formatCompactUsd(value: number, lang: UiLang): string {
+  return new Intl.NumberFormat(LOCALE(lang), { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(value);
+}
+
+/** Token prices run from thousands of dollars to a billionth of a cent; keep three significant digits below a cent. */
+export function formatPrice(value: number, lang: UiLang): string {
+  if (value <= 0) return formatUsd(0, lang);
+  const small = value < 0.01;
+  return new Intl.NumberFormat(LOCALE(lang), {
+    style: "currency",
+    currency: "USD",
+    ...(small ? { maximumSignificantDigits: 3 } : { minimumFractionDigits: 2, maximumFractionDigits: value < 1 ? 4 : 2 }),
+  }).format(value);
+}
+
+/** Ether amounts: four decimals at most, fewer for large balances. */
+export function formatEth(value: number, tiny: boolean, lang: UiLang): string {
+  if (tiny) return `<${new Intl.NumberFormat(LOCALE(lang), { maximumFractionDigits: 4 }).format(0.0001)} ETH`;
+  return `${new Intl.NumberFormat(LOCALE(lang), { maximumFractionDigits: value >= 100 ? 1 : 4 }).format(value)} ETH`;
+}
+
+/** "3 days ago", "2 years ago": how long a token has been trading. */
+export function formatAge(ts: number, lang: UiLang, now = Date.now()): string {
+  const days = (now - ts) / 86_400_000;
+  const rtf = new Intl.RelativeTimeFormat(LOCALE(lang), { numeric: "auto" });
+  if (days >= 365) return rtf.format(-Math.floor(days / 365), "year");
+  if (days >= 30) return rtf.format(-Math.floor(days / 30), "month");
+  if (days >= 1) return rtf.format(-Math.floor(days), "day");
+  return rtf.format(-Math.max(1, Math.floor(days * 24)), "hour");
+}
+
+/** A country code as a name in the reader's language: "DE" -> "Germany". */
+export function regionName(code: string, lang: UiLang): string {
+  try {
+    return new Intl.DisplayNames([LOCALE(lang)], { type: "region" }).of(code) ?? code;
+  } catch {
+    return code;
+  }
+}

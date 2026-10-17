@@ -178,7 +178,7 @@ const en: Copy = {
   reads: {
     eyebrow: "03 — Context and languages",
     title: "Reads what the post points to",
-    lead: "A link-only post is not judged by its headline. Postsight reads X Articles from X's public post page and, with your permission, the news and blog pages a post links to. Pages are fetched without your cookies.",
+    lead: "A link-only post is not judged by its headline. Postsight reads X Articles from X's public post page and, with your permission, the news and blog pages a post links to. Pages are fetched without your cookies. With wallet cards on, hovering a 0x address or a .eth name shows who is behind it: names checked both ways, linked profiles, reputation, security flags and, for a token, its market and contract checks, all from public sources.",
     langTitle: "12 languages",
     langLead: "For the interface and the answers. Translate goes into your language, or into your second language when the post is already in yours.",
   },
@@ -337,7 +337,7 @@ const tr: Copy = {
   reads: {
     eyebrow: "03 — Bağlam ve diller",
     title: "Gönderinin gösterdiğini okur",
-    lead: "Sadece bağlantıdan oluşan bir gönderi başlığına göre değerlendirilmez. Postsight X Makalelerini X'in herkese açık gönderi sayfasından, izin verirsen gönderinin bağlantı verdiği haber ve blog sayfalarını da okur. Sayfalar çerezlerin olmadan çekilir.",
+    lead: "Sadece bağlantıdan oluşan bir gönderi başlığına göre değerlendirilmez. Postsight X Makalelerini X'in herkese açık gönderi sayfasından, izin verirsen gönderinin bağlantı verdiği haber ve blog sayfalarını da okur. Sayfalar çerezlerin olmadan çekilir. Cüzdan kartları açıksa bir 0x adresinin ya da .eth isminin üzerine gelmek arkasında kim olduğunu gösterir: iki yönde kontrol edilen isimler, bağlı profiller, itibar, güvenlik uyarıları ve token ise piyasa ile kontrat kontrolleri; hepsi herkese açık kaynaklardan.",
     langTitle: "12 dil",
     langLead: "Arayüz ve yanıtlar için. Çeviri senin diline yapılır; gönderi zaten senin dilindeyse ikinci diline.",
   },
@@ -427,10 +427,10 @@ const tr: Copy = {
 
 export const COPY: Record<Lang, Copy> = { en, tr };
 
-/** The seven help questions and answers from the extension's Help section. */
+/** The help questions and answers from the extension's Help section. */
 export function faq(lang: Lang): { q: string; a: string }[] {
   const ui = COPY[lang].ui;
-  const n = [1, 2, 3, 4, 5, 6, 7] as const;
+  const n = [1, 2, 3, 4, 5, 6, 7, 8] as const;
   return n.map((i) => ({ q: ui[`help.q${i}` as const], a: ui[`help.a${i}` as const] }));
 }
 

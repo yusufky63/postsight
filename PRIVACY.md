@@ -11,7 +11,8 @@ Everything stays in your browser's extension storage (`chrome.storage.local`) on
 - the API keys you enter for Claude (Anthropic), OpenAI or DeepSeek;
 - your settings (languages, models, budgets, which actions show);
 - a usage log (time, action, model, token counts, cost) used to show spend against your budgets;
-- saved results, so the same request is not paid for twice, listed under History.
+- saved results, so the same request is not paid for twice, listed under History;
+- if you use wallet cards, the public facts they looked up (names, balances, profiles, scores, security flags, market data), kept for up to a day so the same address is not looked up again.
 
 Storage is limited to the extension's own pages and service worker, so the script that runs on x.com cannot read your keys. You can clear the usage log and history in Settings; uninstalling the extension removes everything.
 
@@ -30,9 +31,23 @@ Each provider handles that data under its own terms and privacy policy. Postsigh
 - **t.co links.** Postsight resolves X's short links to see where they point, without your cookies.
 - **Linked pages.** Only if you turn on "Read the pages posts link to" and grant the all-sites permission, Postsight loads the pages a post links to, without your cookies, when you run an action on that post. You can turn this off at any time in Settings or remove the permission in your browser.
 
+## Wallet cards (optional)
+
+Wallet cards are off until you turn them on in Settings, which also asks your browser for access to the services they read. With them on, hovering a wallet address (0x...) or an ENS or Basename (.eth) in a post sends that address or name, and nothing else, without your cookies, to these public services that need no key:
+
+- Ethereum and Base nodes (ethereum-rpc.publicnode.com, eth.drpc.org, mainnet.base.org, base-rpc.publicnode.com): names, text records, balances and transaction counts;
+- api.web3.bio: profiles linked to the address;
+- api.ethos.network: Ethos reviews and score;
+- base.easscan.org: Coinbase verification attestations on Base;
+- api.gopluslabs.io: security flags for the address and, for a token, its contract checks;
+- api.dexscreener.com: trading pairs for a token.
+
+Nothing is sent until you hover an address or name, or open one from the post's menu. Names, text records and profile links are what the wallet's owner published; Postsight shows them as claims, not proof of identity. "Research with AI" on a card sends those facts with the post to your AI provider, like any other action. You can turn wallet cards off at any time or remove the access in your browser.
+
 ## What Postsight does not do
 
 - It does not read your timeline, messages, bookmarks or account settings.
+- It does not connect to, read or sign with your crypto wallet; wallet cards only look up public data about addresses written in posts.
 - It does not post, like, reply or follow on your behalf; reply ideas are drafts you copy.
 - It does not sell, share or transfer data, and it does not use data for credit, lending or advertising purposes.
 

@@ -793,6 +793,250 @@ input:focus-visible {
   font-size: 12px;
 }
 
+/* ---------- Wallet card ---------- */
+.wcard {
+  width: 340px;
+  max-height: calc(100vh - 16px);
+  display: flex;
+  flex-direction: column;
+}
+.wcard .muted {
+  color: var(--text-muted);
+}
+/* Only the body scrolls when the card is taller than the room beside the address. */
+.wc-head,
+.wc-foot,
+.wc-danger,
+.wc-author {
+  flex: none;
+}
+.wc-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.wc-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: var(--radius-md);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.wc-id {
+  min-width: 0;
+  flex: 1;
+}
+.wc-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.wc-title > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wc-check {
+  display: inline-flex;
+  flex: none;
+  color: var(--positive-fg);
+}
+.wc-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.wc-danger,
+.wc-author {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.wc-danger svg,
+.wc-author svg {
+  flex: none;
+  margin-top: 1px;
+}
+.wc-danger {
+  background: var(--danger-soft);
+  color: var(--danger-fg);
+}
+.wc-author[data-tone="positive"] {
+  background: var(--positive-soft);
+  color: var(--positive-fg);
+}
+.wc-author[data-tone="warning"] {
+  background: var(--warning-soft);
+  color: var(--warning-fg);
+}
+.wc-body {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.wc-bio {
+  margin: 0;
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.wc-row {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+.wc-row > .label {
+  padding-top: 2px;
+  font-size: 10px;
+}
+.wc-value {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.wc-skel span {
+  height: 8px;
+}
+.wc-name,
+.wc-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+}
+.wc-chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+}
+.wc-chain-name {
+  font-weight: 500;
+}
+.wc-chips,
+.wc-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.wc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 12px;
+  line-height: 18px;
+}
+a.wc-chip:hover {
+  border-color: var(--border-strong);
+}
+.wc-chip-platform {
+  font-weight: 600;
+}
+.wc-badges .badge {
+  height: auto;
+  min-height: 22px;
+  padding: 2px 8px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.wc-line a,
+.wc-links a {
+  color: var(--primary);
+  text-decoration: none;
+}
+.wc-line a:hover,
+.wc-links a:hover {
+  text-decoration: underline;
+}
+.wc-token-name {
+  font-weight: 600;
+}
+.wc-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 12px;
+  margin: 4px 0 2px;
+}
+.wc-stats dt {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.wc-stats dd {
+  margin: 0;
+  font-size: 13px;
+}
+.wc-quiet,
+.wc-claims {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.wc-empty {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  color: var(--text-secondary);
+}
+.wc-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+.wc-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-right: auto;
+  font-size: 12px;
+}
+.wc-ext {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.wc-research {
+  flex: none;
+  height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+.wc-research[disabled] {
+  opacity: 0.55;
+  cursor: progress;
+}
 @keyframes fade {
   from {
     opacity: 0;

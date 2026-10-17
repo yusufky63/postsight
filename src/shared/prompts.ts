@@ -17,6 +17,8 @@ export interface PromptOptions {
   secondLang?: UiLang;
   /** The X Article or linked web pages, already fetched. */
   pages?: LinkedPage[];
+  /** Facts a wallet card gathered, when the reader asks about a wallet in the post. */
+  facts?: string;
 }
 
 export interface Prompt {
@@ -184,6 +186,9 @@ function task(action: ActionId, opts: PromptOptions, target: UiLang): string {
     case "ask":
       return [
         "Task: answer the reader's question about the post.",
+        opts.facts
+          ? "The <wallet_lookup> block is what Postsight read just now from public sources (ENS, Basenames, web3.bio, Ethos, Coinbase attestations on Base, GoPlus, DexScreener, public RPCs). Names, text records and profile links are claims the wallet's owner published, not proof of identity; say so where it matters. Do not invent wallet facts that are not in the block or in sources you found."
+          : "",
         opts.useWeb ? "Search the web if the answer depends on current facts." : "",
         `Reader's question: ${opts.question ?? ""}`,
         `Stay under ${words} words.`,
@@ -199,7 +204,7 @@ export function buildPrompt(action: ActionId, tweet: TweetData, opts: PromptOpti
   const deep = action === "verify" || action === "research";
   return {
     system: base(opts, outLang),
-    user: `${formatPost(tweet, opts.imagesVisible, opts.pages)}\n\n${task(action, opts, target)}`,
+    user: `${formatPost(tweet, opts.imagesVisible, opts.pages)}\n\n${opts.facts ? `<wallet_lookup>\n${opts.facts}\n</wallet_lookup>\n\n` : ""}${task(action, opts, target)}`,
     depth: deep || action === "ask" ? "deep" : "light",
     // A translated article can be as long as the article itself.
     maxTokens: deep || (action === "translate" && (tweet.isArticle || (opts.pages?.length ?? 0) > 0)) ? 12000 : 4000,

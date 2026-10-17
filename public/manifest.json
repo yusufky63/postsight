@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "__MSG_extName__",
   "short_name": "__MSG_extShortName__",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "__MSG_extDescription__",
   "default_locale": "en",
   "minimum_chrome_version": "116",
@@ -66,6 +66,15 @@
     }
   ],
   "optional_host_permissions": [
+    "https://ethereum-rpc.publicnode.com/*",
+    "https://eth.drpc.org/*",
+    "https://mainnet.base.org/*",
+    "https://base-rpc.publicnode.com/*",
+    "https://api.web3.bio/*",
+    "https://api.ethos.network/*",
+    "https://base.easscan.org/*",
+    "https://api.gopluslabs.io/*",
+    "https://api.dexscreener.com/*",
     "<all_urls>"
   ]
 }
