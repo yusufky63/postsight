@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildPrompt, formatPost, parseReplies, translateTarget } from "./prompts";
+import { buildPrompt, dominantScript, echoesSource, formatPost, languageName, parseReplies, translateAgain, translateTarget } from "./prompts";
 import type { TweetData } from "./types";
 
 const tweet: TweetData = {
@@ -34,6 +34,44 @@ describe("translateTarget", () => {
     expect(translateTarget("tr", "tr", "de")).toBe("de");
     expect(translateTarget("en", "en", "tr")).toBe("tr");
     expect(translateTarget("pt-BR", "pt", "pt")).toBe("en");
+  });
+});
+
+describe("translating a post in another script", () => {
+  const greek = "Καλημέρα σε όλους! Σήμερα ξεκινάμε τη νέα σεζόν με μεγάλη χαρά. #Αθήνα @dimos_example";
+
+  it("names the post's language in the prompt and repeats the target last", () => {
+    const p = buildPrompt("translate", { ...tweet, text: greek, lang: "el" }, opts);
+    expect(p.outLang).toBe("tr");
+    expect(p.user).toContain("into Turkish.");
+    expect(p.user).toContain("The post is written in Greek.");
+    expect(p.user.trim().split("\n").at(-1)).toBe("Write every sentence in Turkish; never copy the original text untranslated.");
+  });
+
+  it("leaves out X's non-language tags", () => {
+    expect(languageName("el")).toBe("Greek");
+    expect(languageName("pt-BR")).toMatch(/Portuguese/);
+    expect(languageName("qme")).toBeNull();
+    expect(languageName("und")).toBeNull();
+    expect(languageName(null)).toBeNull();
+    expect(buildPrompt("translate", { ...tweet, lang: "zxx" }, opts).user).not.toContain("The post is written in");
+  });
+
+  it("reads the script most letters use, ignoring links, mentions and hashtags", () => {
+    expect(dominantScript(greek)).toBe("Greek");
+    expect(dominantScript("Herkese günaydın! Bugün yeni sezona başlıyoruz. #Αθήνα")).toBe("Latin");
+    expect(dominantScript("Всем доброе утро, начинаем новый сезон")).toBe("Cyrillic");
+    expect(dominantScript("今日から新しいシーズンが始まります")).toBe("Han");
+    expect(dominantScript("ok 👍")).toBeNull();
+  });
+
+  it("spots a translation that came back in the post's own script", () => {
+    expect(echoesSource(greek, greek, "tr")).toBe(true);
+    expect(echoesSource(greek, "Herkese günaydın! Bugün yeni sezona büyük bir sevinçle başlıyoruz.", "tr")).toBe(false);
+    // Same script on both sides cannot be told apart this way, so it is never flagged.
+    expect(echoesSource("Buenos días a todos, empezamos la temporada", "Buenos días a todos, empezamos la temporada", "tr")).toBe(false);
+    expect(echoesSource("Всем доброе утро, начинаем новый сезон", "Всем доброе утро, начинаем новый сезон", "ru")).toBe(false);
+    expect(translateAgain("tr")).toContain("must be in Turkish");
   });
 });
 

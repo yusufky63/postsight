@@ -3,7 +3,7 @@ import { matchLanguage } from "../shared/languages";
 import { RUN_PORT } from "../shared/messages";
 import { allModels, findModel, guessModel, isChatModelId } from "../shared/models";
 import { costUsd, estimateRun } from "../shared/pricing";
-import { buildPrompt } from "../shared/prompts";
+import { buildPrompt, echoesSource, translateAgain } from "../shared/prompts";
 import { decideRoute, postFeatures } from "../shared/router";
 import type { RouteInput } from "../shared/router";
 import { resolveUiLang } from "../shared/settings";
@@ -18,7 +18,7 @@ import {
   saveUsage,
 } from "../shared/storage";
 import { ACTIONS } from "../shared/types";
-import type { HistoryEntry, LinkedPage, ProviderId, RouteChoice, RunResult, Settings, UiLang, UsageEntry } from "../shared/types";
+import type { HistoryEntry, LinkedPage, ModelInfo, ProviderId, RouteChoice, RunResult, Settings, UiLang, UsageEntry, UsageNumbers } from "../shared/types";
 import { appendCapped, spentByProvider, USAGE_LIMIT } from "../shared/usage";
 import type { WalletEvent, WalletRequest } from "../shared/wallet";
 import { CORE_ORIGINS, TOKEN_ORIGINS, WALLET_PORT } from "../shared/wallet";
@@ -131,6 +131,20 @@ async function gatherPages(tweet: RunJob["tweet"], settings: Settings, emit: (e:
   return pages;
 }
 
+/** The text a translation should not repeat: the post, its quote and its article. */
+function sourceText(tweet: RunJob["tweet"], pages: LinkedPage[]): string {
+  return [tweet.text, tweet.quote?.text, tweet.body ?? pages.find((p) => p.kind === "x-article")?.text].filter(Boolean).join("\n");
+}
+
+function addUsage(a: UsageNumbers, b: UsageNumbers): UsageNumbers {
+  return {
+    inputTokens: a.inputTokens + b.inputTokens,
+    cachedInputTokens: a.cachedInputTokens + b.cachedInputTokens,
+    outputTokens: a.outputTokens + b.outputTokens,
+    webSearches: a.webSearches + b.webSearches,
+  };
+}
+
 async function runJob(job: RunJob, emit: (e: RunEvent) => void, signal: AbortSignal): Promise<void> {
   const started = Date.now();
   const { input, settings, secrets } = await routeInput(job.action, postFeatures(job.tweet));
@@ -167,33 +181,50 @@ async function runJob(job: RunJob, emit: (e: RunEvent) => void, signal: AbortSig
     facts: job.action === "ask" ? job.facts?.slice(0, 4000) : undefined,
   });
 
-  const out = await RUNNERS[decision.provider](
-    {
-      apiKey: secrets[decision.provider],
-      model,
-      system: prompt.system,
-      user: prompt.user,
-      images: decision.useVision ? job.tweet.images.slice(0, 4) : [],
-      useWeb: decision.useWeb,
-      depth: prompt.depth,
-      maxTokens: prompt.maxTokens,
-      maxSearches: prompt.maxSearches,
-      signal,
-    },
-    {
-      onText: (text) => emit({ type: "delta", text }),
-      onStatus: (status) => emit({ type: "status", status }),
-      onSource: (source) => emit({ type: "source", source }),
-      onReset: () => emit({ type: "reset" }),
-    },
-  );
+  const ask = (user: string) =>
+    RUNNERS[decision.provider](
+      {
+        apiKey: secrets[decision.provider],
+        model,
+        system: prompt.system,
+        user,
+        images: decision.useVision ? job.tweet.images.slice(0, 4) : [],
+        useWeb: decision.useWeb,
+        depth: prompt.depth,
+        maxTokens: prompt.maxTokens,
+        maxSearches: prompt.maxSearches,
+        signal,
+      },
+      {
+        onText: (text) => emit({ type: "delta", text }),
+        onStatus: (status) => emit({ type: "status", status }),
+        onSource: (source) => emit({ type: "source", source }),
+        onReset: () => emit({ type: "reset" }),
+      },
+    );
+  // Every call is logged on its own; the result shows what the answer cost in total.
+  const record = async (o: ProviderResult): Promise<{ billed: ModelInfo; cost: number | null; at: number }> => {
+    // A server-side fallback may answer with a model that has no price of its own; bill it at the requested model's rate.
+    const billed = findModel(input.models, decision.provider, o.model) ?? model;
+    const at = Date.now();
+    const cost = costUsd(billed, o.usage, new Date(at));
+    const entry: UsageEntry = { ts: at, provider: decision.provider, model: o.model, action: job.action, costUsd: cost, ...o.usage };
+    await serial(async () => saveUsage(appendCapped(await loadUsage(), entry, USAGE_LIMIT)));
+    return { billed, cost, at };
+  };
 
-  // A server-side fallback may answer with a model that has no price of its own; bill it at the requested model's rate.
-  const billed = findModel(input.models, decision.provider, out.model) ?? model;
-  const now = Date.now();
-  const cost = costUsd(billed, out.usage, new Date(now));
-  const entry: UsageEntry = { ts: now, provider: decision.provider, model: out.model, action: job.action, costUsd: cost, ...out.usage };
-  await serial(async () => saveUsage(appendCapped(await loadUsage(), entry, USAGE_LIMIT)));
+  let out = await ask(prompt.user);
+  let { billed, cost, at: now } = await record(out);
+
+  // A model that hands the post back in its own script (Greek asked for Turkish) gets one more, firmer try.
+  if (job.action === "translate" && !signal.aborted && echoesSource(sourceText(job.tweet, pages), out.text, prompt.outLang)) {
+    emit({ type: "reset" });
+    const first = { usage: out.usage, cost };
+    out = await ask(`${prompt.user}\n${translateAgain(prompt.outLang)}`);
+    ({ billed, cost, at: now } = await record(out));
+    out = { ...out, usage: addUsage(first.usage, out.usage) };
+    cost = cost === null || first.cost === null ? null : cost + first.cost;
+  }
 
   if (!out.text.trim()) throw new ProviderError("empty");
 
