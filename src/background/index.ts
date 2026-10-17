@@ -28,7 +28,9 @@ import { ProviderError } from "./providers/common";
 import { canReadAllSites, fetchWebPage, fetchXArticle } from "./pages";
 import { deepSeekBalance, listDeepSeekModels, runDeepSeek } from "./providers/deepseek";
 import { listOpenAIModels, runOpenAI } from "./providers/openai";
+import { BLOCKSCOUT_PRO_ORIGIN, checkBlockscoutKey } from "./wallet/blockscout";
 import { ETHERSCAN_ORIGIN, checkKey } from "./wallet/etherscan";
+import { HttpError } from "./wallet/net";
 import { lookupWallet, validQuery } from "./wallet/lookup";
 
 const RUNNERS: Record<ProviderId, (req: ProviderRequest, cb: ProviderCallbacks) => Promise<ProviderResult>> = {
@@ -269,13 +271,15 @@ chrome.runtime.onConnect.addListener((port) => {
     void (async () => {
       if (!validQuery(request?.query)) return emit({ type: "error", code: "unknown" });
       if (!(await walletsAllowed())) return emit({ type: "error", code: "permission" });
-      const [extras, explorer, etherscanAllowed] = await Promise.all([
+      const [extras, explorer, etherscanAllowed, blockscoutAllowed] = await Promise.all([
         chrome.permissions.contains({ origins: TOKEN_ORIGINS }).catch(() => false),
         loadExplorerKeys(),
         chrome.permissions.contains({ origins: [ETHERSCAN_ORIGIN] }).catch(() => false),
+        chrome.permissions.contains({ origins: [BLOCKSCOUT_PRO_ORIGIN] }).catch(() => false),
       ]);
       const etherscanKey = etherscanAllowed && explorer.etherscan ? explorer.etherscan : undefined;
-      await lookupWallet(request.query, (card) => emit({ type: "card", card }), controller.signal, { extras, etherscanKey });
+      const blockscoutKey = blockscoutAllowed && explorer.blockscout ? explorer.blockscout : undefined;
+      await lookupWallet(request.query, (card) => emit({ type: "card", card }), controller.signal, { extras, etherscanKey, blockscoutKey });
     })().catch(() => emit({ type: "error", code: "unknown" }));
   });
 });
@@ -329,14 +333,19 @@ async function balance(): Promise<BalanceResponse> {
   }
 }
 
-/** Whether the reader's Etherscan key works; the reason Etherscan gave when it does not. */
-async function testEtherscan(): Promise<{ ok: boolean; detail?: string }> {
-  const { etherscan } = await loadExplorerKeys();
-  if (!etherscan) return { ok: false };
+/** Whether the reader's explorer key works; the reason the explorer gave when it does not. */
+async function testExplorer(explorer: "etherscan" | "blockscout"): Promise<{ ok: boolean; detail?: string }> {
+  const key = (await loadExplorerKeys())[explorer];
+  if (!key) return { ok: false };
+  // Blockscout sends no CORS headers, so without the host permission every call fails as "Failed to fetch".
+  const origin = explorer === "etherscan" ? ETHERSCAN_ORIGIN : BLOCKSCOUT_PRO_ORIGIN;
+  if (!(await chrome.permissions.contains({ origins: [origin] }).catch(() => false))) return { ok: false, detail: "permission" };
   try {
-    await checkKey(etherscan, AbortSignal.timeout(10_000));
+    await (explorer === "etherscan" ? checkKey : checkBlockscoutKey)(key, AbortSignal.timeout(10_000));
     return { ok: true };
   } catch (err) {
+    // Blockscout answers a bad key with a bare 401.
+    if (err instanceof HttpError && (err.status === 401 || err.status === 403)) return { ok: false, detail: "Unauthorized" };
     return { ok: false, detail: err instanceof Error ? err.message.slice(0, 160) : undefined };
   }
 }
@@ -351,8 +360,8 @@ async function handle(request: Request): Promise<unknown> {
       return testKey(request.provider);
     case "balance":
       return balance();
-    case "test-etherscan":
-      return testEtherscan();
+    case "test-explorer":
+      return testExplorer(request.explorer === "blockscout" ? "blockscout" : "etherscan");
     case "open-options": {
       const url = chrome.runtime.getURL(`options.html${request.section ? `#${request.section}` : ""}`);
       await chrome.tabs.create({ url });

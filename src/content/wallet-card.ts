@@ -407,7 +407,7 @@ export class WalletPopover {
         body.push(
           row(
             t("wallet.contract"),
-            h("div", { class: "wc-badges" }, c.verified ? badge("positive", c.name ? t("wallet.contractVerified", { name: c.name }) : t("sig.open_source")) : badge("warning", t("sig.closed_source")), c.proxy ? badge("neutral", t("sig.proxy")) : null),
+            h("div", { class: "wc-badges" }, c.verified ? badge("positive", c.name ? t("wallet.contractVerified", { name: c.name }) : t("sig.open_source")) : badge("warning", t("sig.closed_source")), c.proxy ? badge("neutral", c.implementationName ? `${t("sig.proxy")} · ${c.implementationName}` : t("sig.proxy")) : null),
           ),
         );
       }

@@ -347,6 +347,10 @@ export const ja: Record<MessageKey, string> = {
   "features.etherscanKey": "Etherscan APIキー（任意）",
   "features.etherscanHint": "どのチェーンでもコントラクトの作成者、検証済みの名前、ウォレットの最初の取引日を追加します。etherscan.ioの無料キーで使えます。キーはこの端末に保存され、api.etherscan.ioにだけ送信されます。",
   "features.etherscanOk": "Etherscanキーは有効です",
+  "features.blockscoutKey": "Blockscout PRO APIキー（任意）",
+  "features.blockscoutHint": "コントラクトの作成者と検証済みの名前について、100以上のチェーンでEtherscanの代わりに使えます。BaseのBlockscoutを読める唯一の方法でもあります。プロキシコントラクトが何を実行しているかも表示します。キーはdev.blockscout.comで取得できます。キーはこの端末に保存され、api.blockscout.comにだけ送信されます。",
+  "features.blockscoutOk": "Blockscoutキーは有効です",
+  "features.reloadNeeded": "Postsightは更新されましたが、まだ古いバージョンが動いています。chrome://extensions（またはedge://extensions）で再読み込みしてから、もう一度お試しください。",
   "features.uiLang": "表示言語",
   "features.outputLang": "回答言語",
 
@@ -372,5 +376,5 @@ export const ja: Record<MessageKey, string> = {
   "help.q7": "モデルには何が送信されますか？",
   "help.a7": "ポストのテキスト、投稿者のユーザー名、投稿日時、引用ポスト、リンクプレビューのテキスト、アンケート、コミュニティノート、画像のリンク（画像を認識できるモデルのみ）、さらにポストページではその投稿者のスレッドの続きです。Xの記事の場合、PostsightはXの公開ポストページから記事を読み取ります。リンクの場合は、許可していればリンク先のページを読み取ります。ページはCookieなしで取得されます。アカウントやタイムラインのそれ以外の情報は送信されません。",
   "help.q8": "ウォレットカードは何を確認し、何を送信しますか？",
-  "help.a8": "ウォレットカードがオンのとき、ポスト内の0xアドレスや .eth 名にカーソルを合わせると、キー不要の公開情報源で調べます：EthereumのENSとBaseのBasenames（名前は双方向で確認し、テキストレコードも取得）、EthereumとBaseの公開ノードからの残高と取引数、web3.bioのプロフィール、Ethosのレビュー、Base上のCoinbase認証アテステーション、GoPlusのセキュリティ警告。トークンの場合は、DexScreenerの取引ペアと有料掲載、GeckoTerminalのスコアと保有者の分布、Honeypot.isでのテスト売買、そして作成者（Clanker、Blockscout、GoPlus、GeckoTerminalから）も加わります。送信されるのはアドレスか名前だけで、Cookieは含まれず、回答はこの端末に最大1日保存されます。名前、プロフィールのリンク、トークンが掲載するアカウントは所有者が公開した主張なので、一致は手がかりであって証拠ではありません。設定に自分のEtherscan APIキーを追加すると、どのチェーンでもコントラクトの作成者、その検証済みの名前、ウォレットの最初の取引日もカードに表示されます。",
+  "help.a8": "ウォレットカードがオンのとき、ポスト内の0xアドレスや .eth 名にカーソルを合わせると、キー不要の公開情報源で調べます：EthereumのENSとBaseのBasenames（名前は双方向で確認し、テキストレコードも取得）、EthereumとBaseの公開ノードからの残高と取引数、web3.bioのプロフィール、Ethosのレビュー、Base上のCoinbase認証アテステーション、GoPlusのセキュリティ警告。トークンの場合は、DexScreenerの取引ペアと有料掲載、GeckoTerminalのスコアと保有者の分布、Honeypot.isでのテスト売買、そして作成者（Clanker、Blockscout、GoPlus、GeckoTerminalから）も加わります。送信されるのはアドレスか名前だけで、Cookieは含まれず、回答はこの端末に最大1日保存されます。名前、プロフィールのリンク、トークンが掲載するアカウントは所有者が公開した主張なので、一致は手がかりであって証拠ではありません。設定に自分のEtherscanまたはBlockscout PROのAPIキーを追加すると、どのチェーンでもコントラクトの作成者と検証済みの名前もカードに表示されます。Etherscanキーではウォレットの最初の取引日もわかります。",
 };

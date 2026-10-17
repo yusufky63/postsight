@@ -11,6 +11,8 @@ const DEV = "0x2222222222222222222222222222222222222222";
 const FACTORY = "0x3333333333333333333333333333333333333333";
 /** A Base token that did not come from Clanker. */
 const PLAIN = "0x4444444444444444444444444444444444444444";
+/** Another one, looked up with only a Blockscout PRO key. */
+const OTHER = "0x5555555555555555555555555555555555555555";
 
 vi.mock("./chain", () => ({
   ensAddress: vi.fn(async (name: string) => (name === "vitalik.eth" ? "0xd8da6bf26964af9d7eed9e03e53415d37aa96045" : null)),
@@ -19,7 +21,7 @@ vi.mock("./chain", () => ({
   basenamePrimary: vi.fn(async () => null),
   ensTexts: vi.fn(async (name: string) => (name === "dev.eth" ? { "com.twitter": "postauthor" } : { "com.twitter": "VitalikButerin" })),
   basenameTexts: vi.fn(async () => ({})),
-  chainFact: vi.fn(async (chain: "ethereum" | "base", address: string) => ({ chain, balanceWei: "1", txCount: 3, code: (address === TOKEN || address === PLAIN) && chain === "base" ? "contract" : "none" })),
+  chainFact: vi.fn(async (chain: "ethereum" | "base", address: string) => ({ chain, balanceWei: "1", txCount: 3, code: [TOKEN, PLAIN, OTHER].includes(address) && chain === "base" ? "contract" : "none" })),
   codeAt: vi.fn(async (_chain: string, address: string) => (address.toLowerCase() === FACTORY ? "contract" : "none")),
 }));
 
@@ -30,17 +32,17 @@ vi.mock("./sources", async (importOriginal) => {
     ...real,
     web3bioProfiles: vi.fn(async () => []),
     ethosUser: vi.fn(async (address: string) => {
-      if (address === TOKEN || address === PLAIN) return null;
+      if ([TOKEN, PLAIN, OTHER].includes(address)) return null;
       throw new Error("down");
     }),
     coinbaseVerification: vi.fn(async () => null),
     addressFlags: vi.fn(async () => []),
-    dexToken: vi.fn(async (address: string) => (address === TOKEN || address === PLAIN ? { name: "Project", symbol: "PRJ", chain: "base", pairs: 1, socials: { x: ["projectx"] } } : null)),
+    dexToken: vi.fn(async (address: string) => ([TOKEN, PLAIN, OTHER].includes(address) ? { name: "Project", symbol: "PRJ", chain: "base", pairs: 1, socials: { x: ["projectx"] } } : null)),
     tokenSecurity: vi.fn(async () => ({ signals: [], holders: 10, creator: FACTORY, creatorPercent: 0.5 })),
     dexOrders: vi.fn(async () => ["tokenProfile"]),
     geckoInfo: vi.fn(async () => ({ socials: { x: ["projectx"], website: "https://project.example" }, score: 70, top10: 40, holders: 1200 })),
     honeypotSimulation: vi.fn(async () => ({ honeypot: false, buyTax: 0, sellTax: 1, transferTax: 0 })),
-    clankerLaunch: vi.fn(async (address: string) => (address === PLAIN ? null : { deployer: DEV, url: `https://www.clanker.world/clanker/${TOKEN}`, socials: { x: ["projectx_two"] } })),
+    clankerLaunch: vi.fn(async (address: string) => (address === TOKEN ? { deployer: DEV, url: `https://www.clanker.world/clanker/${TOKEN}`, socials: { x: ["projectx_two"] } } : null)),
     blockscoutCreator: vi.fn(async () => null),
   };
 });
@@ -54,6 +56,10 @@ vi.mock("./etherscan", async (importOriginal) => {
     firstActivity: vi.fn(async (chainId: number) => (chainId === 1 ? Date.UTC(2017, 2, 1) : null)),
   };
 });
+
+vi.mock("./blockscout", () => ({
+  blockscoutAddress: vi.fn(async () => ({ creator: FACTORY, contract: { verified: true, proxy: true, implementationName: "ProjectTokenV2" } })),
+}));
 
 const store = new Map<string, unknown>();
 beforeEach(() => {
@@ -145,5 +151,16 @@ describe("lookupWallet", () => {
     const last = cards.at(-1)!;
     expect(last.firstSeen).toEqual([{ chain: "ethereum", ts: Date.UTC(2017, 2, 1) }]);
     expect(last.contract).toBeUndefined();
+  });
+
+  it("with only a Blockscout PRO key, takes the creator and contract from Blockscout", async () => {
+    const cards: WalletCard[] = [];
+    await lookupWallet(OTHER, (c) => cards.push(c), new AbortController().signal, { extras: true, blockscoutKey: "test" });
+    const last = cards.at(-1)!;
+    expect(last.pending).toEqual([]);
+    // Blockscout names the factory as the creator; the card says so instead of naming it a person.
+    expect(last.creator).toMatchObject({ address: FACTORY, source: "Blockscout", factory: true, names: [] });
+    expect(last.contract).toEqual({ verified: true, proxy: true, implementationName: "ProjectTokenV2" });
+    expect(last.firstSeen).toBeUndefined();
   });
 });

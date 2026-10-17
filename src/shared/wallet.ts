@@ -207,6 +207,8 @@ export interface ContractFact {
   name?: string;
   proxy: boolean;
   implementation?: Hex;
+  /** What a proxy runs underneath (Blockscout names it). */
+  implementationName?: string;
 }
 
 export interface NameFact {
@@ -366,7 +368,7 @@ export function walletFacts(card: WalletCard, author: string | null): string {
   for (const n of card.names) lines.push(`primary ${n.source === "basename" ? "Basename" : "ENS name"}: ${n.name} (checked both ways)`);
   for (const [key, value] of Object.entries(card.texts)) lines.push(`text record ${key}: ${value}`);
   for (const seen of card.firstSeen ?? []) lines.push(`first transaction on ${seen.chain}: ${new Date(seen.ts).toISOString().slice(0, 10)}`);
-  if (card.contract) lines.push(card.contract.verified ? `verified contract source: ${card.contract.name ?? "unnamed"}${card.contract.proxy ? " (a proxy)" : ""}` : "contract source not verified on Etherscan");
+  if (card.contract) lines.push(card.contract.verified ? `verified contract source: ${card.contract.name ?? "unnamed"}${card.contract.proxy ? ` (a proxy${card.contract.implementationName ? ` for ${card.contract.implementationName}` : ""})` : ""}` : "contract source not verified");
   for (const c of card.chains) {
     const eth = weiToEth(c.balanceWei);
     const code = { none: "no code", delegated: "EIP-7702 delegated wallet", smart: "smart-account proxy (Coinbase Smart Wallet or Safe)", contract: "contract" }[c.code];
