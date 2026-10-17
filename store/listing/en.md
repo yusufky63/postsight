@@ -24,7 +24,7 @@ Know what you spend. Every result shows tokens, web searches, cost and time. Set
 
 Reads what posts point to. Postsight reads X Articles and, with your permission, the news and blog pages a post links to, so a link-only post is not judged by its headline.
 
-Wallet cards (optional). Hover a 0x address or a .eth name in a post to see its ENS name or Basename, linked profiles, Ethos reviews, Coinbase verification, GoPlus security flags and, for a token, its DexScreener market data and contract checks. The card also says whether the wallet's records name the post's author. Public sources, no keys, and nothing is sent until you hover.
+Wallet cards (optional). Hover a 0x address or a .eth name in a post to see its ENS name or Basename, linked profiles, Ethos reviews, Coinbase verification and GoPlus security flags. For a token the card adds DexScreener price, liquidity and market cap, GeckoTerminal's score and top holders, a Honeypot.is test buy and sell with the real fees, contract checks and who created it. It says when the wallet's names, the token's listed X account or its creator point to the post's author, or to someone else. Public sources, no keys needed, and nothing is sent until you hover. Your own Etherscan or Blockscout PRO key adds contract creators and verified names on more chains.
 
 Private by design. Keys stay in your browser and go only to the provider you chose. There is no Postsight server and no tracking.
 
