@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatAge, formatCompactUsd, formatEth, formatMonthYear, formatPrice, isUrlText, shortUrl } from "./format";
+import { formatAge, formatCompactUsd, formatEth, formatMonthYear, formatPrice, formatTokens, isUrlText, shortUrl } from "./format";
 import { parseInline } from "./markdown";
 
 const LONG =
@@ -60,6 +60,13 @@ describe("wallet card numbers", () => {
 
   it("shortens large amounts and ether", () => {
     expect(formatCompactUsd(28_883_227, "en")).toBe("$28.9M");
+    // Turkish keeps its decimal comma but writes K/M/B, as crypto sites do.
+    expect(formatCompactUsd(1_700_000_000, "tr")).toBe("$1,7B");
+    expect(formatCompactUsd(31_700_000, "tr")).toBe("$31,7M");
+    expect(formatTokens(595_128, "tr")).toBe("595,1K");
+    expect(formatTokens(999_960, "tr")).toBe("1M");
+    expect(formatTokens(820, "tr")).toBe("820");
+    expect(formatTokens(595_128, "de")).toBe("595.128");
     expect(formatEth(5.76972533, false, "en")).toBe("5.7697 ETH");
     expect(formatEth(1234.56, false, "en")).toBe("1,234.6 ETH");
     expect(formatEth(0, true, "en")).toBe("<0.0001 ETH");

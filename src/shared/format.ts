@@ -16,7 +16,35 @@ export function formatUsd(value: number | null, lang: UiLang): string {
   }).format(value);
 }
 
+/**
+ * Turkish compact numbers write "B" for bin (thousand), which a crypto reader takes for
+ * billion. There, K/M/B/T is used the way crypto sites write it, with the Turkish
+ * decimal comma kept.
+ */
+const KMB_LANGS: ReadonlySet<UiLang> = new Set(["tr"]);
+const KMB: [number, string][] = [
+  [1e12, "T"],
+  [1e9, "B"],
+  [1e6, "M"],
+  [1e3, "K"],
+];
+
+function kmb(value: number, lang: UiLang): string {
+  const one = (v: number) => new Intl.NumberFormat(LOCALE(lang), { maximumFractionDigits: 1 }).format(v);
+  const abs = Math.abs(value);
+  const i = KMB.findIndex(([n]) => abs >= n);
+  if (i < 0) return one(value);
+  const [n, suffix] = KMB[i]!;
+  // 999,96K rounds to 1.000K: that is 1M.
+  if (Math.round((abs / n) * 10) / 10 >= 1000 && i > 0) {
+    const [up, upSuffix] = KMB[i - 1]!;
+    return `${one(value / up)}${upSuffix}`;
+  }
+  return `${one(value / n)}${suffix}`;
+}
+
 export function formatTokens(value: number, lang: UiLang): string {
+  if (KMB_LANGS.has(lang)) return kmb(value, lang);
   return new Intl.NumberFormat(LOCALE(lang), { notation: "compact", maximumFractionDigits: 1 }).format(value);
 }
 
@@ -71,6 +99,7 @@ export function hostOf(url: string): string {
 
 /** Liquidity, FDV and volume read best short: $12.3M. */
 export function formatCompactUsd(value: number, lang: UiLang): string {
+  if (KMB_LANGS.has(lang)) return `$${kmb(value, lang)}`;
   return new Intl.NumberFormat(LOCALE(lang), { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(value);
 }
 
