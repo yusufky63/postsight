@@ -38,7 +38,7 @@ import type {
 } from "../shared/types";
 import { spentByProvider, summarizeUsage } from "../shared/usage";
 import { parseVerdict } from "../shared/verdict";
-import { WALLET_HOSTS, WALLET_ORIGINS } from "../shared/wallet";
+import { CORE_ORIGINS, TOKEN_ORIGINS, WALLET_HOSTS, WALLET_ORIGINS } from "../shared/wallet";
 import { tokensLeft } from "../ui/budget";
 import { budgetBar, languageSelect, segmented, select, toggle, toast } from "../ui/controls";
 import { h, icon, replace } from "../ui/dom";
@@ -68,6 +68,8 @@ const state = {
   lastSaved: "",
   canReadLinks: false,
   canWallets: false,
+  /** The token sources added in 1.1 are allowed too; older grants cover only the core hosts. */
+  canTokenSources: false,
 };
 
 const app = document.getElementById("app")!;
@@ -803,6 +805,14 @@ function renderFeatures(): Child {
       h("span", { class: "xs muted" }, t("features.readLinksHint")),
       toggle(t("features.wallets"), s.walletCards && state.canWallets, (v) => void setWalletCards(v)),
       h("span", { class: "xs muted" }, t("features.walletsHint", { hosts: WALLET_HOSTS.join(", ") })),
+      s.walletCards && state.canWallets && !state.canTokenSources
+        ? h(
+            "div",
+            { class: "row" },
+            h("span", { class: "xs" }, t("features.walletsMore")),
+            h("button", { class: "btn btn-sm", type: "button", onClick: () => void allowTokenSources() }, t("features.walletsAllow")),
+          )
+        : null,
     ),
   ];
 }
@@ -832,6 +842,7 @@ async function setWalletCards(on: boolean): Promise<void> {
   if (on) {
     const granted = await chrome.permissions.request({ origins: WALLET_ORIGINS }).catch(() => false);
     state.canWallets = granted;
+    state.canTokenSources = granted;
     if (!granted) {
       toast(t("features.readLinksDenied"));
       renderSection("features");
@@ -839,6 +850,13 @@ async function setWalletCards(on: boolean): Promise<void> {
     }
   }
   await save((st) => (st.walletCards = on), ["features"]);
+}
+
+/** For a reader who allowed wallet cards before the token sources existed. */
+async function allowTokenSources(): Promise<void> {
+  state.canTokenSources = await chrome.permissions.request({ origins: TOKEN_ORIGINS }).catch(() => false);
+  if (!state.canTokenSources) toast(t("features.readLinksDenied"));
+  renderSection("features");
 }
 
 // ---------- 06 history ----------
@@ -1032,7 +1050,8 @@ async function init(): Promise<void> {
   const [settings, secrets, usage, history] = await Promise.all([loadSettings(), loadSecrets(), loadUsage(), loadHistory()]);
   Object.assign(state, { settings, secrets, usage, history, lang: resolveUiLang(settings.uiLang, navigator.language), lastSaved: JSON.stringify(settings) });
   state.canReadLinks = await chrome.permissions.contains({ origins: ["<all_urls>"] }).catch(() => false);
-  state.canWallets = await chrome.permissions.contains({ origins: WALLET_ORIGINS }).catch(() => false);
+  state.canWallets = await chrome.permissions.contains({ origins: CORE_ORIGINS }).catch(() => false);
+  state.canTokenSources = await chrome.permissions.contains({ origins: TOKEN_ORIGINS }).catch(() => false);
   renderAll();
   const hash = location.hash.slice(1);
   if (hash) document.getElementById(hash)?.scrollIntoView();

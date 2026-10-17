@@ -74,6 +74,11 @@ const RPS: Record<string, number> = {
   "base.easscan.org": 2,
   "api.gopluslabs.io": 0.5,
   "api.dexscreener.com": 4,
+  // 30 calls a minute without a key.
+  "api.geckoterminal.com": 0.5,
+  "api.honeypot.is": 2,
+  "eth.blockscout.com": 2,
+  "www.clanker.world": 1,
 };
 
 const limiters = new Map<string, Limiter>();

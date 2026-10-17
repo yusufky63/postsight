@@ -35,7 +35,7 @@ Postsight helps people understand posts on X: it fact-checks, researches, summar
 | Host `x.com` | Runs the content script that adds the AI button to posts, and reads the public page of an X Article the user asked about. |
 | Host `t.co` | Resolves X's short links in a post the user asked about, to see which page they point to. |
 | Optional `<all_urls>` | Only if the user turns on "Read the pages posts link to": loads the page a post links to when the user runs an action on that post. Requested at runtime, can be revoked. |
-| Optional `ethereum-rpc.publicnode.com`, `eth.drpc.org`, `mainnet.base.org`, `base-rpc.publicnode.com`, `api.web3.bio`, `api.ethos.network`, `base.easscan.org`, `api.gopluslabs.io`, `api.dexscreener.com` | Only if the user turns on "Wallet cards": when the user hovers a wallet address or .eth name in a post, sends that address or name to these public services to show its names, profiles, reputation, security flags and token market data. Requested at runtime, can be revoked. |
+| Optional `ethereum-rpc.publicnode.com`, `eth.drpc.org`, `mainnet.base.org`, `base-rpc.publicnode.com`, `api.web3.bio`, `api.ethos.network`, `base.easscan.org`, `api.gopluslabs.io`, `api.dexscreener.com`, `api.geckoterminal.com`, `api.honeypot.is`, `eth.blockscout.com`, `www.clanker.world` | Only if the user turns on "Wallet cards": when the user hovers a wallet address or .eth name in a post, sends that address or name to these public services to show its names, profiles, reputation, security flags, and for a token its market data, a simulated trade and who created it. Requested at runtime, can be revoked. |
 
 No remote code: all scripts ship in the package.
 

@@ -20,7 +20,7 @@ import { ACTIONS } from "../shared/types";
 import type { HistoryEntry, LinkedPage, ProviderId, RouteChoice, RunResult, Settings, UiLang, UsageEntry } from "../shared/types";
 import { appendCapped, spentByProvider, USAGE_LIMIT } from "../shared/usage";
 import type { WalletEvent, WalletRequest } from "../shared/wallet";
-import { WALLET_ORIGINS, WALLET_PORT } from "../shared/wallet";
+import { CORE_ORIGINS, TOKEN_ORIGINS, WALLET_PORT } from "../shared/wallet";
 import { listAnthropicModels, runAnthropic } from "./providers/anthropic";
 import type { ProviderCallbacks, ProviderRequest, ProviderResult } from "./providers/common";
 import { ProviderError } from "./providers/common";
@@ -249,7 +249,7 @@ chrome.runtime.onConnect.addListener((port) => {
 /** Wallet lookups need both the setting and the hosts; the reader can revoke the hosts in Chrome at any time. */
 async function walletsAllowed(settings?: Settings): Promise<boolean> {
   const s = settings ?? (await loadSettings());
-  return s.walletCards && (await chrome.permissions.contains({ origins: WALLET_ORIGINS }).catch(() => false));
+  return s.walletCards && (await chrome.permissions.contains({ origins: CORE_ORIGINS }).catch(() => false));
 }
 
 chrome.runtime.onConnect.addListener((port) => {
@@ -267,7 +267,8 @@ chrome.runtime.onConnect.addListener((port) => {
     void (async () => {
       if (!validQuery(request?.query)) return emit({ type: "error", code: "unknown" });
       if (!(await walletsAllowed())) return emit({ type: "error", code: "permission" });
-      await lookupWallet(request.query, (card) => emit({ type: "card", card }), controller.signal);
+      const extras = await chrome.permissions.contains({ origins: TOKEN_ORIGINS }).catch(() => false);
+      await lookupWallet(request.query, (card) => emit({ type: "card", card }), controller.signal, { extras });
     })().catch(() => emit({ type: "error", code: "unknown" }));
   });
 });

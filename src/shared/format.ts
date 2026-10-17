@@ -91,6 +91,11 @@ export function formatEth(value: number, tiny: boolean, lang: UiLang): string {
   return `${new Intl.NumberFormat(LOCALE(lang), { maximumFractionDigits: value >= 100 ? 1 : 4 }).format(value)} ETH`;
 }
 
+/** A share given in percent (0-100): two decimals for small ones, one above 1%. */
+export function formatPercent(value: number, lang: UiLang): string {
+  return new Intl.NumberFormat(LOCALE(lang), { style: "percent", maximumFractionDigits: value !== 0 && Math.abs(value) < 1 ? 2 : 1 }).format(value / 100);
+}
+
 /** "3 days ago", "2 years ago": how long a token has been trading. */
 export function formatAge(ts: number, lang: UiLang, now = Date.now()): string {
   const days = (now - ts) / 86_400_000;

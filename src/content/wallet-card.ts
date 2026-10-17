@@ -1,9 +1,9 @@
-import { formatAge, formatCompactUsd, formatEth, formatInt, formatPrice, formatTokens, regionName, shortUrl } from "../shared/format";
+import { formatAge, formatCompactUsd, formatEth, formatInt, formatPercent, formatPrice, formatTokens, regionName, shortUrl } from "../shared/format";
 import type { MessageKey } from "../shared/i18n";
 import { translator } from "../shared/i18n";
 import type { UiLang } from "../shared/types";
 import type { ProfileLink, Signal, WalletCard, WalletEvent, WalletRequest } from "../shared/wallet";
-import { WALLET_PORT, authorLink, emptyCard, failedSources, isAddress, profileChips, profileUrl, shortAddress, walletKind, weiToEth } from "../shared/wallet";
+import { WALLET_PORT, authorLink, emptyCard, failedSources, isAddress, profileChips, profileUrl, shortAddress, tokenAuthorLink, tokenChips, tokenSignals, walletKind, weiToEth } from "../shared/wallet";
 import type { Child } from "../ui/dom";
 import { copyText, h, icon } from "../ui/dom";
 import type { IconName } from "../ui/dom";
@@ -55,6 +55,7 @@ const PLATFORM_LABEL: Record<string, string> = {
 };
 
 const TONE: Record<Signal["level"], string> = { danger: "danger", warning: "warning", ok: "positive", info: "neutral" };
+
 const FINISHED_LIMIT = 60;
 
 /**
@@ -70,6 +71,8 @@ export class WalletPopover {
   private card: WalletCard | null = null;
   private error: "permission" | "unknown" | null = null;
   private side: "below" | "above" | null = null;
+  /** Cards opened from this one (the token's creator), for the back button. */
+  private trail: string[] = [];
   /** Finished cards, so hovering an address again on this page is instant. */
   private readonly finished = new Map<string, WalletCard>();
 
@@ -107,13 +110,36 @@ export class WalletPopover {
     }
     this.close();
     this.target = target;
-    const done = this.finished.get(target.query);
-    this.card = done ? structuredClone(done) : emptyCard(target.query);
     this.panel = h("div", { class: "panel wcard", role: "dialog", "aria-label": translator(this.env.lang())("wallet.label") });
     this.root.appendChild(this.panel);
-    this.render();
-    if (!done) this.connect(target.query);
+    this.load(target.query);
     if (focus) requestAnimationFrame(() => this.panel?.querySelector<HTMLElement>("button, a")?.focus());
+  }
+
+  /** Shows another address in the same card, at the same place, such as a token's creator. */
+  private follow(query: string): void {
+    if (!this.target || this.target.query === query) return;
+    this.trail.push(this.target.query);
+    this.target = { ...this.target, query };
+    this.load(query);
+  }
+
+  private back(): void {
+    const previous = this.trail.pop();
+    if (!previous || !this.target) return;
+    this.target = { ...this.target, query: previous };
+    this.load(previous);
+  }
+
+  private load(query: string): void {
+    const port = this.port;
+    this.port = null;
+    port?.disconnect();
+    this.error = null;
+    const done = this.finished.get(query);
+    this.card = done ? structuredClone(done) : emptyCard(query);
+    this.render();
+    if (!done) this.connect(query);
   }
 
   close(): void {
@@ -127,6 +153,7 @@ export class WalletPopover {
     this.card = null;
     this.error = null;
     this.side = null;
+    this.trail = [];
   }
 
   /** Follows the text while the page scrolls; closes once the text is off screen. */
@@ -226,7 +253,7 @@ export class WalletPopover {
     const head = h(
       "div",
       { class: "wc-head" },
-      h("span", { class: "wc-mark", "aria-hidden": "true" }, icon("wallet", 18)),
+      this.trail.length ? button("chevronLeft", t("wallet.back"), () => this.back()) : h("span", { class: "wc-mark", "aria-hidden": "true" }, icon("wallet", 18)),
       h(
         "div",
         { class: "wc-id" },
@@ -279,17 +306,14 @@ export class WalletPopover {
     } else {
       if (card.texts.description) body.push(h("p", { class: "wc-bio" }, card.texts.description));
 
-      const link = !pending("names") && !pending("profiles") ? authorLink(card, target.author) : null;
-      if (link) {
-        notes.push(
-          h(
-            "div",
-            { class: "wc-author", "data-tone": link.own ? "positive" : "warning" },
-            icon(link.own ? "check" : "alert", 16),
-            h("span", null, t(link.own ? "wallet.author.own" : "wallet.author.other", { handle: link.handle })),
-          ),
-        );
-      }
+      // A token is measured by its team's listed X account and its creator; a wallet by its own records.
+      const tokenLink = card.token ? tokenAuthorLink(card, target.author) : null;
+      const link = !card.token && !pending("names") && !pending("profiles") ? authorLink(card, target.author) : null;
+      const authorNote = (tone: string, name: IconName, text: string) => h("div", { class: "wc-author", "data-tone": tone }, icon(name, 16), h("span", null, text));
+      if (tokenLink?.kind === "token-own") notes.push(authorNote("positive", "check", t("wallet.token.own", { handle: tokenLink.handle })));
+      else if (tokenLink?.kind === "creator-own") notes.push(authorNote("positive", "check", t("wallet.creator.own", { handle: tokenLink.handle })));
+      else if (tokenLink) notes.push(authorNote("neutral", "link", t("wallet.token.other", { handle: tokenLink.handle })));
+      else if (link) notes.push(authorNote(link.own ? "positive" : "warning", link.own ? "check" : "alert", t(link.own ? "wallet.author.own" : "wallet.author.other", { handle: link.handle })));
 
       // Names other than the one in the title.
       const others = card.names.filter((n) => n.name !== title);
@@ -331,9 +355,11 @@ export class WalletPopover {
         else if (!isContract) body.push(row(t("wallet.chains"), muted(t("wallet.noActivity"))));
       }
 
-      const chips = profileChips(card);
+      // A token's links are the ones its team listed; a wallet's come from its names and web3.bio.
+      const chips = card.token ? tokenChips(card.token.socials) : profileChips(card);
+      const chipsLoading = card.token ? pending("market") || pending("launchpad") : pending("profiles") || pending("names");
       if (chips.length) body.push(row(t("wallet.profiles"), h("div", { class: "wc-chips" }, chips.map((p) => this.chip(p, lang)))));
-      else if (pending("profiles") || pending("names")) body.push(row(t("wallet.profiles"), skeleton()));
+      else if (chipsLoading) body.push(row(t("wallet.profiles"), skeleton()));
 
       const ethos = card.ethos && (card.ethos.profiled || card.ethos.reviews.positive + card.ethos.reviews.negative + card.ethos.reviews.neutral > 0 || card.ethos.vouches > 0) ? card.ethos : undefined;
       const reputation: Child[] = [];
@@ -374,8 +400,34 @@ export class WalletPopover {
         );
       }
 
-      if (card.token) body.push(this.tokenBlock(card, lang, pending("token")));
+      if (card.token) body.push(this.tokenBlock(card, lang, ["token", "security", "market", "simulation", "orders"].some((s) => pending(s as WalletCard["pending"][number]))));
       else if (pending("token") && kind === "contract") body.push(row(t("wallet.token"), skeleton()));
+
+      // The creator shows as soon as it is known; the share it holds may follow.
+      if (pending("creator") && !card.creator) body.push(row(t("wallet.creator"), skeleton()));
+      else if (card.creator) {
+        const c = card.creator;
+        const name = c.names[0]?.name;
+        const details = [
+          c.factory ? t("wallet.creatorFactory") : "",
+          c.x ? `@${c.x}` : "",
+          c.percent !== undefined ? t("wallet.creatorHolds", { percent: formatPercent(c.percent, lang) }) : "",
+          t("wallet.creatorVia", { source: c.source }),
+        ].filter(Boolean);
+        body.push(
+          row(
+            t("wallet.creator"),
+            h(
+              "button",
+              { class: "wc-follow", type: "button", title: t("wallet.creatorOpen"), onClick: () => this.follow(c.address) },
+              h("span", { class: name ? "" : "mono" }, name ?? shortAddress(c.address)),
+              name ? h("span", { class: "wc-check", "aria-hidden": "true" }, icon("check", 14)) : null,
+              icon("chevronRight", 14),
+            ),
+            muted(details.join(" · ")),
+          ),
+        );
+      }
 
       const silent = failedSources(card);
       if (silent.length) body.push(h("div", { class: "wc-quiet" }, t("wallet.noAnswer", { sources: silent.join(", ") })));
@@ -450,10 +502,18 @@ export class WalletPopover {
     if (tk.fdvUsd !== undefined) stats.push([t("wallet.fdv"), formatCompactUsd(tk.fdvUsd, lang)]);
     if (tk.volume24hUsd !== undefined) stats.push([t("wallet.volume"), formatCompactUsd(tk.volume24hUsd, lang)]);
     if (tk.createdAt !== undefined) stats.push([t("wallet.listed"), formatAge(tk.createdAt, lang)]);
-    const meta = [chainLabel(tk.chain), t("wallet.pairs", { count: formatInt(tk.pairs, lang) }), tk.holders ? t("wallet.holders", { count: formatTokens(tk.holders, lang) }) : ""].filter(Boolean).join(" · ");
+    if (tk.top10 !== undefined) stats.push([t("wallet.top10"), formatPercent(tk.top10, lang)]);
+    const meta = [
+      chainLabel(tk.chain),
+      t("wallet.pairs", { count: formatInt(tk.pairs, lang) }),
+      tk.holders ? t("wallet.holders", { count: formatTokens(tk.holders, lang) }) : "",
+      tk.gtScore !== undefined ? t("wallet.gtScore", { score: Math.round(tk.gtScore) }) : "",
+    ]
+      .filter(Boolean)
+      .join(" · ");
 
     // Every warning is shown; the reassuring checks fill up the rest of eight places.
-    const signals = tk.signals ?? [];
+    const signals = tokenSignals(tk, lang);
     const serious = signals.filter((s) => s.level === "danger" || s.level === "warning");
     const shown = [...serious, ...signals.filter((s) => s.level !== "danger" && s.level !== "warning").slice(0, Math.max(0, 8 - serious.length))];
     return h(
@@ -466,6 +526,7 @@ export class WalletPopover {
         // The title already carries the token's name.
         name ? null : h("div", { class: "wc-token-name" }, shortAddress(card.address ?? "")),
         h("div", { class: "muted" }, meta),
+        tk.launchpad ? h("a", { class: "wc-ext", href: tk.launchpad.url, target: "_blank", rel: "noopener noreferrer" }, t("wallet.launchpad", { name: tk.launchpad.name }), icon("external", 12)) : null,
         stats.length ? h("dl", { class: "wc-stats" }, stats.map(([k, v]) => h("div", null, h("dt", null, k), h("dd", { class: "mono" }, v)))) : null,
         shown.length
           ? h(

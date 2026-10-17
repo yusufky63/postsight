@@ -143,6 +143,8 @@
       [data-testid="tweetText"] {
         margin-top: 2px;
         white-space: pre-wrap;
+        /* X breaks long words such as addresses rather than widening the column. */
+        overflow-wrap: break-word;
       }
       [data-testid="card.wrapper"] {
         margin-top: 12px;
@@ -255,7 +257,7 @@
           handle: "chainnotes",
           id: "1846000000000000006",
           lang: "en",
-          text: "Watch the letter case: 0xD8dA6BF26964aF9D7eEd9e03E53415D37aA96045 is not a valid checksum. And nobody-postsight-xyz.eth points nowhere.",
+          text: "Watch the letter case: 0xD8dA6BF26964aF9D7eEd9e03E53415D37aA96045 is not a valid checksum, and nobody-postsight-xyz.eth points nowhere. DEGEN on Base: 0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed",
         },
       ];
       const main = document.querySelector("main");
