@@ -36,4 +36,4 @@ To improve a language, edit `src/shared/locales/<code>.ts`, `public/_locales/<co
 | `src/shared` | Models and prices, router, prompts, pricing, usage, languages, markdown, readable-text extraction |
 | `src/ui` | DOM helpers, controls and design tokens shared by the pages |
 | `harness` | Local pages that run the built bundles with a mocked `chrome` API |
-| `site` | The postsight.app website: landing, privacy and support pages, built from `PRIVACY.md` and the locales (see `site/README.md`) |
+| `site` | The postsight.xyz website: landing, privacy and support pages, built from `PRIVACY.md` and the locales (see `site/README.md`) |

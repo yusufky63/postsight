@@ -1,5 +1,5 @@
-export const SITE_URL = "https://postsight.app";
-export const DOMAIN = "postsight.app";
+export const SITE_URL = "https://postsight.xyz";
+export const DOMAIN = "postsight.xyz";
 export const BRAND = "Postsight";
 
 const REPO = "https://github.com/yusufky63/postsight";
@@ -27,11 +27,11 @@ export const PAGES: readonly PageId[] = ["home", "privacy", "support"];
 
 const PATHS: Record<PageId, string> = { home: "/", privacy: "/privacy", support: "/support" };
 
-/** Public path, as Cloudflare Pages serves it: `privacy.html` answers at `/privacy`, `tr/index.html` at `/tr/`. */
+/** Public path, as Vercel serves it with `cleanUrls` and no trailing slash: `privacy.html` answers at `/privacy`, `tr/index.html` at `/tr`. */
 export function pathOf(page: PageId, lang: Lang): string {
   const base = PATHS[page];
   if (lang === "en") return base;
-  return base === "/" ? "/tr/" : `/tr${base}`;
+  return base === "/" ? "/tr" : `/tr${base}`;
 }
 
 /** Output file for a page inside the build directory. */

@@ -1045,6 +1045,17 @@ html[data-theme="dark"] .theme-toggle .i-sun {
 .not-found {
   min-height: 50vh;
 }
+.not-found .eyebrow {
+  margin-bottom: 16px;
+}
+.not-found-block {
+  max-width: 720px;
+}
+.not-found-block + .not-found-block {
+  margin-top: 48px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+}
 
 /* ---------- Footer ---------- */
 .site-footer {

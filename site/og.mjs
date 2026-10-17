@@ -1,6 +1,6 @@
 // Renders the 1200x630 share cards to site/og/og-<lang>.png (pnpm site:og). Run it after
 // changing the card copy or layout and commit the PNGs; the site build only copies them,
-// so Cloudflare Pages never needs a browser. Needs a local Chrome or Edge, or CHROME_PATH.
+// so the Vercel build never needs a browser. Needs a local Chrome or Edge, or CHROME_PATH.
 import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";

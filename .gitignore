@@ -4,3 +4,4 @@ release/
 .claude/
 *.log
 .env*
+.vercel/

@@ -8,7 +8,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync
 import { dirname, join } from "node:path";
 import * as esbuild from "esbuild";
 import { BRAND, LANGS, fileOf } from "./config";
-import type { Lang, PageId } from "./config";
+import type { PageId } from "./config";
 import { COPY } from "./content";
 import { FONTS } from "./fonts";
 import { renderPage } from "./layout";
@@ -16,7 +16,7 @@ import type { Assets } from "./layout";
 import { renderPolicy } from "./markdown";
 import { homePage, notFoundPage, privacyPage, supportPage } from "./pages";
 import type { SiteData } from "./pages";
-import { faqJsonLd, headers, homeJsonLd, llms, robots, sitemap, webManifest } from "./seo";
+import { faqJsonLd, homeJsonLd, llms, robots, sitemap, vercelConfig, webManifest } from "./seo";
 import { THEME_BOOT } from "./theme";
 
 /** Fonts every page needs above the fold: body and headings in the Latin subset. */
@@ -49,7 +49,7 @@ export function icoFromPngs(pngs: Buffer[]): Buffer {
   return Buffer.concat([header, ...entries, ...pngs]);
 }
 
-function cspHash(script: string): string {
+export function cspHash(script: string): string {
   return `sha256-${createHash("sha256").update(script, "utf8").digest("base64")}`;
 }
 
@@ -147,24 +147,24 @@ export async function generate(root: string, out: string): Promise<string[]> {
     for (const [page, spec] of Object.entries(pages) as [PageId, (typeof pages)[PageId]][]) {
       write(fileOf(page, lang), renderPage({ lang, page, assets, ...spec }, pkg.version));
     }
-    write(
-      notFoundFile(lang),
-      renderPage(
-        { lang, page: null, assets, title: `${c.meta.notFoundTitle} · ${BRAND}`, description: c.notFound.lead, body: notFoundPage(lang), noindex: true },
-        pkg.version,
-      ),
-    );
   }
+  const en = COPY.en;
+  write(
+    "404.html",
+    renderPage(
+      { lang: "en", page: null, assets, title: `${en.meta.notFoundTitle} · ${BRAND}`, description: en.notFound.lead, body: notFoundPage(), noindex: true },
+      pkg.version,
+    ),
+  );
 
   write("sitemap.xml", sitemap({ privacy: policy.updated ?? undefined }));
   write("robots.txt", robots());
   write("llms.txt", llms(pkg.version));
   write("site.webmanifest", webManifest());
-  write("_headers", headers([cspHash(THEME_BOOT)]));
   return written;
 }
 
-/** Cloudflare Pages serves the nearest 404.html, so each language gets its own. */
-function notFoundFile(lang: Lang): string {
-  return lang === "en" ? "404.html" : `${lang}/404.html`;
+/** The repo's vercel.json, with the theme script's current hash in the CSP. */
+export function vercelJson(): string {
+  return vercelConfig([cspHash(THEME_BOOT)]);
 }

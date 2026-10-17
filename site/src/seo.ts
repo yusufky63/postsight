@@ -61,12 +61,16 @@ ${BRAND} is a free, open-source (MIT) Manifest V3 extension for Chrome and Edge.
 `;
 }
 
+/** Repo paths the site is built from; a commit that touches none of them skips the deploy. */
+export const SITE_INPUTS = ["site", "PRIVACY.md", "src/shared", "src/ui", "store/screenshots", "public", "package.json", "pnpm-lock.yaml", "vercel.json"];
+
 /**
- * Cloudflare Pages headers. The CSP allows only same-origin files plus the inline theme
- * script by hash. The pages.dev hostnames duplicate postsight.app, so they stay out of
- * search results.
+ * vercel.json for the site. The CSP allows only same-origin files plus the inline theme
+ * script by hash. The vercel.app hostnames duplicate the site's own domain, so they stay
+ * out of search results. Vercel reads the file before it builds, so the build writes it to
+ * the repo root and a test fails when the committed copy is stale.
  */
-export function headers(scriptHashes: string[]): string {
+export function vercelConfig(scriptHashes: string[]): string {
   const csp = [
     "default-src 'self'",
     `script-src 'self' ${scriptHashes.map((h) => `'${h}'`).join(" ")}`,
@@ -80,25 +84,37 @@ export function headers(scriptHashes: string[]): string {
     "form-action 'none'",
     "frame-ancestors 'none'",
   ].join("; ");
-  return `/*
-  Content-Security-Policy: ${csp}
-  X-Content-Type-Options: nosniff
-  X-Frame-Options: DENY
-  Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
-
-/assets/*
-  Cache-Control: public, max-age=31536000, immutable
-
-/fonts/*
-  Cache-Control: public, max-age=31536000, immutable
-
-https://:project.pages.dev/*
-  X-Robots-Tag: noindex
-
-https://:version.:project.pages.dev/*
-  X-Robots-Tag: noindex
-`;
+  const immutable = [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }];
+  const config = {
+    $schema: "https://openapi.vercel.sh/vercel.json",
+    framework: null,
+    installCommand: "pnpm install --frozen-lockfile",
+    buildCommand: "pnpm site:build",
+    outputDirectory: "site/dist",
+    ignoreCommand: `git diff --quiet HEAD^ HEAD -- ${SITE_INPUTS.join(" ")}`,
+    cleanUrls: true,
+    trailingSlash: false,
+    headers: [
+      {
+        source: "/(.*)",
+        headers: [
+          { key: "Content-Security-Policy", value: csp },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()" },
+        ],
+      },
+      { source: "/assets/(.*)", headers: immutable },
+      { source: "/fonts/(.*)", headers: immutable },
+      {
+        source: "/(.*)",
+        has: [{ type: "host", value: ".*\\.vercel\\.app" }],
+        headers: [{ key: "X-Robots-Tag", value: "noindex" }],
+      },
+    ],
+  };
+  return `${JSON.stringify(config, null, 2)}\n`;
 }
 
 export function webManifest(): string {

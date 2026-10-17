@@ -19,7 +19,7 @@ function inline(nodes: readonly Inline[]): Markup[] {
       case "code":
         return html`<code>${n.text}</code>`;
       case "link":
-        return n.href.startsWith("https://postsight.app/")
+        return n.href.startsWith("https://postsight.xyz/")
           ? html`<a href="${n.href}">${inline(n.children)}</a>`
           : html`<a href="${n.href}" rel="noreferrer noopener">${inline(n.children)}</a>`;
     }
