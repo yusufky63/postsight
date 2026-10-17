@@ -24,6 +24,8 @@ export interface PromptOptions {
 export interface Prompt {
   system: string;
   user: string;
+  /** The language the answer is written in; for a translation, its target. */
+  outLang: UiLang;
   depth: "light" | "deep";
   maxTokens: number;
   maxSearches: number;
@@ -38,6 +40,62 @@ const WORDS: Record<Detail, number> = { brief: 120, standard: 220, detailed: 450
 export function translateTarget(postLang: string | null, preferred: UiLang, second: UiLang): UiLang {
   if (matchLanguage(postLang) !== preferred) return preferred;
   return second !== preferred ? second : preferred === "en" ? "es" : "en";
+}
+
+/** X's own codes for posts without a real language: hashtags only, media only, mentions only and so on. */
+const NO_LANGUAGE = new Set(["und", "zxx", "qme", "qht", "qam", "qct", "qst", "art"]);
+
+/** The English name of a post's language tag ("el" -> "Greek"), or null when the tag says nothing useful. */
+export function languageName(tag: string | null): string | null {
+  const code = (tag ?? "").toLowerCase();
+  if (!/^[a-z]{2,3}(-[a-z0-9]+)*$/.test(code) || NO_LANGUAGE.has(code.split("-")[0] ?? "")) return null;
+  try {
+    const name = new Intl.DisplayNames(["en"], { type: "language" }).of(code);
+    return name && name.toLowerCase() !== code ? name : null;
+  } catch {
+    return null;
+  }
+}
+
+const SCRIPTS = ["Latin", "Greek", "Cyrillic", "Han", "Hangul", "Arabic", "Hebrew", "Thai", "Devanagari", "Georgian", "Armenian"] as const;
+type Script = (typeof SCRIPTS)[number];
+const SCRIPT_RE = Object.fromEntries(SCRIPTS.map((s) => [s, new RegExp(`\\p{Script=${s}}`, "u")])) as Record<Script, RegExp>;
+/** Kana counts with Han, so Japanese and Chinese read as one script. */
+const KANA = /[\p{Script=Hiragana}\p{Script=Katakana}]/u;
+
+const TARGET_SCRIPT: Record<UiLang, Script> = {
+  en: "Latin", tr: "Latin", de: "Latin", es: "Latin", fr: "Latin", pt: "Latin", it: "Latin", id: "Latin",
+  ru: "Cyrillic", ja: "Han", zh: "Han", ko: "Hangul",
+};
+
+/** The script most letters of a text are written in, leaving out links, @mentions and #hashtags. */
+export function dominantScript(text: string): Script | null {
+  const counts = new Map<Script, number>();
+  let total = 0;
+  for (const ch of text.replace(/https?:\/\/\S+|[@#][\p{L}\p{N}_]+/gu, " ")) {
+    if (!/\p{L}/u.test(ch)) continue;
+    const script = KANA.test(ch) ? "Han" : SCRIPTS.find((s) => SCRIPT_RE[s].test(ch));
+    if (!script) continue;
+    counts.set(script, (counts.get(script) ?? 0) + 1);
+    total += 1;
+  }
+  if (total < 8) return null;
+  const [top, n] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0] ?? [];
+  return top && n !== undefined && n / total >= 0.6 ? top : null;
+}
+
+/**
+ * True when a translation came back in the post's own writing system although the target
+ * language uses another one: the model copied the post instead of translating it.
+ */
+export function echoesSource(source: string, output: string, target: UiLang): boolean {
+  const from = dominantScript(source);
+  return from !== null && from !== TARGET_SCRIPT[target] && dominantScript(output) === from;
+}
+
+/** Added to the request when the first answer repeated the post untranslated. */
+export function translateAgain(target: UiLang): string {
+  return `Your previous answer repeated the post in its original language. Translate it now: every sentence of your answer must be in ${LANG_NAME(target)}.`;
 }
 
 export function formatPost(tweet: TweetData, imagesVisible: boolean, pages: LinkedPage[] = []): string {
@@ -145,7 +203,7 @@ function researchTask(opts: PromptOptions, words: number): string {
     .join("\n");
 }
 
-function task(action: ActionId, opts: PromptOptions, target: UiLang): string {
+function task(action: ActionId, opts: PromptOptions, target: UiLang, postLang: string | null): string {
   const words = WORDS[opts.detail];
   switch (action) {
     case "verify":
@@ -160,14 +218,21 @@ function task(action: ActionId, opts: PromptOptions, target: UiLang): string {
         "Then up to five bullets with the substance. For a very short post, the TL;DR line alone is enough.",
         `Stay under ${words} words.`,
       ].join("\n");
-    case "translate":
+    case "translate": {
+      const from = languageName(postLang);
       return [
         `Task: translate the post text, and the quoted post if present, into ${LANG_NAME(target)}.`,
+        from && from !== LANG_NAME(target) ? `The post is written in ${from}.` : "",
         "If the post is an X Article, translate its title and full text; put the title first as a ## heading.",
         "Keep @mentions, #hashtags, URLs, emoji and line breaks exactly as they are.",
         "Output only the translation. If a quoted post is present, put it after a line containing only ---.",
         "If slang, an idiom or a pun cannot carry over, add one last line starting with 'Note:' explaining it.",
-      ].join("\n");
+        // Weaker models sometimes hand the original back; the last line they read names the target again.
+        `Write every sentence in ${LANG_NAME(target)}; never copy the original text untranslated.`,
+      ]
+        .filter(Boolean)
+        .join("\n");
+    }
     case "explain":
       return [
         "Task: explain whatever a reader might not get in the post (and its article or linked page): jargon, acronyms, references, memes, people, events,",
@@ -204,7 +269,8 @@ export function buildPrompt(action: ActionId, tweet: TweetData, opts: PromptOpti
   const deep = action === "verify" || action === "research";
   return {
     system: base(opts, outLang),
-    user: `${formatPost(tweet, opts.imagesVisible, opts.pages)}\n\n${opts.facts ? `<wallet_lookup>\n${opts.facts}\n</wallet_lookup>\n\n` : ""}${task(action, opts, target)}`,
+    user: `${formatPost(tweet, opts.imagesVisible, opts.pages)}\n\n${opts.facts ? `<wallet_lookup>\n${opts.facts}\n</wallet_lookup>\n\n` : ""}${task(action, opts, target, tweet.lang)}`,
+    outLang,
     depth: deep || action === "ask" ? "deep" : "light",
     // A translated article can be as long as the article itself.
     maxTokens: deep || (action === "translate" && (tweet.isArticle || (opts.pages?.length ?? 0) > 0)) ? 12000 : 4000,
