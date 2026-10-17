@@ -59,11 +59,11 @@ Keys stay in your browser's extension storage and go only to the provider they b
 | `pnpm smoke` | Calls the real APIs with keys from `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `DEEPSEEK_API_KEY` (a fraction of a cent; `--web` adds one search) |
 | `pnpm icons` | Redraws the toolbar icons |
 | `pnpm site:dev` | Serves the website (`site/`) at http://localhost:4320 and rebuilds on change |
-| `pnpm site:build` | Builds the static website into `site/dist` for Cloudflare Pages |
+| `pnpm site:build` | Builds the static website into `site/dist` for Vercel |
 
 Stack: TypeScript, esbuild, Manifest V3, the Anthropic TypeScript SDK, plain `fetch` for OpenAI's Responses API and DeepSeek, viem for the wallet cards' Ethereum and Base reads, Vitest and happy-dom. No UI framework; the content script renders into shadow roots.
 
-Code layout and translation notes are in [CONTRIBUTING.md](CONTRIBUTING.md); store submission notes in [store/README.md](store/README.md); the website for postsight.app in [site/README.md](site/README.md); security reporting in [SECURITY.md](SECURITY.md).
+Code layout and translation notes are in [CONTRIBUTING.md](CONTRIBUTING.md); store submission notes in [store/README.md](store/README.md); the website for postsight.xyz in [site/README.md](site/README.md); security reporting in [SECURITY.md](SECURITY.md).
 
 ## License
 

@@ -2,7 +2,7 @@ import { LANGUAGES } from "../../src/shared/languages";
 import { CATALOG, DEFAULT_TIERS, PRICES_CHECKED, PROVIDER_KEY_URL, PROVIDER_LABEL } from "../../src/shared/models";
 import { TIERS } from "../../src/shared/types";
 import type { ProviderId } from "../../src/shared/types";
-import { LINKS, pathOf } from "./config";
+import { LANGS, LINKS, pathOf } from "./config";
 import type { Lang } from "./config";
 import { ACTION_IDS, COPY, actionName, faq } from "./content";
 import { html } from "./html";
@@ -127,6 +127,31 @@ export function homePage(lang: Lang, data: SiteData): Markup {
   </div>
 </section>`;
 
+  // Sources are named as the card names them; the table says where each line on a card comes from.
+  const wallets = html`<section class="section frame" id="wallets" aria-labelledby="wallets-title">
+  <div class="split split-top">
+    <div>
+      ${sectionHead("wallets-title", c.wallets.eyebrow, c.wallets.title, c.wallets.lead)}
+      <div class="note-block">
+        <h3 class="display-medium h3">${c.wallets.authorTitle}</h3>
+        <p class="secondary">${c.wallets.author}</p>
+        <p class="small muted">${c.wallets.claims}</p>
+      </div>
+    </div>
+    <div class="card">
+      <table class="tiers checks">
+        <thead><tr><th scope="col">${c.wallets.check}</th><th scope="col">${c.wallets.source}</th></tr></thead>
+        ${c.wallets.groups.map(
+          (g) => html`<tbody>
+          <tr class="group"><th scope="rowgroup" colspan="2">${g.title}</th></tr>
+          ${g.rows.map(([what, from]) => html`<tr><th scope="row">${what}</th><td>${from}</td></tr>`)}
+        </tbody>`,
+        )}
+      </table>
+    </div>
+  </div>
+</section>`;
+
   const privacy = html`<section class="section frame" aria-labelledby="privacy-title">
   <div class="split split-wide-media">
     <div>
@@ -177,6 +202,7 @@ pnpm build</code></pre>
 ${actions}
 ${routing}
 ${reads}
+${wallets}
 ${privacy}
 ${install}`;
 }
@@ -251,17 +277,22 @@ export function supportPage(lang: Lang): Markup {
 </div>`;
 }
 
-export function notFoundPage(lang: Lang): Markup {
-  const c = COPY[lang];
-  return html`<div class="frame doc not-found">
-  <header class="doc-head">
-    <p class="eyebrow">404</p>
-    <h1 class="display doc-title">${c.notFound.title}</h1>
+/** Vercel serves one 404.html for every missing path, so the page says it in both languages. */
+export function notFoundPage(): Markup {
+  const block = (lang: Lang) => {
+    const c = COPY[lang];
+    const title = lang === "en" ? html`<h1 class="display doc-title">${c.notFound.title}</h1>` : html`<h2 class="display doc-title">${c.notFound.title}</h2>`;
+    return html`<section class="not-found-block" lang="${lang}">
+    ${title}
     <p class="lead">${c.notFound.lead}</p>
-  </header>
-  <div class="cta-row">
-    <a class="btn btn-primary" href="${pathOf("home", lang)}">${c.notFound.home}</a>
-    <a class="btn" href="${pathOf("support", lang)}">${c.notFound.support}</a>
-  </div>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="${pathOf("home", lang)}">${c.notFound.home}</a>
+      <a class="btn" href="${pathOf("support", lang)}">${c.notFound.support}</a>
+    </div>
+  </section>`;
+  };
+  return html`<div class="frame doc not-found">
+  <p class="eyebrow">404</p>
+  ${LANGS.map(block)}
 </div>`;
 }

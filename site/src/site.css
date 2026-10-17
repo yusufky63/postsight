@@ -666,6 +666,30 @@ html[data-theme="dark"] .theme-toggle .i-sun {
 .tiers tbody tr:last-child > * {
   border-bottom: 0;
 }
+/* A short block under a section head, set apart from the lead. */
+.note-block {
+  display: grid;
+  gap: 8px;
+  margin-top: 32px;
+}
+.note-block > * {
+  margin: 0;
+}
+/* The checks table groups its rows; every group but the last keeps its closing line. */
+.checks tbody:not(:last-child) tr:last-child > * {
+  border-bottom: 1px solid var(--border);
+}
+.checks tr.group th {
+  padding-top: 16px;
+  padding-bottom: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--surface);
+}
 @media (max-width: 539px) {
   .tiers {
     font-size: 13px;
@@ -1020,6 +1044,17 @@ html[data-theme="dark"] .theme-toggle .i-sun {
 }
 .not-found {
   min-height: 50vh;
+}
+.not-found .eyebrow {
+  margin-bottom: 16px;
+}
+.not-found-block {
+  max-width: 720px;
+}
+.not-found-block + .not-found-block {
+  margin-top: 48px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
 }
 
 /* ---------- Footer ---------- */

@@ -1,6 +1,6 @@
 // Builds the website into site/dist (pnpm site:build). The generator is TypeScript, so
 // esbuild bundles it for Node first and the bundle is imported and run here.
-import { mkdirSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import * as esbuild from "esbuild";
@@ -33,9 +33,17 @@ export async function importTs(entry) {
   }
 }
 
+/** Builds site/dist and refreshes vercel.json at the repo root when its CSP hash moved. */
 export async function buildSite() {
-  const { generate } = await importTs("site/src/generate.ts");
-  return generate(root, dist);
+  const { generate, vercelJson } = await importTs("site/src/generate.ts");
+  const files = await generate(root, dist);
+  const file = join(root, "vercel.json");
+  const config = vercelJson();
+  if (!existsSync(file) || readFileSync(file, "utf8") !== config) {
+    writeFileSync(file, config);
+    console.log("site: vercel.json updated, commit it");
+  }
+  return files;
 }
 
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {

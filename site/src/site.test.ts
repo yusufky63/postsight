@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { fileOf, pathOf } from "./config";
-import { generate, icoFromPngs, pngSize } from "./generate";
+import { generate, icoFromPngs, pngSize, vercelJson } from "./generate";
 import { html, raw } from "./html";
 import { md, renderPolicy } from "./markdown";
 import { THEME_BOOT } from "./theme";
@@ -50,10 +50,10 @@ describe("renderPolicy", () => {
 });
 
 describe("paths", () => {
-  it("match how Cloudflare Pages serves the files", () => {
+  it("match how Vercel serves the files with cleanUrls", () => {
     expect([pathOf("home", "en"), fileOf("home", "en")]).toEqual(["/", "index.html"]);
     expect([pathOf("privacy", "en"), fileOf("privacy", "en")]).toEqual(["/privacy", "privacy.html"]);
-    expect([pathOf("home", "tr"), fileOf("home", "tr")]).toEqual(["/tr/", "tr/index.html"]);
+    expect([pathOf("home", "tr"), fileOf("home", "tr")]).toEqual(["/tr", "tr/index.html"]);
     expect([pathOf("support", "tr"), fileOf("support", "tr")]).toEqual(["/tr/support", "tr/support.html"]);
   });
 });
@@ -81,8 +81,8 @@ describe("generate", () => {
   }, 30000);
   afterAll(() => rmSync(out, { recursive: true, force: true }));
 
-  it("writes every page, a 404 per language and the crawler files", () => {
-    for (const rel of [...pages, "404.html", "tr/404.html", "robots.txt", "sitemap.xml", "llms.txt", "_headers", "favicon.ico", "site.webmanifest"]) {
+  it("writes every page, one 404 page and the crawler files", () => {
+    for (const rel of [...pages, "404.html", "robots.txt", "sitemap.xml", "llms.txt", "favicon.ico", "site.webmanifest"]) {
       expect(existsSync(join(out, rel)), rel).toBe(true);
     }
   });
@@ -90,22 +90,23 @@ describe("generate", () => {
   it("gives each page a canonical URL, language alternates and an absolute share image", () => {
     for (const rel of pages) {
       const page = read(rel);
-      expect(page, rel).toMatch(/<link rel="canonical" href="https:\/\/postsight\.app\/[^"]*">/);
+      expect(page, rel).toMatch(/<link rel="canonical" href="https:\/\/postsight\.xyz\/[^"]*">/);
       expect(page, rel).toContain('hreflang="tr"');
       expect(page, rel).toContain('hreflang="x-default"');
-      expect(page, rel).toMatch(/<meta property="og:image" content="https:\/\/postsight\.app\/assets\/og-(en|tr)\.[0-9a-f]{10}\.png">/);
+      expect(page, rel).toMatch(/<meta property="og:image" content="https:\/\/postsight\.xyz\/assets\/og-(en|tr)\.[0-9a-f]{10}\.png">/);
       expect(page, rel).not.toMatch(/undefined|\[object Object\]/);
     }
-    expect(read("privacy.html")).toContain('<link rel="canonical" href="https://postsight.app/privacy">');
+    expect(read("privacy.html")).toContain('<link rel="canonical" href="https://postsight.xyz/privacy">');
     expect(read("tr/index.html")).toContain('<html lang="tr"');
     expect(read("404.html")).toContain('<meta name="robots" content="noindex">');
+    expect(read("404.html")).toContain('<section class="not-found-block" lang="tr">');
   });
 
   it("only links to files that exist", () => {
-    for (const rel of [...pages, "404.html", "tr/404.html"]) {
+    for (const rel of [...pages, "404.html"]) {
       for (const [, href] of read(rel).matchAll(/(?:href|src)="(\/[^"#?]*)/g)) {
         const path = href ?? "";
-        const candidates = path.endsWith("/") ? [`${path}index.html`] : [path, `${path}.html`];
+        const candidates = path.endsWith("/") ? [`${path}index.html`] : [path, `${path}.html`, `${path}/index.html`];
         expect(
           candidates.some((c) => existsSync(join(out, c))),
           `${rel} -> ${path}`,
@@ -116,17 +117,23 @@ describe("generate", () => {
 
   it("allows the inline theme script by its hash and nothing else inline", () => {
     const hash = createHash("sha256").update(THEME_BOOT).digest("base64");
-    expect(read("_headers")).toContain(`'sha256-${hash}'`);
+    const config = JSON.parse(readFileSync(join(root, "vercel.json"), "utf8")) as { headers: { source: string; headers: { key: string; value: string }[] }[] };
+    const csp = config.headers[0]?.headers.find((h) => h.key === "Content-Security-Policy")?.value;
+    expect(csp).toContain(`'sha256-${hash}'`);
     for (const rel of pages) {
       const inline = [...read(rel).matchAll(/<script(?![^>]*(?:\ssrc=|type="application\/ld\+json"))[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
       expect(inline).toEqual([THEME_BOOT]);
     }
   });
 
+  it("has a committed vercel.json that matches the build (run pnpm site:build and commit it)", () => {
+    expect(readFileSync(join(root, "vercel.json"), "utf8").replace(/\r\n/g, "\n")).toBe(vercelJson());
+  });
+
   it("lists every page in both languages in the sitemap", () => {
     const sitemap = read("sitemap.xml");
-    for (const path of ["/", "/privacy", "/support", "/tr/", "/tr/privacy", "/tr/support"]) {
-      expect(sitemap).toContain(`<loc>https://postsight.app${path}</loc>`);
+    for (const path of ["/", "/privacy", "/support", "/tr", "/tr/privacy", "/tr/support"]) {
+      expect(sitemap).toContain(`<loc>https://postsight.xyz${path}</loc>`);
     }
   });
 });
