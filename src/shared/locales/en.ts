@@ -107,6 +107,18 @@ export const en = {
   "wallet.researchQuestion": "Who is behind {address}, the address in this post, and is it safe to interact with?",
   "wallet.claims": "Names and profiles are claims their owner published, not proof of identity.",
   "wallet.inPost": "Wallets in this post",
+  "wallet.back": "Back",
+  "wallet.token.own": "The post's author @{handle} is an X account this token's team listed.",
+  "wallet.token.other": "This token's team lists @{handle} on X, not the post's author.",
+  "wallet.creator.own": "The creator wallet's name lists @{handle}, the author of this post.",
+  "wallet.creator": "Created by",
+  "wallet.creatorFactory": "a launchpad or factory contract",
+  "wallet.creatorHolds": "holds {percent}",
+  "wallet.creatorVia": "via {source}",
+  "wallet.creatorOpen": "Open the creator's card",
+  "wallet.top10": "Top 10 holders",
+  "wallet.gtScore": "GeckoTerminal score {score}/100",
+  "wallet.launchpad": "Launched on {name}",
 
   "flag.cybercrime": "Cybercrime",
   "flag.money_laundering": "Money laundering",
@@ -143,6 +155,15 @@ export const en = {
   "sig.airdrop_scam": "Airdrop scam",
   "sig.creator_honeypots": "Creator made {value} honeypots",
   "sig.lp_locked": "Liquidity locked {value}",
+  "sig.sim_ok": "Test buy and sell went through",
+  "sig.sim_honeypot": "Test sell failed: honeypot",
+  "sig.sim_buy_tax": "Buy tax {value} in a test trade",
+  "sig.sim_sell_tax": "Sell tax {value} in a test trade",
+  "sig.sim_transfer_tax": "Transfer tax {value}",
+  "sig.dex_profile": "Paid DexScreener profile",
+  "sig.dex_cto": "Community takeover on DexScreener",
+  "sig.dex_ad": "Paid DexScreener ad",
+  "sig.dex_trending": "Paid DexScreener trending spot",
 
   "verdict.accurate": "Accurate",
   "verdict.mostly_accurate": "Mostly accurate",
@@ -315,6 +336,8 @@ export const en = {
   "features.readLinksDenied": "Permission was not granted.",
   "features.wallets": "Wallet cards: hover an address or .eth name in a post to see who is behind it",
   "features.walletsHint": "Chrome asks once for access to the public sources it reads: {hosts}. Nothing is sent until you hover an address, and then only that address or name, without your cookies.",
+  "features.walletsMore": "Wallet cards can now also read token sources (GeckoTerminal, Honeypot.is, Blockscout, Clanker).",
+  "features.walletsAllow": "Allow",
   "features.uiLang": "Interface language",
   "features.outputLang": "Answer language",
 
@@ -340,7 +363,7 @@ export const en = {
   "help.q7": "What is sent to the model?",
   "help.a7": "The post text, author handle, time, quoted post, link preview text, poll, community note, image links (only to models that can see them) and, on a post page, the rest of the author's thread. For an X Article Postsight reads the article from X's public post page; for links it reads the linked page if you allowed that. Pages are fetched without your cookies. Nothing else from your account or timeline is sent.",
   "help.q8": "What do wallet cards check, and what do they send?",
-  "help.a8": "With wallet cards on, hovering a 0x address or a .eth name in a post looks it up in public sources that need no key: ENS on Ethereum and Basenames on Base (names checked in both directions, plus their text records), balances and transaction counts from public Ethereum and Base nodes, web3.bio profiles, Ethos reviews, Coinbase verification attestations on Base, GoPlus security flags and DexScreener trading pairs. Only the address or name is sent to them, without your cookies, and the answers are kept on this device for up to a day. Names and profile links are claims their owner published, so a match is a hint, not proof.",
+  "help.a8": "With wallet cards on, hovering a 0x address or a .eth name in a post looks it up in public sources that need no key: ENS on Ethereum and Basenames on Base (names checked in both directions, plus their text records), balances and transaction counts from public Ethereum and Base nodes, web3.bio profiles, Ethos reviews, Coinbase verification attestations on Base and GoPlus security flags. For a token it adds DexScreener trading pairs and paid listings, GeckoTerminal's score and holder spread, a Honeypot.is test buy and sell, and who created it (from Clanker, Blockscout, GoPlus or GeckoTerminal). Only the address or name is sent to them, without your cookies, and the answers are kept on this device for up to a day. Names, profile links and a token's listed accounts are claims their owner published, so a match is a hint, not proof.",
 } as const;
 
 export type MessageKey = keyof typeof en;

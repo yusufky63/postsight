@@ -40,9 +40,13 @@ Wallet cards are off until you turn them on in Settings, which also asks your br
 - api.ethos.network: Ethos reviews and score;
 - base.easscan.org: Coinbase verification attestations on Base;
 - api.gopluslabs.io: security flags for the address and, for a token, its contract checks;
-- api.dexscreener.com: trading pairs for a token.
+- api.dexscreener.com: trading pairs for a token, the links its team listed and what the team paid DexScreener for;
+- api.geckoterminal.com: a token's score, holder spread, listed links and developer address;
+- api.honeypot.is: a simulated buy and sell of a token, to measure its taxes and whether it can be sold;
+- eth.blockscout.com: who deployed a contract on Ethereum;
+- www.clanker.world: whether a Base token was launched on Clanker, and by which wallet.
 
-Nothing is sent until you hover an address or name, or open one from the post's menu. Names, text records and profile links are what the wallet's owner published; Postsight shows them as claims, not proof of identity. "Research with AI" on a card sends those facts with the post to your AI provider, like any other action. You can turn wallet cards off at any time or remove the access in your browser.
+Nothing is sent until you hover an address or name, or open one from the post's menu. Names, text records, profile links and the accounts a token lists are what their owner or the token's team published; Postsight shows them as claims, not proof of identity. "Research with AI" on a card sends those facts with the post to your AI provider, like any other action. You can turn wallet cards off at any time or remove the access in your browser.
 
 ## What Postsight does not do
 

@@ -1,4 +1,5 @@
-import type { CoinbaseFact, EthosFact, Hex, ProfileLink, Signal, TokenFact } from "../../shared/wallet";
+import type { CoinbaseFact, EthosFact, Hex, ProfileLink, Signal, Simulation, TokenFact, TokenSocials } from "../../shared/wallet";
+import { isAddress, xHandle } from "../../shared/wallet";
 import { getJson } from "./net";
 
 /*
@@ -178,7 +179,15 @@ export async function addressFlags(address: Hex, signal: AbortSignal): Promise<S
 
 const percent = (v: number) => `${(v * 100).toFixed(v < 0.1 ? 1 : 0)}%`;
 
-export function normalizeTokenSecurity(raw: unknown, address: Hex): { signals: Signal[]; holders?: number } | null {
+export interface TokenSecurity {
+  signals: Signal[];
+  holders?: number;
+  creator?: Hex;
+  /** Percent of the supply the creator holds. */
+  creatorPercent?: number;
+}
+
+export function normalizeTokenSecurity(raw: unknown, address: Hex): TokenSecurity | null {
   const r = obj(raw);
   if (r.code !== undefined && r.code !== 1) return null;
   const t = obj(obj(r.result)[address.toLowerCase()]);
@@ -216,7 +225,14 @@ export function normalizeTokenSecurity(raw: unknown, address: Hex): { signals: S
   // A token GoPlus has not indexed reports "0" holders: unknown, not none.
   const holders = num(t.holder_count) || undefined;
   const order = { danger: 0, warning: 1, info: 2, ok: 3 } as const;
-  return { signals: s.sort((a, b) => order[a.level] - order[b.level]), holders };
+  const creator = str(t.creator_address);
+  const creatorPercent = num(t.creator_percent);
+  return {
+    signals: s.sort((a, b) => order[a.level] - order[b.level]),
+    holders,
+    creator: creator && isAddress(creator) ? creator : undefined,
+    creatorPercent: creatorPercent !== undefined ? creatorPercent * 100 : undefined,
+  };
 }
 
 /** GoPlus chain ids for DexScreener's chain slugs. */
@@ -236,7 +252,7 @@ export const GOPLUS_CHAIN: Record<string, number> = {
   sonic: 146,
 };
 
-export async function tokenSecurity(chain: string, address: Hex, signal: AbortSignal): Promise<{ signals: Signal[]; holders?: number } | null> {
+export async function tokenSecurity(chain: string, address: Hex, signal: AbortSignal): Promise<TokenSecurity | null> {
   const id = GOPLUS_CHAIN[chain];
   if (!id) return null;
   const raw = await getJson<unknown>(`https://api.gopluslabs.io/api/v1/token_security/${id}?contract_addresses=${address.toLowerCase()}`, { signal, timeoutMs: 8000 });
@@ -261,6 +277,12 @@ export function normalizeDexPairs(raw: unknown, address: Hex): TokenFact | null 
   const onChain = list.filter((p) => str(p.chainId) === chain);
   const token = obj(asBase.length ? top.baseToken : top.quoteToken);
   const created = onChain.map((p) => num(p.pairCreatedAt)).filter((v): v is number => v !== undefined && v > 0);
+  // The team's links sit on whichever pair carries a paid or claimed profile.
+  const info = obj(onChain.find((p) => p.info)?.info);
+  const socials: TokenSocials = { x: [] };
+  const website = (Array.isArray(info.websites) ? info.websites.map(obj) : []).map((w) => https(w.url)).find(Boolean);
+  if (website) socials.website = website;
+  for (const entry of Array.isArray(info.socials) ? info.socials.map(obj) : []) addSocial(socials, str(entry.type) ?? str(entry.platform), str(entry.url) ?? str(entry.handle));
   return {
     name: str(token.name)?.slice(0, 60),
     symbol: str(token.symbol)?.slice(0, 20),
@@ -272,7 +294,160 @@ export function normalizeDexPairs(raw: unknown, address: Hex): TokenFact | null 
     createdAt: created.length ? Math.min(...created) : undefined,
     pairs: onChain.length,
     url: https(top.url),
+    ...(socials.x.length || socials.website || socials.telegram || socials.discord || socials.farcaster ? { socials } : {}),
   };
+}
+
+/** Adds one listed link, whatever the source calls the platform. */
+export function addSocial(socials: TokenSocials, platform: string | undefined, value: string | undefined): void {
+  if (!platform || !value) return;
+  const p = platform.toLowerCase();
+  if (p === "twitter" || p === "x") {
+    const handle = xHandle(value);
+    if (handle && !socials.x.some((h) => h.toLowerCase() === handle.toLowerCase())) socials.x.push(handle);
+  } else if (p === "website") socials.website ??= https(value);
+  else if (p === "telegram") socials.telegram ??= https(value) ?? (/^[A-Za-z0-9_]{4,32}$/.test(value) ? `https://t.me/${value}` : undefined);
+  else if (p === "discord") socials.discord ??= https(value);
+  else if (p === "farcaster" || p === "warpcast") socials.farcaster ??= https(value);
+}
+
+/** Fills the token's links from a second source without overwriting what the first one listed. */
+export function mergeSocials(into: TokenSocials | undefined, more: TokenSocials): TokenSocials {
+  const out: TokenSocials = into ? { ...into, x: [...into.x] } : { x: [] };
+  for (const h of more.x) addSocial(out, "x", h);
+  out.website ??= more.website;
+  out.telegram ??= more.telegram;
+  out.discord ??= more.discord;
+  out.farcaster ??= more.farcaster;
+  return out;
+}
+
+/* ---------- DexScreener orders: what the team paid for ---------- */
+
+const ORDER_TYPES = ["tokenProfile", "communityTakeover", "tokenAd", "trendingBarAd"];
+
+export function normalizeOrders(raw: unknown): string[] {
+  const list = Array.isArray(raw) ? raw : obj(raw).orders;
+  const paid = (Array.isArray(list) ? list.map(obj) : []).filter((o) => o.status === "approved").map((o) => str(o.type) ?? "");
+  return ORDER_TYPES.filter((t) => paid.includes(t));
+}
+
+export async function dexOrders(chain: string, address: Hex, signal: AbortSignal): Promise<string[]> {
+  return normalizeOrders(await getJson<unknown>(`https://api.dexscreener.com/orders/v1/${chain}/${address}`, { signal }));
+}
+
+/* ---------- GeckoTerminal: score, holder spread, the team's links, the developer ---------- */
+
+/** GeckoTerminal network ids for DexScreener's chain slugs. */
+export const GECKO_NETWORK: Record<string, string> = {
+  ethereum: "eth",
+  base: "base",
+  bsc: "bsc",
+  arbitrum: "arbitrum",
+  polygon: "polygon_pos",
+  optimism: "optimism",
+  avalanche: "avax",
+  linea: "linea",
+  scroll: "scroll",
+  blast: "blast",
+  zksync: "zksync",
+  mantle: "mantle",
+  sonic: "sonic",
+  celo: "celo",
+  unichain: "unichain",
+};
+
+export interface GeckoInfo {
+  socials: TokenSocials;
+  score?: number;
+  top10?: number;
+  holders?: number;
+  developer?: Hex;
+  developerPercent?: number;
+}
+
+export function normalizeGecko(raw: unknown): GeckoInfo | null {
+  const a = obj(obj(obj(raw).data).attributes);
+  if (!Object.keys(a).length) return null;
+  const socials: TokenSocials = { x: [] };
+  addSocial(socials, "x", str(a.twitter_handle));
+  addSocial(socials, "website", (Array.isArray(a.websites) ? a.websites : []).map(str).find((w) => w && https(w)));
+  addSocial(socials, "telegram", str(a.telegram_handle));
+  addSocial(socials, "discord", str(a.discord_url));
+  addSocial(socials, "farcaster", str(a.farcaster_url));
+  const holders = obj(a.holders);
+  const developer = str(a.developer_address);
+  return {
+    socials,
+    score: num(a.gt_score),
+    top10: num(obj(holders.distribution_percentage).top_10),
+    holders: num(holders.count) || undefined,
+    developer: developer && isAddress(developer) ? developer : undefined,
+    developerPercent: num(a.developer_holding_percentage),
+  };
+}
+
+export async function geckoInfo(chain: string, address: Hex, signal: AbortSignal): Promise<GeckoInfo | null> {
+  const net = GECKO_NETWORK[chain];
+  if (!net) return null;
+  return normalizeGecko(await getJson<unknown>(`https://api.geckoterminal.com/api/v2/networks/${net}/tokens/${address.toLowerCase()}/info`, { signal }));
+}
+
+/* ---------- Honeypot.is: a test buy and sell against the live pool ---------- */
+
+const HONEYPOT_CHAIN: Record<string, number> = { ethereum: 1, bsc: 56, base: 8453 };
+export const honeypotCovers = (chain: string) => chain in HONEYPOT_CHAIN;
+
+export function normalizeHoneypot(raw: unknown): Simulation | null {
+  const r = obj(raw);
+  const result = obj(r.honeypotResult);
+  // A simulation that could not run is no verdict either way.
+  if (r.simulationSuccess !== true || typeof result.isHoneypot !== "boolean") return null;
+  const sim = obj(r.simulationResult);
+  return { honeypot: result.isHoneypot, buyTax: num(sim.buyTax), sellTax: num(sim.sellTax), transferTax: num(sim.transferTax) };
+}
+
+/** null when the token trades only where Honeypot.is cannot simulate (it answers 404 "pair not found"). */
+export async function honeypotSimulation(chain: string, address: Hex, signal: AbortSignal): Promise<Simulation | null> {
+  const id = HONEYPOT_CHAIN[chain];
+  if (!id) return null;
+  return normalizeHoneypot(await getJson<unknown>(`https://api.honeypot.is/v2/IsHoneypot?address=${address.toLowerCase()}&chainID=${id}`, { signal, timeoutMs: 12_000 }));
+}
+
+/* ---------- Clanker: the Base launchpad, and who asked it for the token ---------- */
+
+export interface ClankerLaunch {
+  deployer?: Hex;
+  url: string;
+  socials: TokenSocials;
+}
+
+export function normalizeClanker(raw: unknown, address: Hex): ClankerLaunch | null {
+  const list = obj(raw).data;
+  const t = (Array.isArray(list) ? list.map(obj) : []).find((x) => str(x.contract_address)?.toLowerCase() === address.toLowerCase());
+  if (!t) return null;
+  const socials: TokenSocials = { x: [] };
+  for (const link of Array.isArray(t.socialLinks) ? t.socialLinks.map(obj) : []) addSocial(socials, str(link.name), str(link.link));
+  const media = obj(t.metadata).socialMediaUrls;
+  for (const link of Array.isArray(media) ? media.map(obj) : []) addSocial(socials, str(link.platform), str(link.url));
+  // msg_sender is the wallet that asked Clanker for the token; the contract itself comes from Clanker's factory.
+  const deployer = str(t.msg_sender) ?? str(t.admin);
+  return { deployer: deployer && isAddress(deployer) ? deployer : undefined, url: `https://www.clanker.world/clanker/${address}`, socials };
+}
+
+export async function clankerLaunch(address: Hex, signal: AbortSignal): Promise<ClankerLaunch | null> {
+  return normalizeClanker(await getJson<unknown>(`https://www.clanker.world/api/tokens?q=${address}`, { signal }), address);
+}
+
+/* ---------- Blockscout (Ethereum): who deployed a contract ---------- */
+
+export function normalizeBlockscoutCreator(raw: unknown): Hex | null {
+  const creator = str(obj(raw).creator_address_hash);
+  return creator && isAddress(creator) ? creator : null;
+}
+
+export async function blockscoutCreator(address: Hex, signal: AbortSignal): Promise<Hex | null> {
+  return normalizeBlockscoutCreator(await getJson<unknown>(`https://eth.blockscout.com/api/v2/addresses/${address}`, { signal }));
 }
 
 export async function dexToken(address: Hex, signal: AbortSignal): Promise<TokenFact | null> {

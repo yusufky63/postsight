@@ -1,9 +1,24 @@
 import { getAddress, isAddress as isChecksummed } from "viem";
 import type { Hex, NameFact, TextKey, WalletCard, WalletSection } from "../../shared/wallet";
-import { emptyCard, isAddress } from "../../shared/wallet";
+import { emptyCard, isAddress, xHandle } from "../../shared/wallet";
 import { DAY, HOUR, MINUTE, cached } from "./cache";
-import { basenameAddress, basenamePrimary, basenameTexts, chainFact, ensAddress, ensPrimary, ensTexts } from "./chain";
-import { addressFlags, coinbaseVerification, dexToken, ethosUser, tokenSecurity, web3bioProfiles } from "./sources";
+import { basenameAddress, basenamePrimary, basenameTexts, chainFact, codeAt, ensAddress, ensPrimary, ensTexts } from "./chain";
+import type { ClankerLaunch, GeckoInfo, TokenSecurity } from "./sources";
+import {
+  addressFlags,
+  blockscoutCreator,
+  clankerLaunch,
+  coinbaseVerification,
+  dexOrders,
+  dexToken,
+  ethosUser,
+  geckoInfo,
+  honeypotCovers,
+  honeypotSimulation,
+  mergeSocials,
+  tokenSecurity,
+  web3bioProfiles,
+} from "./sources";
 
 const NAME = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+eth$/;
 
@@ -38,11 +53,22 @@ async function namesOf(address: Hex, queried: string | null): Promise<{ names: N
   return { names, texts };
 }
 
+/** Who a contract's creator is: their primary names and the X account those names list. */
+async function creatorIdentity(address: Hex): Promise<{ names: NameFact[]; x?: string }> {
+  const { names, texts } = await namesOf(address, null);
+  return { names, x: xHandle(texts["com.twitter"]) ?? undefined };
+}
+
+export interface LookupOptions {
+  /** The token sources (GeckoTerminal, Honeypot.is, Blockscout, Clanker) are allowed too. */
+  extras: boolean;
+}
+
 /**
  * Builds the card section by section and sends a copy after each one, so the reader
  * sees names and balances while the slower, rate-limited services are still answering.
  */
-export async function lookupWallet(query: string, emit: (card: WalletCard) => void, signal: AbortSignal): Promise<void> {
+export async function lookupWallet(query: string, emit: (card: WalletCard) => void, signal: AbortSignal, opts: LookupOptions = { extras: true }): Promise<void> {
   const card = emptyCard(query);
   const send = () => {
     if (!signal.aborted) emit(structuredClone(card));
@@ -73,53 +99,142 @@ export async function lookupWallet(query: string, emit: (card: WalletCard) => vo
 
   const address = card.address as Hex;
   const a = address.toLowerCase();
-  const section = async (name: WalletSection, work: () => Promise<void>) => {
-    try {
-      await work();
-    } catch {
-      if (!signal.aborted) card.failed.push(name);
-    } finally {
-      card.pending = card.pending.filter((s) => s !== name);
-      send();
-    }
+  // Sections start as earlier ones reveal what the address is; the lookup ends when all have.
+  const tasks: Promise<void>[] = [];
+  const run = (name: WalletSection, work: () => Promise<void>): Promise<void> => {
+    if (!card.pending.includes(name)) card.pending.push(name);
+    const task = (async () => {
+      try {
+        await work();
+      } catch {
+        if (!signal.aborted) card.failed.push(name);
+      } finally {
+        card.pending = card.pending.filter((s) => s !== name);
+        send();
+      }
+    })();
+    tasks.push(task);
+    return task;
   };
 
-  await Promise.all([
-    section("names", async () => {
-      Object.assign(card, await namesOf(address, isAddress(card.query) ? null : card.query));
-    }),
-    section("chains", async () => {
-      card.chains = await cached(`chains:${a}`, 10 * MINUTE, () => Promise.all([chainFact("ethereum", address), chainFact("base", address)]));
-    }),
-    section("profiles", async () => {
-      card.profiles = await cached(`web3bio:${a}`, 12 * HOUR, () => web3bioProfiles(address, signal), 6 * HOUR);
-    }),
-    section("ethos", async () => {
-      const ethos = await cached(`ethos:${a}`, 12 * HOUR, () => ethosUser(address, signal));
-      if (ethos) card.ethos = ethos;
-    }),
-    section("coinbase", async () => {
-      const cb = await cached(`coinbase:${a}`, DAY, () => coinbaseVerification(address, signal), 12 * HOUR);
-      if (cb) card.coinbase = cb;
-    }),
-    section("flags", async () => {
-      card.flags = await cached(`flags:${a}`, 12 * HOUR, () => addressFlags(address, signal));
-    }),
-    section("token", async () => {
-      const token = await cached(`dex:${a}`, 10 * MINUTE, () => dexToken(address, signal), 30 * MINUTE);
-      card.token = token;
-      if (!token) return;
-      send();
-      try {
-        const security = await cached(`tokensec:${token.chain}:${a}`, 6 * HOUR, () => tokenSecurity(token.chain, address, signal), 30 * MINUTE);
+  run("names", async () => {
+    Object.assign(card, await namesOf(address, isAddress(card.query) ? null : card.query));
+  });
+  const chainsDone = run("chains", async () => {
+    card.chains = await cached(`chains:${a}`, 10 * MINUTE, () => Promise.all([chainFact("ethereum", address), chainFact("base", address)]));
+  });
+  run("profiles", async () => {
+    card.profiles = await cached(`web3bio:${a}`, 12 * HOUR, () => web3bioProfiles(address, signal), 6 * HOUR);
+  });
+  run("ethos", async () => {
+    const ethos = await cached(`ethos:${a}`, 12 * HOUR, () => ethosUser(address, signal));
+    if (ethos) card.ethos = ethos;
+  });
+  run("coinbase", async () => {
+    const cb = await cached(`coinbase:${a}`, DAY, () => coinbaseVerification(address, signal), 12 * HOUR);
+    if (cb) card.coinbase = cb;
+  });
+  run("flags", async () => {
+    card.flags = await cached(`flags:${a}`, 12 * HOUR, () => addressFlags(address, signal));
+  });
+
+  // What the token sections learn about the creator, for the creator section.
+  let security: TokenSecurity | null = null;
+  let gecko: GeckoInfo | null = null;
+  let clanker: ClankerLaunch | null = null;
+  /** The slow, rate-limited sections; the creator waits for them only to fall back or fill in a share. */
+  const waits: Promise<void>[] = [];
+  let launched: Promise<void> = Promise.resolve();
+
+  const tokenDone = run("token", async () => {
+    const token = await cached(`dex:${a}`, 10 * MINUTE, () => dexToken(address, signal), 30 * MINUTE);
+    card.token = token;
+    if (!token) return;
+    const chain = token.chain;
+    waits.push(
+      run("security", async () => {
         // null: GoPlus does not cover that chain, so there is nothing to show either way.
+        security = await cached(`tokensec:${chain}:${a}`, 6 * HOUR, () => tokenSecurity(chain, address, signal), 30 * MINUTE);
         if (security) {
           token.signals = security.signals;
-          token.holders = security.holders;
+          token.holders ??= security.holders;
         }
-      } catch {
-        if (!signal.aborted) card.failed.push("security");
-      }
-    }),
-  ]);
+      }),
+    );
+    run("orders", async () => {
+      const paid = await cached(`orders:${chain}:${a}`, 6 * HOUR, () => dexOrders(chain, address, signal));
+      if (paid.length) token.paid = paid;
+    });
+    if (!opts.extras) return;
+    waits.push(
+      run("market", async () => {
+        gecko = await cached(`gecko:${chain}:${a}`, 6 * HOUR, () => geckoInfo(chain, address, signal), HOUR);
+        if (!gecko) return;
+        token.socials = mergeSocials(token.socials, gecko.socials);
+        if (gecko.score !== undefined) token.gtScore = gecko.score;
+        if (gecko.top10 !== undefined) token.top10 = gecko.top10;
+        token.holders = gecko.holders ?? token.holders;
+      }),
+    );
+    if (honeypotCovers(chain)) {
+      run("simulation", async () => {
+        token.simulation = await cached(`honeypot:${chain}:${a}`, 30 * MINUTE, () => honeypotSimulation(chain, address, signal));
+      });
+    }
+    if (chain === "base") {
+      launched = run("launchpad", async () => {
+        clanker = await cached(`clanker:${a}`, DAY, () => clankerLaunch(address, signal), 6 * HOUR);
+        if (!clanker) return;
+        token.launchpad = { name: "Clanker", url: clanker.url };
+        token.socials = mergeSocials(token.socials, clanker.socials);
+      });
+    }
+  });
+
+  // The creator: asked for once it is clear the address is a token or another contract.
+  tasks.push(
+    (async () => {
+      await Promise.all([chainsDone, tokenDone]);
+      const chain = card.token?.chain ?? card.chains.find((c) => c.code === "contract")?.chain;
+      if (!chain) return;
+      await run("creator", async () => {
+        // Clanker and Blockscout answer fast and name the creator directly: ask them first.
+        await launched;
+        const launch = clanker as ClankerLaunch | null;
+        let found: { address: Hex; source: string } | null = launch?.deployer ? { address: launch.deployer, source: "Clanker" } : null;
+        if (!found && chain === "ethereum" && opts.extras) {
+          // Blockscout sits behind bot protection at times; GoPlus and GeckoTerminal still know the creator then.
+          const creator = await cached(`creator:eth:${a}`, 7 * DAY, () => blockscoutCreator(address, signal), DAY).catch(() => null);
+          if (creator) found = { address: creator, source: "Blockscout" };
+        }
+        if (!found) {
+          await Promise.all(waits);
+          const goplus = security as TokenSecurity | null;
+          const gt = gecko as GeckoInfo | null;
+          if (goplus?.creator) found = { address: goplus.creator, source: "GoPlus" };
+          else if (gt?.developer) found = { address: gt.developer, source: "GeckoTerminal" };
+        }
+        if (!found) {
+          card.creator = null;
+          return;
+        }
+        const who = found.address;
+        // A launchpad or factory deploys for someone else: its own names say nothing about who.
+        const code = chain === "ethereum" || chain === "base" ? await cached(`code:${chain}:${who.toLowerCase()}`, 7 * DAY, () => codeAt(chain, who)) : "none";
+        const factory = code === "contract";
+        const identity = factory ? { names: [] } : await creatorIdentity(who);
+        card.creator = { address: getAddress(who), factory, source: found.source, ...identity };
+        send();
+        // The share the creator holds comes from the slower sources; it follows when they answer.
+        await Promise.all(waits);
+        const goplus = security as TokenSecurity | null;
+        const gt = gecko as GeckoInfo | null;
+        const same = (x?: Hex) => !!x && x.toLowerCase() === who.toLowerCase();
+        const percent = same(goplus?.creator) ? goplus?.creatorPercent : same(gt?.developer) ? gt?.developerPercent : undefined;
+        if (percent !== undefined) card.creator.percent = percent;
+      });
+    })(),
+  );
+
+  for (let i = 0; i < tasks.length; i++) await tasks[i];
 }
