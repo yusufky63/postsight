@@ -66,10 +66,13 @@ export async function saveHistory(entries: HistoryEntry[]): Promise<void> {
 /** Explorer API keys the reader added for wallet cards; kept apart from the AI keys. */
 export interface ExplorerKeys {
   etherscan: string;
+  blockscout: string;
 }
 
+export type ExplorerName = keyof ExplorerKeys;
+
 export async function loadExplorerKeys(): Promise<ExplorerKeys> {
-  return { etherscan: "", ...((await read<Partial<ExplorerKeys>>(KEYS.explorer)) ?? {}) };
+  return { etherscan: "", blockscout: "", ...((await read<Partial<ExplorerKeys>>(KEYS.explorer)) ?? {}) };
 }
 
 export async function saveExplorerKey(name: keyof ExplorerKeys, key: string): Promise<void> {

@@ -3,6 +3,7 @@ import type { ChainId, Hex, NameFact, TextKey, WalletCard, WalletSection } from 
 import { emptyCard, isAddress, xHandle } from "../../shared/wallet";
 import { DAY, HOUR, MINUTE, cached } from "./cache";
 import { basenameAddress, basenamePrimary, basenameTexts, chainFact, codeAt, ensAddress, ensPrimary, ensTexts } from "./chain";
+import { blockscoutAddress } from "./blockscout";
 import { contractCreation, contractSource, etherscanChain, firstActivity } from "./etherscan";
 import type { ClankerLaunch, GeckoInfo, TokenSecurity } from "./sources";
 import {
@@ -65,6 +66,8 @@ export interface LookupOptions {
   extras: boolean;
   /** The reader's own Etherscan key, when they added one and allowed api.etherscan.io. */
   etherscanKey?: string;
+  /** The reader's own Blockscout PRO key, when they added one and allowed api.blockscout.com. */
+  blockscoutKey?: string;
 }
 
 /**
@@ -103,6 +106,9 @@ export async function lookupWallet(query: string, emit: (card: WalletCard) => vo
   const address = card.address as Hex;
   const a = address.toLowerCase();
   const key = opts.etherscanKey;
+  const bsKey = opts.blockscoutKey;
+  /** One Blockscout PRO answer serves both the creator and the contract row. */
+  const blockscoutPro = (chainId: number) => (bsKey ? cached(`bspro:${chainId}:${a}`, 7 * DAY, () => blockscoutAddress(chainId, address, bsKey, signal), DAY).catch(() => null) : Promise.resolve(null));
   // Sections start as earlier ones reveal what the address is; the lookup ends when all have.
   const tasks: Promise<void>[] = [];
   const run = (name: WalletSection, work: () => Promise<void>): Promise<void> => {
@@ -212,6 +218,10 @@ export async function lookupWallet(query: string, emit: (card: WalletCard) => vo
           const creation = await cached(`creation:${chainId}:${a}`, 30 * DAY, () => contractCreation(chainId, address, key, signal), DAY).catch(() => null);
           if (creation) found = { address: creation.creator, source: "Etherscan", ...(creation.factory ? { via: creation.factory } : {}) };
         }
+        if (!found && bsKey && chainId) {
+          const pro = await blockscoutPro(chainId);
+          if (pro?.creator) found = { address: pro.creator, source: "Blockscout" };
+        }
         if (!found && chain === "ethereum" && opts.extras) {
           // Blockscout sits behind bot protection at times; GoPlus and GeckoTerminal still know the creator then.
           const creator = await cached(`creator:eth:${a}`, 7 * DAY, () => blockscoutCreator(address, signal), DAY).catch(() => null);
@@ -246,20 +256,26 @@ export async function lookupWallet(query: string, emit: (card: WalletCard) => vo
     })(),
   );
 
-  // With the reader's Etherscan key: a contract's verified name, or when a wallet first transacted.
-  if (key) {
+  // With the reader's own explorer keys: a contract's verified name, or when a wallet first transacted (Etherscan only).
+  if (key || bsKey) {
     tasks.push(
       (async () => {
         await Promise.all([chainsDone, tokenDone]);
         const contractChain = card.token?.chain ?? card.chains.find((c) => c.code === "contract")?.chain;
         const contractId = contractChain ? etherscanChain(contractChain) : undefined;
-        const active = card.chains.filter((c) => c.code !== "contract" && (c.txCount > 0 || c.balanceWei !== "0"));
+        const active = key ? card.chains.filter((c) => c.code !== "contract" && (c.txCount > 0 || c.balanceWei !== "0")) : [];
         if (!contractId && !active.length) return;
         await run("explorer", async () => {
           if (contractId) {
-            card.contract = await cached(`source:${contractId}:${a}`, 7 * DAY, () => contractSource(contractId, address, key, signal), DAY);
+            const source = key ? await cached(`source:${contractId}:${a}`, 7 * DAY, () => contractSource(contractId, address, key, signal), DAY).catch(() => null) : null;
+            // Blockscout fills in when there is no Etherscan answer, and names what a proxy runs.
+            const pro = !source || (source.proxy && bsKey) ? (await blockscoutPro(contractId))?.contract : undefined;
+            card.contract = source ? { ...source, ...(pro?.implementationName ? { implementationName: pro.implementationName } : {}) } : (pro ?? null);
+            if (!card.contract && key) throw new Error("no contract source");
             return;
           }
+          // Only Etherscan dates a wallet; "active" is empty without its key.
+          if (!key) return;
           const seen = await Promise.all(
             active.map(async (c) => {
               const id = etherscanChain(c.chain)!;

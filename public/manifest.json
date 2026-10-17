@@ -80,6 +80,7 @@
     "https://eth.blockscout.com/*",
     "https://www.clanker.world/*",
     "https://api.etherscan.io/*",
+    "https://api.blockscout.com/*",
     "<all_urls>"
   ]
 }

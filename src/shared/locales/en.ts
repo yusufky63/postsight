@@ -346,6 +346,10 @@ export const en = {
   "features.etherscanKey": "Etherscan API key (optional)",
   "features.etherscanHint": "Adds who created a contract on any chain, its verified name and when a wallet first transacted. A free key from etherscan.io works. It stays on this device and is sent only to api.etherscan.io.",
   "features.etherscanOk": "Etherscan key works",
+  "features.blockscoutKey": "Blockscout PRO API key (optional)",
+  "features.blockscoutHint": "An alternative to Etherscan for contract creators and verified names on 100+ chains, and the only way to read Blockscout on Base. It also names what a proxy contract runs. Get a key at dev.blockscout.com. It stays on this device and is sent only to api.blockscout.com.",
+  "features.blockscoutOk": "Blockscout key works",
+  "features.reloadNeeded": "Postsight was updated but the old version is still running. Reload it at chrome://extensions (or edge://extensions), then try again.",
   "features.uiLang": "Interface language",
   "features.outputLang": "Answer language",
 
@@ -371,7 +375,7 @@ export const en = {
   "help.q7": "What is sent to the model?",
   "help.a7": "The post text, author handle, time, quoted post, link preview text, poll, community note, image links (only to models that can see them) and, on a post page, the rest of the author's thread. For an X Article Postsight reads the article from X's public post page; for links it reads the linked page if you allowed that. Pages are fetched without your cookies. Nothing else from your account or timeline is sent.",
   "help.q8": "What do wallet cards check, and what do they send?",
-  "help.a8": "With wallet cards on, hovering a 0x address or a .eth name in a post looks it up in public sources that need no key: ENS on Ethereum and Basenames on Base (names checked in both directions, plus their text records), balances and transaction counts from public Ethereum and Base nodes, web3.bio profiles, Ethos reviews, Coinbase verification attestations on Base and GoPlus security flags. For a token it adds DexScreener trading pairs and paid listings, GeckoTerminal's score and holder spread, a Honeypot.is test buy and sell, and who created it (from Clanker, Blockscout, GoPlus or GeckoTerminal). Only the address or name is sent to them, without your cookies, and the answers are kept on this device for up to a day. Names, profile links and a token's listed accounts are claims their owner published, so a match is a hint, not proof. With your own Etherscan API key in settings, cards also show who created a contract on any chain, its verified name and when a wallet first transacted.",
+  "help.a8": "With wallet cards on, hovering a 0x address or a .eth name in a post looks it up in public sources that need no key: ENS on Ethereum and Basenames on Base (names checked in both directions, plus their text records), balances and transaction counts from public Ethereum and Base nodes, web3.bio profiles, Ethos reviews, Coinbase verification attestations on Base and GoPlus security flags. For a token it adds DexScreener trading pairs and paid listings, GeckoTerminal's score and holder spread, a Honeypot.is test buy and sell, and who created it (from Clanker, Blockscout, GoPlus or GeckoTerminal). Only the address or name is sent to them, without your cookies, and the answers are kept on this device for up to a day. Names, profile links and a token's listed accounts are claims their owner published, so a match is a hint, not proof. With your own Etherscan or Blockscout PRO API key in settings, cards also show who created a contract on any chain and its verified name; an Etherscan key also dates a wallet's first transaction.",
 } as const;
 
 export type MessageKey = keyof typeof en;

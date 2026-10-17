@@ -21,6 +21,7 @@ import {
   saveSettings,
   saveUsage,
 } from "../shared/storage";
+import type { ExplorerName } from "../shared/storage";
 import { ACTIONS, PROVIDERS, TIERS } from "../shared/types";
 import type {
   ActionId,
@@ -72,11 +73,12 @@ const state = {
   canWallets: false,
   /** The token sources added in 1.1 are allowed too; older grants cover only the core hosts. */
   canTokenSources: false,
-  /** The reader's own Etherscan key for wallet cards, and the field's state. */
-  etherscan: { saved: "", draft: "", reveal: false, test: undefined as TestState | undefined },
+  /** The reader's own explorer keys for wallet cards, and each field's state. */
+  explorers: {
+    etherscan: { saved: "", draft: "", reveal: false, test: undefined as TestState | undefined },
+    blockscout: { saved: "", draft: "", reveal: false, test: undefined as TestState | undefined },
+  },
 };
-
-const ETHERSCAN_ORIGIN = "https://api.etherscan.io/*";
 
 const app = document.getElementById("app")!;
 const containers = new Map<SectionId, HTMLElement>();
@@ -819,20 +821,35 @@ function renderFeatures(): Child {
             h("button", { class: "btn btn-sm", type: "button", onClick: () => void allowTokenSources() }, t("features.walletsAllow")),
           )
         : null,
-      s.walletCards && state.canWallets ? etherscanField() : null,
+      s.walletCards && state.canWallets ? explorerField("etherscan") : null,
+      s.walletCards && state.canWallets ? explorerField("blockscout") : null,
     ),
   ];
 }
 
-/** An optional Etherscan key: creators on every chain, verified contract names, wallet age. */
-function etherscanField(): HTMLElement {
-  const e = state.etherscan;
+interface ExplorerInfo {
+  origin: string;
+  keyUrl: string;
+  label: MessageKey;
+  hint: MessageKey;
+  ok: MessageKey;
+}
+
+/** The two optional explorer keys: each reader brings their own, used only in the service worker. */
+const EXPLORERS: Record<ExplorerName, ExplorerInfo> = {
+  etherscan: { origin: "https://api.etherscan.io/*", keyUrl: "https://etherscan.io/apidashboard", label: "features.etherscanKey", hint: "features.etherscanHint", ok: "features.etherscanOk" },
+  blockscout: { origin: "https://api.blockscout.com/*", keyUrl: "https://dev.blockscout.com", label: "features.blockscoutKey", hint: "features.blockscoutHint", ok: "features.blockscoutOk" },
+};
+
+function explorerField(name: ExplorerName): HTMLElement {
+  const e = state.explorers[name];
+  const info = EXPLORERS[name];
   const input = h("input", {
     type: e.reveal ? "text" : "password",
     autocomplete: "off",
     spellcheck: "false",
     placeholder: e.saved ? maskKey(e.saved) : t("prov.keyPlaceholder"),
-    "aria-label": t("features.etherscanKey"),
+    "aria-label": t(info.label),
   });
   input.value = e.draft;
   input.addEventListener("input", () => (e.draft = input.value));
@@ -840,15 +857,15 @@ function etherscanField(): HTMLElement {
     const value = e.draft.trim();
     if (!value) return;
     // The permission prompt has to come first, while the click still counts as the reader's gesture.
-    const granted = await chrome.permissions.request({ origins: [ETHERSCAN_ORIGIN] }).catch(() => false);
+    const granted = await chrome.permissions.request({ origins: [info.origin] }).catch(() => false);
     if (!granted) {
       toast(t("features.readLinksDenied"));
       return;
     }
-    await saveExplorerKey("etherscan", value);
+    await saveExplorerKey(name, value);
     e.saved = value;
     e.draft = "";
-    await testEtherscan();
+    await testExplorer(name);
   };
   input.addEventListener("keydown", (ev) => {
     if (ev.key === "Enter") void commit();
@@ -857,7 +874,7 @@ function etherscanField(): HTMLElement {
   return h(
     "div",
     { class: "kv" },
-    h("span", { class: "label" }, t("features.etherscanKey")),
+    h("span", { class: "label" }, t(info.label)),
     h(
       "div",
       { class: "row" },
@@ -881,6 +898,7 @@ function etherscanField(): HTMLElement {
         ),
       ),
       h("button", { class: "btn btn-primary", type: "button", onClick: () => void commit() }, t("prov.save")),
+      e.saved ? h("button", { class: "btn", type: "button", onClick: () => void testExplorer(name) }, t("prov.test")) : null,
       e.saved
         ? h(
             "button",
@@ -888,7 +906,7 @@ function etherscanField(): HTMLElement {
               class: "btn btn-ghost btn-danger",
               type: "button",
               onClick: async () => {
-                await saveExplorerKey("etherscan", "");
+                await saveExplorerKey(name, "");
                 e.saved = "";
                 e.test = undefined;
                 renderSection("features");
@@ -897,18 +915,23 @@ function etherscanField(): HTMLElement {
             t("prov.remove"),
           )
         : null,
-      h("a", { class: "btn btn-ghost btn-sm", href: "https://etherscan.io/apidashboard", target: "_blank", rel: "noopener noreferrer" }, t("prov.getKey"), icon("external", 14)),
+      h("a", { class: "btn btn-ghost btn-sm", href: info.keyUrl, target: "_blank", rel: "noopener noreferrer" }, t("prov.getKey"), icon("external", 14)),
     ),
-    h("div", { class: "status-line", style: `color:var(--${tone})` }, e.test?.text ?? ""),
-    h("span", { class: "xs muted" }, t("features.etherscanHint")),
+    e.test ? h("div", { class: "status-line", style: `color:var(--${tone})` }, e.test.text) : null,
+    h("span", { class: "xs muted" }, t(info.hint)),
   );
 }
 
-async function testEtherscan(): Promise<void> {
-  state.etherscan.test = { state: "testing", text: t("prov.testing") };
+async function testExplorer(name: ExplorerName): Promise<void> {
+  const e = state.explorers[name];
+  e.test = { state: "testing", text: t("prov.testing") };
   renderSection("features");
-  const res = await sendRequest<{ ok: boolean; detail?: string }>({ type: "test-etherscan" });
-  state.etherscan.test = res.ok ? { state: "ok", text: t("features.etherscanOk") } : { state: "fail", text: t("prov.fail", { msg: res.detail ?? t("error.unknown") }) };
+  // A worker that does not know the request answers with nothing: this page is newer than
+  // the running extension, which happens until the extension is reloaded.
+  const res = await sendRequest<{ ok: boolean; detail?: string } | null | undefined>({ type: "test-explorer", explorer: name }).catch(() => null);
+  if (!res) e.test = { state: "fail", text: t("features.reloadNeeded") };
+  else if (res.ok) e.test = { state: "ok", text: t(EXPLORERS[name].ok) };
+  else e.test = { state: "fail", text: res.detail === "permission" ? t("features.readLinksDenied") : t("prov.fail", { msg: res.detail ?? t("error.unknown") }) };
   renderSection("features");
 }
 
@@ -1147,7 +1170,9 @@ async function init(): Promise<void> {
   state.canReadLinks = await chrome.permissions.contains({ origins: ["<all_urls>"] }).catch(() => false);
   state.canWallets = await chrome.permissions.contains({ origins: CORE_ORIGINS }).catch(() => false);
   state.canTokenSources = await chrome.permissions.contains({ origins: TOKEN_ORIGINS }).catch(() => false);
-  state.etherscan.saved = (await loadExplorerKeys()).etherscan;
+  const explorerKeys = await loadExplorerKeys();
+  state.explorers.etherscan.saved = explorerKeys.etherscan;
+  state.explorers.blockscout.saved = explorerKeys.blockscout;
   renderAll();
   const hash = location.hash.slice(1);
   if (hash) document.getElementById(hash)?.scrollIntoView();
