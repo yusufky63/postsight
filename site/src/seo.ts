@@ -54,6 +54,7 @@ ${BRAND} is a free, open-source (MIT) Manifest V3 extension for Chrome and Edge.
 ## Source
 
 - [GitHub repository](${LINKS.repo})
+- [Chrome Web Store](${LINKS.chromeStore}): install the extension in Chrome or Edge
 - [Latest release](${LINKS.release}): download the packaged extension
 - [Install from source](${LINKS.readmeInstall})
 - [Changelog](${LINKS.changelog})
@@ -154,6 +155,7 @@ export function homeJsonLd(lang: Lang, version: string): unknown[] {
       applicationCategory: "BrowserApplication",
       operatingSystem: "Google Chrome, Microsoft Edge",
       softwareVersion: version,
+      installUrl: LINKS.chromeStore,
       downloadUrl: LINKS.release,
       license: "https://opensource.org/licenses/MIT",
       isAccessibleForFree: true,

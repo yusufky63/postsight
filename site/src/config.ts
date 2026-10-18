@@ -7,6 +7,7 @@ const REPO = "https://github.com/yusufky63/postsight";
 export const LINKS = {
   repo: REPO,
   release: `${REPO}/releases/latest`,
+  chromeStore: "https://chromewebstore.google.com/detail/postsight-ai-fact-check-a/fhgkaalhcafnhfebmckfnbgdheekbnin",
   readmeInstall: `${REPO}#install`,
   changelog: `${REPO}/blob/main/CHANGELOG.md`,
   license: `${REPO}/blob/main/LICENSE`,

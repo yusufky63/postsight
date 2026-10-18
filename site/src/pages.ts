@@ -57,8 +57,8 @@ export function homePage(lang: Lang, data: SiteData): Markup {
     <h1 class="display hero-title" id="hero-title">${c.hero.title}</h1>
     <p class="lead">${c.hero.lead}</p>
     <div class="cta-row">
-      <a class="btn btn-lg btn-primary" href="${LINKS.release}">${ICONS.download}${c.hero.download}</a>
-      <a class="btn btn-lg" href="${LINKS.readmeInstall}">${c.hero.source}${ICONS.arrow}</a>
+      <a class="btn btn-lg btn-primary" href="${LINKS.chromeStore}">${ICONS.download}${c.hero.store}</a>
+      <a class="btn btn-lg" href="${LINKS.release}">${c.hero.download}${ICONS.arrow}</a>
     </div>
     <ul class="facts" role="list">
       <li class="mono">v${data.version}</li>
@@ -168,12 +168,28 @@ export function homePage(lang: Lang, data: SiteData): Markup {
   const install = html`<section class="section frame" id="install" aria-labelledby="install-title">
   ${sectionHead("install-title", c.install.eyebrow, c.install.title, c.install.lead)}
   <div class="install-grid">
-    <div class="card ticks">
-      <div class="card-head"><h3 class="label">${c.install.releaseTitle}</h3></div>
-      <ol class="steps">${c.install.releaseSteps(data.version, LINKS.release).map((s) => html`<li><span>${md(s)}</span></li>`)}</ol>
-      <div class="card-foot"><a class="btn btn-primary" href="${LINKS.release}">${ICONS.download}${c.hero.download}</a></div>
+    <div class="stack">
+      <div class="card ticks">
+        <div class="card-head"><h3 class="label">${c.install.storeTitle}</h3></div>
+        <ol class="steps">${c.install.storeSteps(LINKS.chromeStore).map((s) => html`<li><span>${md(s)}</span></li>`)}</ol>
+        <div class="card-foot"><a class="btn btn-primary" href="${LINKS.chromeStore}">${ICONS.download}${c.hero.store}</a><span class="small muted">${c.install.storeFoot}</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3 class="label">${c.install.needsTitle}</h3></div>
+        <ul class="card-body needs">
+          <li>${c.install.browser(data.minChrome)}</li>
+          <li>${c.install.keys}
+            <span class="key-links">${PROVIDERS.map((p) => externalLink(PROVIDER_KEY_URL[p], PROVIDER_LABEL[p]))}</span>
+          </li>
+        </ul>
+      </div>
     </div>
     <div class="stack">
+      <div class="card">
+        <div class="card-head"><h3 class="label">${c.install.releaseTitle}</h3></div>
+        <ol class="steps">${c.install.releaseSteps(data.version, LINKS.release).map((s) => html`<li><span>${md(s)}</span></li>`)}</ol>
+        <div class="card-foot"><a class="btn" href="${LINKS.release}">${ICONS.download}${c.hero.download}</a></div>
+      </div>
       <div class="card">
         <div class="card-head"><h3 class="label">${c.install.sourceTitle}</h3></div>
         <div class="card-body">
@@ -184,15 +200,6 @@ pnpm install
 pnpm build</code></pre>
           <p class="small secondary">${md(c.install.sourceAfter(LINKS.readmeInstall))}</p>
         </div>
-      </div>
-      <div class="card">
-        <div class="card-head"><h3 class="label">${c.install.needsTitle}</h3></div>
-        <ul class="card-body needs">
-          <li>${c.install.browser(data.minChrome)}</li>
-          <li>${c.install.keys}
-            <span class="key-links">${PROVIDERS.map((p) => externalLink(PROVIDER_KEY_URL[p], PROVIDER_LABEL[p]))}</span>
-          </li>
-        </ul>
       </div>
     </div>
   </div>
