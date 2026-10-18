@@ -66,7 +66,7 @@ function header(lang: Lang, page: PageId | null): Markup {
     <div class="tools">
       <a class="lang-switch" href="${pathOf(page ?? "home", other)}" hreflang="${other}" lang="${other}" aria-label="${c.nav.otherLangName}">${c.nav.otherLang}</a>
       <button class="icon-btn theme-toggle" type="button" data-theme-toggle aria-label="${c.nav.theme}" aria-pressed="false"><span class="i-moon">${ICONS.moon}</span><span class="i-sun">${ICONS.sun}</span></button>
-      <a class="btn btn-sm btn-primary header-cta" href="${LINKS.release}">${ICONS.download}${c.nav.download}</a>
+      <a class="btn btn-sm btn-primary header-cta" href="${LINKS.chromeStore}" aria-label="${c.nav.download}">${ICONS.download}<span class="cta-text">${c.nav.download}</span></a>
     </div>
   </div>
 </header>`;
@@ -82,6 +82,7 @@ function footer(lang: Lang, page: PageId | null, version: string): Markup {
       items: [
         html`<a href="${home}#features">${c.nav.features}</a>`,
         html`<a href="${home}#install">${c.nav.install}</a>`,
+        externalLink(LINKS.chromeStore, f.store),
         externalLink(LINKS.release, f.release),
       ],
     },

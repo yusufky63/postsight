@@ -51,6 +51,10 @@ No remote code: all scripts ship in the package.
 - Store copies never run the GitHub update check; it exists only for copies loaded from the release zip, which cannot update themselves.
 - Privacy policy URL: https://github.com/yusufky63/postsight/blob/main/PRIVACY.md until the website is deployed; after that, https://postsight.xyz/privacy (built from `PRIVACY.md`, see [site/README.md](../site/README.md)).
 
+## Live listings
+
+- Chrome Web Store: https://chromewebstore.google.com/detail/postsight-ai-fact-check-a/fhgkaalhcafnhfebmckfnbgdheekbnin (item id `fhgkaalhcafnhfebmckfnbgdheekbnin`)
+
 ## Website URLs
 
 Once https://postsight.xyz is deployed from `site/` on Vercel:

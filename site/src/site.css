@@ -420,6 +420,15 @@ html[data-theme="dark"] .theme-toggle .i-sun {
     padding: 8px 8px;
   }
 }
+/* On a phone the header keeps only the icon; the hero's own button carries the label. */
+@media (max-width: 479px) {
+  .header-cta .cta-text {
+    display: none;
+  }
+  .header-cta {
+    padding-inline: 10px;
+  }
+}
 
 /* ---------- Sections ---------- */
 .section {
@@ -620,6 +629,10 @@ html[data-theme="dark"] .theme-toggle .i-sun {
   margin-top: auto;
   padding: 12px 16px;
   border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
 }
 @media (min-width: 768px) {
   .card-body {

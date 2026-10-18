@@ -35,7 +35,7 @@ export type Copy = {
     otherLang: string;
     otherLangName: string;
   };
-  hero: { eyebrow: string; title: string; lead: string; download: string; source: string; facts: string[]; shotAlt: string };
+  hero: { eyebrow: string; title: string; lead: string; store: string; download: string; facts: string[]; shotAlt: string };
   actions: { eyebrow: string; title: string; lead: string; badgeNote: string; items: Record<ActionId, string> };
   routing: {
     eyebrow: string;
@@ -66,6 +66,9 @@ export type Copy = {
     eyebrow: string;
     title: string;
     lead: string;
+    storeTitle: string;
+    storeSteps: (storeUrl: string) => string[];
+    storeFoot: string;
     releaseTitle: string;
     releaseSteps: (version: string, releaseUrl: string) => string[];
     sourceTitle: string;
@@ -105,6 +108,7 @@ export type Copy = {
     help: string;
     project: string;
     release: string;
+    store: string;
     privacyPolicy: string;
     bug: string;
     security: string;
@@ -139,7 +143,7 @@ const en: Copy = {
     install: "Install",
     privacy: "Privacy",
     support: "Support",
-    download: "Download",
+    download: "Add to Chrome",
     theme: "Dark theme",
     otherLang: "TR",
     otherLangName: "Türkçe",
@@ -148,8 +152,8 @@ const en: Copy = {
     eyebrow: "Browser extension for X · Chrome and Edge",
     title: "Fact-check any post on X.",
     lead: "Postsight adds a violet AI badge to every post. Click it to verify, research, summarize, translate or explain the post with your own Claude, OpenAI or DeepSeek key, and see what each answer cost. Hover a wallet address in a post to see who is behind it.",
+    store: "Add to Chrome",
     download: "Download the latest release",
-    source: "Build from source",
     facts: ["MIT license", "No account", "No tracking", "12 languages"],
     shotAlt:
       "The Auto routing page in Postsight's settings: the strategy, the provider order with saved keys, and the model Auto picks for each action with its estimated cost.",
@@ -249,8 +253,16 @@ const en: Copy = {
   },
   install: {
     eyebrow: "06 — Install",
-    title: "Install from GitHub",
-    lead: "Postsight is free and open source under the MIT license. Install the packaged release, or build it yourself.",
+    title: "Add it to Chrome or Edge",
+    lead: "Postsight is free and open source under the MIT license. Install it from the Chrome Web Store, which keeps it up to date, or load the release zip, or build it yourself.",
+    storeTitle: "From the Chrome Web Store",
+    storeSteps: (storeUrl) => [
+      `Open [Postsight on the Chrome Web Store](${storeUrl}) and choose **Add to Chrome**.`,
+      "In Edge, allow extensions from other stores when Edge asks, then add it the same way.",
+      `The settings page opens. Paste a Claude, OpenAI or DeepSeek key and press **${enUi["prov.save"]}**; Postsight tests it and loads the model list.`,
+      "On x.com, every post now has a violet **AI** badge with the Postsight lens, next to Grok and the more menu.",
+    ],
+    storeFoot: "The store installs new versions on its own.",
     releaseTitle: "From the latest release",
     releaseSteps: (version, releaseUrl) => [
       `Download \`postsight-${version}.zip\` from the [latest release](${releaseUrl}).`,
@@ -300,6 +312,7 @@ const en: Copy = {
     help: "Help",
     project: "Project",
     release: "Latest release",
+    store: "Chrome Web Store",
     privacyPolicy: "Privacy policy",
     bug: "Report a bug",
     security: "Security report",
@@ -338,7 +351,7 @@ const tr: Copy = {
     install: "Kurulum",
     privacy: "Gizlilik",
     support: "Destek",
-    download: "İndir",
+    download: "Chrome'a ekle",
     theme: "Koyu tema",
     otherLang: "EN",
     otherLangName: "English",
@@ -347,8 +360,8 @@ const tr: Copy = {
     eyebrow: "X için tarayıcı eklentisi · Chrome ve Edge",
     title: "X gönderilerini doğrula.",
     lead: "Postsight, X'teki her gönderiye mor bir AI rozeti ekler. Tıkla; gönderiyi kendi Claude, OpenAI ya da DeepSeek anahtarınla doğrula, araştır, özetle, çevir ya da açıkla ve her yanıtın maliyetini gör. Gönderideki bir cüzdan adresinin üzerine gel, arkasında kim olduğunu gör.",
+    store: "Chrome'a ekle",
     download: "Son sürümü indir",
-    source: "Kaynaktan derle",
     facts: ["MIT lisansı", "Hesap yok", "Takip yok", "12 dil"],
     shotAlt:
       "Postsight ayarlarındaki Otomatik yönlendirme sayfası: strateji, kayıtlı anahtarlarla sağlayıcı sırası ve Otomatik modun her işlem için seçtiği model ile tahmini maliyeti.",
@@ -447,8 +460,16 @@ const tr: Copy = {
   },
   install: {
     eyebrow: "06 — Kurulum",
-    title: "GitHub'dan kur",
-    lead: "Postsight ücretsizdir ve MIT lisanslı açık kaynaktır. Paketlenmiş sürümü kur ya da kendin derle.",
+    title: "Chrome ya da Edge'e ekle",
+    lead: "Postsight ücretsizdir ve MIT lisanslı açık kaynaktır. Seni güncel tutan Chrome Web Mağazası'ndan kur, sürüm zip'ini yükle ya da kendin derle.",
+    storeTitle: "Chrome Web Mağazası'ndan",
+    storeSteps: (storeUrl) => [
+      `[Chrome Web Mağazası'ndaki Postsight sayfasını](${storeUrl}) aç ve **Chrome'a ekle**'ye bas.`,
+      "Edge'de, Edge sorduğunda diğer mağazalardan uzantılara izin ver, sonra aynı şekilde ekle.",
+      `Ayarlar sayfası açılır. Bir Claude, OpenAI ya da DeepSeek anahtarı yapıştır ve **${trUi["prov.save"]}** düğmesine bas; Postsight anahtarı dener ve model listesini yükler.`,
+      "Artık x.com'da her gönderide Grok ve Daha fazla menüsünün yanında Postsight merceğiyle mor bir **AI** rozeti var.",
+    ],
+    storeFoot: "Mağaza yeni sürümleri kendisi kurar.",
     releaseTitle: "Son sürümden",
     releaseSteps: (version, releaseUrl) => [
       `[Son sürümden](${releaseUrl}) \`postsight-${version}.zip\` dosyasını indir.`,
@@ -498,6 +519,7 @@ const tr: Copy = {
     help: "Yardım",
     project: "Proje",
     release: "Son sürüm",
+    store: "Chrome Web Mağazası",
     privacyPolicy: "Gizlilik politikası",
     bug: "Hata bildir",
     security: "Güvenlik bildirimi",
