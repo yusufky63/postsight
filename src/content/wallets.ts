@@ -1,4 +1,6 @@
 import type { WalletMatch } from "../shared/wallet";
+import { readName } from "./tweet";
+import { authorLink, QUOTE, TEXT } from "./xdom";
 import { findWallets } from "../shared/wallet";
 
 /*
@@ -9,8 +11,6 @@ import { findWallets } from "../shared/wallet";
  */
 
 export const HIGHLIGHT = "postsight-wallet";
-const TEXT = '[data-testid="tweetText"]';
-const QUOTE = 'div[role="link"]';
 
 export interface Spot {
   range: Range;
@@ -93,9 +93,8 @@ export function setActiveSpot(spot: Spot | null): void {
 /** The handle of whoever wrote this text: the quoted post's author inside a quote, the post's author outside it. */
 function authorOf(textEl: Element, article: Element): string | null {
   const quote = textEl.closest(QUOTE);
-  const scope = quote && article.contains(quote) && quote !== article && quote.querySelector('[data-testid="User-Name"]') ? quote : article;
-  const name = scope.querySelector('[data-testid="User-Name"]')?.textContent ?? "";
-  return name.match(/@([A-Za-z0-9_]{1,15})/)?.[1] ?? null;
+  const scope = quote && article.contains(quote) && quote !== article && authorLink(quote) ? quote : article;
+  return readName(scope).handle || null;
 }
 
 const stillValid = (s: Spot) => s.range.startContainer.isConnected && s.range.toString() === s.written;

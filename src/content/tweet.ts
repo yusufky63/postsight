@@ -1,8 +1,6 @@
 import { isUrlText, shortUrl } from "../shared/format";
 import type { QuotedPost, ThreadItem, TweetData } from "../shared/types";
-
-export const ARTICLE = 'article[data-testid="tweet"]';
-const QUOTE = 'div[role="link"]';
+import { articleView, authorLink, hasVideo, linkCard, mainText, outsideQuote, photos, posts, QUOTE, statusLink, TEXT, timeFromId } from "./xdom";
 
 /**
  * Reads text the way a person sees it: emoji images become their alt text. X shows
@@ -15,6 +13,8 @@ export function readText(node: Node, fullLinks = false): string {
   node.childNodes.forEach((child) => {
     if (child.nodeType === Node.TEXT_NODE) {
       out += child.textContent ?? "";
+    } else if (child instanceof HTMLScriptElement || child instanceof HTMLStyleElement || child instanceof HTMLTemplateElement) {
+      // The new layout keeps small scripts next to timestamps; they are not text anyone sees.
     } else if (child instanceof HTMLImageElement) {
       out += child.alt;
     } else if (child instanceof HTMLBRElement) {
@@ -29,36 +29,18 @@ export function readText(node: Node, fullLinks = false): string {
   return out;
 }
 
-function outsideQuote(el: Element, article: Element): boolean {
-  const quote = el.closest(QUOTE);
-  return !quote || !article.contains(quote) || quote === article;
-}
-
-/** The status link next to the timestamp gives both the handle and the post id. */
-function statusLink(scope: Element): { handle: string; id: string } | null {
-  const time = scope.querySelector("time");
-  const anchor = time?.closest('a[href*="/status/"]') ?? scope.querySelector('a[href*="/status/"]');
-  const match = anchor?.getAttribute("href")?.match(/^\/([^/]+)\/status\/(\d+)/);
-  return match ? { handle: match[1] ?? "", id: match[2] ?? "" } : null;
-}
-
-function readName(scope: Element): { name: string; handle: string } {
-  const block = scope.querySelector('[data-testid="User-Name"]');
-  if (!block) return { name: "", handle: "" };
-  const all = block.textContent ?? "";
-  const handle = all.match(/@([A-Za-z0-9_]{1,15})/)?.[1] ?? "";
-  // The first link holds the display name; emoji in names are images, so read alt text too.
-  const nameEl = block.querySelector("a") ?? block;
+export function readName(scope: Element): { name: string; handle: string } {
+  const block = authorLink(scope);
+  const fromLink = statusLink(scope)?.handle ?? "";
+  if (!block) return { name: "", handle: fromLink };
+  const handle = (block.textContent ?? "").match(/@([A-Za-z0-9_]{1,15})/)?.[1] ?? fromLink;
+  // The display name is the first link (or, in the new layout, the link itself); emoji in names are images, so read alt text too.
+  const nameEl = block.matches("a") ? block : (block.querySelector("a") ?? block);
   const name = readText(nameEl).split(/\s*@[A-Za-z0-9_]{1,15}/)[0]?.trim() ?? "";
   return { name, handle };
 }
 
-function mainTextEl(article: Element): HTMLElement | null {
-  for (const el of article.querySelectorAll<HTMLElement>('[data-testid="tweetText"]')) {
-    if (outsideQuote(el, article)) return el;
-  }
-  return null;
-}
+const mainTextEl = mainText;
 
 /** The post's own text with links left whole, for copying. */
 export function postText(article: Element): string {
@@ -81,8 +63,8 @@ export function imageUrl(src: string): string | null {
 
 function readQuote(article: Element): QuotedPost | null {
   for (const box of article.querySelectorAll(QUOTE)) {
-    if (!box.querySelector('[data-testid="User-Name"]')) continue;
-    const text = box.querySelector('[data-testid="tweetText"]');
+    if (box === article || !authorLink(box)) continue;
+    const text = box.querySelector(TEXT);
     const { name, handle } = readName(box);
     return { authorName: name, handle, text: text ? readText(text).trim() : "" };
   }
@@ -122,8 +104,8 @@ function readLinks(article: Element, textEl: Element | null): string[] {
     if (isUrlText(text)) add(text);
     else if (/^https:\/\/t\.co\//.test(a.href)) add(a.href);
   }
-  for (const a of article.querySelectorAll<HTMLAnchorElement>('[data-testid="card.wrapper"] a[href]')) {
-    if (outsideQuote(a, article) && /^https?:\/\//.test(a.href)) add(a.href);
+  for (const a of linkCard(article)?.querySelectorAll<HTMLAnchorElement>("a[href]") ?? []) {
+    if (/^https?:\/\//.test(a.href)) add(a.href);
   }
   return found.slice(0, 3);
 }
@@ -133,8 +115,8 @@ function readArticle(article: Element, textEl: Element | null): { isArticle: boo
   const linkHit = [...article.querySelectorAll("a")].some(
     (a) => outsideQuote(a, article) && (ARTICLE_LINK.test(a.getAttribute("href") ?? "") || ARTICLE_LINK.test(a.textContent ?? "")),
   );
-  const view = [...article.querySelectorAll("[data-testid]")].find((el) => /article|longform/i.test(el.getAttribute("data-testid") ?? ""));
-  const isArticle = linkHit || view !== undefined || (textEl ? ARTICLE_LINK.test(textEl.textContent ?? "") : false);
+  const view = articleView(article);
+  const isArticle = linkHit || view !== null || (textEl ? ARTICLE_LINK.test(textEl.textContent ?? "") : false);
   const body = view ? visibleText(view).slice(0, 15000) : null;
   return { isArticle, body: body && body.length > 40 ? body : null };
 }
@@ -145,12 +127,11 @@ export function extractTweet(article: Element): TweetData | null {
   const { name, handle } = readName(article);
   const textEl = mainTextEl(article);
   const images: string[] = [];
-  for (const img of article.querySelectorAll<HTMLImageElement>('[data-testid="tweetPhoto"] img')) {
-    if (!outsideQuote(img, article) || img.closest('[data-testid="videoPlayer"]')) continue;
+  for (const img of photos(article)) {
     const url = imageUrl(img.src);
     if (url && !images.includes(url)) images.push(url);
   }
-  const card = article.querySelector('[data-testid="card.wrapper"]');
+  const card = linkCard(article);
   const author = handle || link.handle;
   const poll = article.querySelector('[data-testid="cardPoll"]');
   const note = article.querySelector('[data-testid="birdwatch-pivot"]');
@@ -162,9 +143,9 @@ export function extractTweet(article: Element): TweetData | null {
     handle: author,
     text: textEl ? readText(textEl).trim() : "",
     lang: textEl?.getAttribute("lang") ?? null,
-    createdAt: article.querySelector("time")?.getAttribute("datetime") ?? null,
+    createdAt: article.querySelector("time")?.getAttribute("datetime") ?? timeFromId(link.id),
     images,
-    hasVideo: article.querySelector('[data-testid="videoPlayer"], [data-testid="videoComponent"]') !== null,
+    hasVideo: hasVideo(article),
     quote: readQuote(article),
     card: card ? (card.textContent ?? "").replace(/\s+/g, " ").trim().slice(0, 300) || null : null,
     thread: [],
@@ -184,7 +165,7 @@ const THREAD_LIMIT = 12;
  */
 export function readThread(article: Element, handle: string, root: ParentNode = document): ThreadItem[] {
   if (!/\/status\/\d+/.test(location.pathname)) return [];
-  const all = [...root.querySelectorAll(ARTICLE)];
+  const all = posts(root);
   const index = all.indexOf(article);
   if (index === -1) return [];
   const take = (from: number, step: number, position: ThreadItem["position"]) => {

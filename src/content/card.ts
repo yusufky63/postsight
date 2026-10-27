@@ -10,6 +10,7 @@ import { parseVerdict, VERDICT_TONE } from "../shared/verdict";
 import { copyText, h, icon, replace } from "../ui/dom";
 import { linkify, renderMarkdown } from "../ui/render";
 import { adoptStyles } from "./styles";
+import { actionBar, authorLink, mainText } from "./xdom";
 import type { Overlay } from "./overlay";
 
 export interface CardEnv {
@@ -60,8 +61,8 @@ export class Card {
   /** Puts the card above the post's action bar, or at the end of the post if the layout is unfamiliar. */
   attach(article: Element): void {
     this.host.dataset.theme = this.env.theme();
-    const bar = [...article.querySelectorAll('[role="group"]')].pop();
-    const text = article.querySelector('[data-testid="tweetText"], [data-testid="User-Name"]');
+    const bar = actionBar(article);
+    const text = mainText(article) ?? authorLink(article);
     if (bar && text) {
       let anchor: Element = bar;
       while (anchor.parentElement && anchor.parentElement !== article && !anchor.parentElement.contains(text)) {
