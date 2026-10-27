@@ -1,6 +1,6 @@
 # Privacy policy
 
-Last updated: 2026-10-17
+Last updated: 2026-10-27
 
 Postsight is a browser extension that analyses posts on X (x.com) with an AI model you choose. This page explains what it handles and where that goes. Postsight has no server of its own, no account system, no analytics and no advertising.
 
@@ -21,9 +21,9 @@ Storage is limited to the extension's own pages and service worker, so the scrip
 Only when you run an action on a post (Verify, Research, Summarize, Translate, Explain, Reply ideas, Ask), Postsight sends that post to the AI provider you picked or that Auto picked:
 
 - api.anthropic.com (Claude), api.openai.com (OpenAI) or api.deepseek.com (DeepSeek), with your own API key.
-- The request contains the post text, author name and handle, time, quoted post, link preview text, poll, community note, links to its images (only for models that can see images), the rest of the author's thread on a post page, the text of an X Article, and the text of linked pages if you allowed that.
+- The request contains the post text, author name and handle, time, quoted post, link preview text, poll, community note, links to its images (only for models that can see images; for DeepSeek, which cannot download them, the images themselves), the rest of the author's thread on a post page, the text of an X Article, and the text of linked pages if you allowed that.
 
-Each provider handles that data under its own terms and privacy policy. Apart from the services below and the update check, Postsight does not send anything to anyone else.
+For fact-checks and research the model may search the web with the provider's own search tool, so the provider, not Postsight, runs those searches. Each provider handles that data under its own terms and privacy policy. Apart from the services below and the update check, Postsight does not send anything to anyone else.
 
 ## Pages Postsight fetches
 

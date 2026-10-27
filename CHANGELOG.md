@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- DeepSeek now searches the web for fact-checks and research, with DeepSeek's own search engine, and shows its sources. Requests go through DeepSeek's Anthropic-compatible API; a search costs $0.00075 on top of tokens.
+- DeepSeek V4.1 Flash reads the images in a post. DeepSeek cannot download them itself, so Postsight fetches them and sends them along. DeepSeek V4 Pro still reads text only.
+- `deepseek-flash` is listed as DeepSeek V4.1 Flash, the model DeepSeek serves under that id since October 17.
+
 ## 1.1.1 (2026-10-17)
 
 - A notice in the popup and at the top of Settings when a newer Postsight is out. Copies from the Chrome Web Store or Edge Add-ons get an "Update now" button once the store has downloaded it. Copies loaded from the release zip ask GitHub once a day for the latest release and link to it; the check can be turned off under Help, Updates.

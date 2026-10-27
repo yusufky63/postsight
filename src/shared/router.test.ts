@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { allModels } from "./models";
+import { allModels, guessModel } from "./models";
 import { complexity, decideRoute } from "./router";
 import type { PostFeatures, RouteInput } from "./router";
 import { DEFAULT_SETTINGS } from "./settings";
@@ -21,6 +21,23 @@ function input(over: Partial<RouteInput> & { settings?: Settings } = {}): RouteI
     settings,
   };
 }
+
+/** Every DeepSeek tier on a custom model that cannot search, to test routing around one. */
+function withOfflineDeepSeek(): Settings {
+  const settings = structuredClone(DEFAULT_SETTINGS);
+  const offline = { ...guessModel("deepseek", "deepseek-offline"), webSearch: false };
+  settings.customModels = [offline];
+  settings.providers.deepseek.tiers = { fast: offline.id, balanced: offline.id, best: offline.id };
+  return settings;
+}
+
+describe("allModels", () => {
+  it("keeps a built-in model's name and abilities when a saved price edit holds an old copy", () => {
+    const old = { ...allModels([]).find((m) => m.id === "deepseek-flash")!, label: "DeepSeek Flash", vision: false, webSearch: false, inputPrice: 0.2 };
+    const flash = allModels([old]).find((m) => m.id === "deepseek-flash");
+    expect(flash).toMatchObject({ label: "DeepSeek V4.1 Flash", vision: true, webSearch: true, inputPrice: 0.2 });
+  });
+});
 
 describe("complexity", () => {
   it("keeps a short translation on the light tier", () => {
@@ -64,8 +81,16 @@ describe("decideRoute", () => {
     expect(out.ok && out.decision.model).toBe("deepseek-flash");
   });
 
-  it("skips a provider without web search when a fact-check needs it", () => {
+  it("lets DeepSeek search the web for a fact-check", () => {
     const settings = structuredClone(DEFAULT_SETTINGS);
+    settings.providerOrder = ["deepseek", "openai", "anthropic"];
+    const out = decideRoute(input({ settings, action: "verify" }), { mode: "auto" });
+    expect(out.ok && out.decision.provider).toBe("deepseek");
+    expect(out.ok && out.decision.useWeb).toBe(true);
+  });
+
+  it("skips a model without web search when a fact-check needs it", () => {
+    const settings = withOfflineDeepSeek();
     settings.providerOrder = ["deepseek", "openai", "anthropic"];
     const out = decideRoute(input({ settings, action: "verify" }), { mode: "auto" });
     expect(out.ok && out.decision.provider).toBe("openai");
@@ -73,10 +98,11 @@ describe("decideRoute", () => {
   });
 
   it("falls back to a model without web search and says so", () => {
-    const out = decideRoute(input({ action: "verify", keyed: new Set<ProviderId>(["deepseek"]) }), { mode: "auto" });
+    const settings = withOfflineDeepSeek();
+    const out = decideRoute(input({ settings, action: "verify", keyed: new Set<ProviderId>(["deepseek"]) }), { mode: "auto" });
     expect(out.ok).toBe(true);
     if (!out.ok) return;
-    expect(out.decision.provider).toBe("deepseek");
+    expect(out.decision.model).toBe("deepseek-offline");
     expect(out.decision.useWeb).toBe(false);
     expect(out.decision.reasons).toContain("reason.noWeb");
   });
@@ -121,8 +147,8 @@ describe("decideRoute", () => {
     });
     expect(out.ok).toBe(true);
     if (!out.ok) return;
-    expect(out.decision).toMatchObject({ model: "deepseek-v4-pro", auto: false, useWeb: false, useVision: false });
-    expect(out.decision.reasons).toEqual(["reason.manual", "reason.noWeb", "reason.noVision"]);
+    expect(out.decision).toMatchObject({ model: "deepseek-v4-pro", auto: false, useWeb: true, useVision: false });
+    expect(out.decision.reasons).toEqual(["reason.manual", "reason.noVision"]);
   });
 
   it("rejects a manual pick for a provider without a key", () => {

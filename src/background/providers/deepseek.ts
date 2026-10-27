@@ -1,90 +1,28 @@
-import { readSse } from "../../shared/sse";
-import { codeForStatus, isAbort, messageFromBody, ProviderError } from "./common";
+import { runMessages } from "./anthropic";
+import type { MessagesEndpoint } from "./anthropic";
+import { codeForStatus, messageFromBody, ProviderError } from "./common";
 import type { ProviderCallbacks, ProviderRequest, ProviderResult } from "./common";
 
 const BASE = "https://api.deepseek.com";
 
-interface Chunk {
-  model?: string;
-  choices?: { delta?: { content?: string | null; reasoning_content?: string | null } }[];
-  usage?: { prompt_tokens?: number; completion_tokens?: number; prompt_cache_hit_tokens?: number } | null;
-}
-
-async function post(req: ProviderRequest, withThinking: boolean): Promise<Response> {
-  const body: Record<string, unknown> = {
-    model: req.model.id,
-    messages: [
-      { role: "system", content: req.system },
-      { role: "user", content: req.user },
-    ],
-    stream: true,
-    stream_options: { include_usage: true },
-    max_tokens: req.maxTokens,
-  };
+/*
+ * Answers go through DeepSeek's Anthropic-compatible Messages API rather than its chat
+ * completions: there the model can run DeepSeek's own web search as a server-side tool and
+ * read images, and results come back as the same blocks Claude's do. The model list
+ * and the balance stay on DeepSeek's native endpoints.
+ */
+const DEEPSEEK: MessagesEndpoint = {
+  baseURL: `${BASE}/anthropic`,
+  webSearch: (_model, maxUses) => ({ type: "web_search_20250305", name: "web_search", max_uses: maxUses }),
   // Thinking is on by default; light jobs switch it off to save time and tokens.
-  if (withThinking) body.thinking = { type: req.depth === "light" ? "disabled" : "enabled" };
-  try {
-    return await fetch(`${BASE}/chat/completions`, {
-      method: "POST",
-      headers: { "content-type": "application/json", authorization: `Bearer ${req.apiKey}` },
-      body: JSON.stringify(body),
-      signal: req.signal,
-    });
-  } catch (err) {
-    throw new ProviderError(isAbort(err) ? "aborted" : "network");
-  }
-}
+  reasoning: (_model, depth) => (depth === "light" ? { thinking: { type: "disabled" } } : {}),
+  fallback: () => false,
+  // DeepSeek answers "Failed to download image" for any image URL, X's own included.
+  inlineImages: true,
+};
 
-export async function runDeepSeek(req: ProviderRequest, cb: ProviderCallbacks): Promise<ProviderResult> {
-  let res = await post(req, true);
-  if (res.status === 400) {
-    // A model that does not know the thinking switch gets one retry without it.
-    const body = await res.text();
-    if (!/thinking/i.test(body)) throw new ProviderError(codeForStatus(400, body), messageFromBody(body));
-    res = await post(req, false);
-  }
-  if (!res.ok || !res.body) {
-    const body = await res.text().catch(() => "");
-    throw new ProviderError(codeForStatus(res.status, body), messageFromBody(body));
-  }
-
-  let text = "";
-  let thinking = false;
-  let model = req.model.id;
-  let usage: Chunk["usage"] = null;
-
-  try {
-    for await (const sse of readSse(res.body)) {
-      if (!sse.data || sse.data === "[DONE]") continue;
-      const chunk = JSON.parse(sse.data) as Chunk;
-      if (chunk.model) model = chunk.model;
-      if (chunk.usage) usage = chunk.usage;
-      const delta = chunk.choices?.[0]?.delta;
-      if (delta?.reasoning_content && !thinking) {
-        thinking = true;
-        cb.onStatus("thinking");
-      }
-      if (delta?.content) {
-        if (!text) cb.onStatus("writing");
-        text += delta.content;
-        cb.onText(delta.content);
-      }
-    }
-  } catch (err) {
-    throw new ProviderError(isAbort(err) ? "aborted" : "network");
-  }
-
-  return {
-    text,
-    sources: [],
-    model,
-    usage: {
-      inputTokens: usage?.prompt_tokens ?? 0,
-      cachedInputTokens: usage?.prompt_cache_hit_tokens ?? 0,
-      outputTokens: usage?.completion_tokens ?? 0,
-      webSearches: 0,
-    },
-  };
+export function runDeepSeek(req: ProviderRequest, cb: ProviderCallbacks): Promise<ProviderResult> {
+  return runMessages(req, cb, DEEPSEEK);
 }
 
 async function getJson<T>(path: string, apiKey: string): Promise<T> {

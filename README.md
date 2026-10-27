@@ -38,7 +38,7 @@ Each action has a base weight; long posts, threads, images, quoted posts and art
 
 | Tier | Claude | OpenAI | DeepSeek |
 |---|---|---|---|
-| Light | Claude Haiku 5.5 | GPT-6 Luna | DeepSeek Flash |
+| Light | Claude Haiku 5.5 | GPT-6 Luna | DeepSeek V4.1 Flash |
 | Detailed | Claude Sonnet 5.5 | GPT-6.1 Sol | DeepSeek V4 Pro |
 | Hardest | Claude Opus 5.5 | GPT-6 Astra | DeepSeek V4 Pro |
 
@@ -65,7 +65,7 @@ Keys stay in your browser's extension storage and go only to the provider they b
 | `pnpm site:dev` | Serves the website (`site/`) at http://localhost:4320 and rebuilds on change |
 | `pnpm site:build` | Builds the static website into `site/dist` for Vercel |
 
-Stack: TypeScript, esbuild, Manifest V3, the Anthropic TypeScript SDK, plain `fetch` for OpenAI's Responses API and DeepSeek, viem for the wallet cards' Ethereum and Base reads, Vitest and happy-dom. No UI framework; the content script renders into shadow roots.
+Stack: TypeScript, esbuild, Manifest V3, the Anthropic TypeScript SDK (also for DeepSeek, through its Anthropic-compatible API, which gives it web search and images), plain `fetch` for OpenAI's Responses API, viem for the wallet cards' Ethereum and Base reads, Vitest and happy-dom. No UI framework; the content script renders into shadow roots.
 
 Code layout and translation notes are in [CONTRIBUTING.md](CONTRIBUTING.md); store submission notes in [store/README.md](store/README.md); the website for postsight.xyz in [site/README.md](site/README.md); security reporting in [SECURITY.md](SECURITY.md).
 
