@@ -19,7 +19,8 @@ export const PROVIDER_KEY_URL: Record<ProviderId, string> = {
 export const WEB_SEARCH_PRICE: Record<ProviderId, number> = {
   anthropic: 0.01,
   openai: 0.01,
-  deepseek: 0,
+  // DeepSeek's Search API: $0.75 per 1,000 successful searches.
+  deepseek: 0.00075,
 };
 
 const m = (
@@ -45,8 +46,8 @@ export const CATALOG: readonly ModelInfo[] = [
   m("openai", "gpt-6.1-sol", "GPT-6.1 Sol", "balanced", [2, 0.1, 10], true, true),
   m("openai", "gpt-6-astra", "GPT-6 Astra", "best", [10, 1, 50], true, true),
   m("openai", "gpt-5.5", "GPT-5.5", "best", [5, 0.5, 30], true, true),
-  m("deepseek", "deepseek-flash", "DeepSeek Flash", "fast", [0.15, 0.003, 0.6], false, false),
-  m("deepseek", "deepseek-v4-pro", "DeepSeek V4 Pro", "balanced", [0.66, 0.022, 1.98], false, false),
+  m("deepseek", "deepseek-flash", "DeepSeek V4.1 Flash", "fast", [0.15, 0.003, 0.6], true, true),
+  m("deepseek", "deepseek-v4-pro", "DeepSeek V4 Pro", "balanced", [0.66, 0.022, 1.98], false, true),
 ];
 
 export const DEFAULT_TIERS: Record<ProviderId, Record<Tier, string>> = {
@@ -59,7 +60,13 @@ export const DEFAULT_TIERS: Record<ProviderId, Record<Tier, string>> = {
 export function allModels(custom: readonly ModelInfo[]): ModelInfo[] {
   const byId = new Map<string, ModelInfo>();
   for (const model of CATALOG) byId.set(`${model.provider}:${model.id}`, model);
-  for (const model of custom) byId.set(`${model.provider}:${model.id}`, model);
+  for (const model of custom) {
+    const key = `${model.provider}:${model.id}`;
+    const base = byId.get(key);
+    // A saved price edit keeps a copy of the whole entry; the name and what the model can do
+    // still come from the catalog, so a model that gains web search or images is not held back.
+    byId.set(key, base ? { ...model, label: base.label, vision: base.vision, webSearch: base.webSearch } : model);
+  }
   return [...byId.values()];
 }
 
@@ -83,8 +90,9 @@ export function guessModel(provider: ProviderId, id: string): ModelInfo {
     inputPrice: 0,
     cachedInputPrice: 0,
     outputPrice: 0,
+    // DeepSeek searches for every model; images depend on the model, so a guess says no.
     vision: provider !== "deepseek",
-    webSearch: provider !== "deepseek",
+    webSearch: true,
     priceKnown: false,
     custom: true,
   };

@@ -58,7 +58,7 @@ const tweet = {
 const providers = [
   { id: "anthropic", key: process.env.ANTHROPIC_API_KEY, run: m.runAnthropic, list: m.listAnthropicModels, model: "claude-haiku-5-5", webModel: "claude-sonnet-5-5" },
   { id: "openai", key: process.env.OPENAI_API_KEY, run: m.runOpenAI, list: m.listOpenAIModels, model: "gpt-6-luna", webModel: "gpt-6-luna" },
-  { id: "deepseek", key: process.env.DEEPSEEK_API_KEY, run: m.runDeepSeek, list: m.listDeepSeekModels, model: "deepseek-flash", webModel: null },
+  { id: "deepseek", key: process.env.DEEPSEEK_API_KEY, run: m.runDeepSeek, list: m.listDeepSeekModels, model: "deepseek-flash", webModel: "deepseek-flash" },
 ];
 
 const callbacks = { onText() {}, onStatus() {}, onSource() {}, onReset() {} };

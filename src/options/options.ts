@@ -301,7 +301,6 @@ function providerModule(provider: ProviderId): HTMLElement {
         ),
         h("div", { class: "grid-3" }, tierSelects),
       ),
-      provider === "deepseek" ? h("div", { class: "banner", "data-tone": "neutral" }, t("prov.noWeb")) : null,
       provider === "deepseek" && state.balance ? h("div", { class: "mono small secondary" }, t("prov.balance", { amount: state.balance })) : null,
     ),
   );
