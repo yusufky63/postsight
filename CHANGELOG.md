@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.2.0 (2026-10-27)
 
 - DeepSeek now searches the web for fact-checks and research, with DeepSeek's own search engine, and shows its sources. Requests go through DeepSeek's Anthropic-compatible API; a search costs $0.00075 on top of tokens.
 - DeepSeek V4.1 Flash reads the images in a post. DeepSeek cannot download them itself, so Postsight fetches them and sends them along. DeepSeek V4 Pro still reads text only.
