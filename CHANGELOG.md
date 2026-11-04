@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.2.1 (2026-11-04)
 
 - Works with the new x.com web app X started rolling out in October 2026: the AI badge, the menu, the result card and wallet underlines find posts again, along with their author, text, photos, video, link card, quoted post and thread. Posts in X's previous layout keep working.
 - The new layout gives no language tag for a post, so Translate asks the model to use your second language when the post is already in your first. A post's time now comes from its id when X shows no timestamp element.
