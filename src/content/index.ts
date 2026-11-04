@@ -10,7 +10,8 @@ import type { CopyKind } from "./overlay";
 import { Overlay } from "./overlay";
 import { iconBox, iconRow, TRIGGER, X_ICON } from "./layout";
 import { adoptStyles, loadFonts } from "./styles";
-import { ARTICLE, extractTweet, postIdOf, postText, readThread } from "./tweet";
+import { extractTweet, postIdOf, postText, readThread } from "./tweet";
+import { authorLink, moreButton, postOf, posts } from "./xdom";
 import type { WalletTarget } from "./wallet-card";
 import { WalletPopover } from "./wallet-card";
 import type { Spot } from "./wallets";
@@ -79,7 +80,7 @@ function runAction(article: Element, action: ActionId, route: RouteChoice, quest
 }
 
 function markActive(postId: string, active: boolean): void {
-  for (const article of document.querySelectorAll(ARTICLE)) {
+  for (const article of posts()) {
     if (postIdOf(article) !== postId) continue;
     const button = article.querySelector(`[${TRIGGER}]`)?.shadowRoot?.querySelector("button");
     button?.setAttribute("data-active", String(active));
@@ -141,7 +142,7 @@ const BADGE_MAX = 22;
 function placeTrigger(host: HTMLElement, article: Element, caret: Element, row: Element, item: Element): void {
   const px = (v: string) => parseFloat(v) || 0;
   const caretIcon = iconBox(caret);
-  const nameLine = article.querySelector('[data-testid="User-Name"]')?.getBoundingClientRect().height ?? 0;
+  const nameLine = authorLink(article)?.getBoundingClientRect().height ?? 0;
   const room = Math.max(row.getBoundingClientRect().height, nameLine, caretIcon?.height ?? X_ICON);
   const size = Math.max(BADGE_MIN, Math.min(BADGE_MAX, Math.floor(room)));
 
@@ -168,8 +169,9 @@ function addTrigger(article: Element): void {
   if (article.querySelector(`[${TRIGGER}]`)) return;
   // Sits next to the "more" caret in the post header. Without the caret (still
   // rendering, or an unfamiliar layout) nothing is added; the next scan retries.
-  const caret = article.querySelector('[data-testid="caret"]');
-  const place = caret ? iconRow(caret, article) : null;
+  const caret = moreButton(article);
+  // The new layout keeps the header buttons in one small row of their own; the badge joins it.
+  const place = !caret ? null : caret.matches("[data-slot]") && caret.parentElement ? { row: caret.parentElement, item: caret } : iconRow(caret, article);
   if (!caret || !place) return;
 
   const host = h("div", { [TRIGGER]: "" });
@@ -209,7 +211,7 @@ for (const type of ["pointerdown", "pointerup", "mousedown", "mouseup", "click",
 function scan(): void {
   syncTheme();
   if (!config?.enabled) return;
-  for (const article of document.querySelectorAll(ARTICLE)) {
+  for (const article of posts()) {
     addTrigger(article);
     if (config.wallets) markPost(article);
     // Timeline cells are recycled as you scroll; put an open card back when its post returns.
@@ -401,7 +403,7 @@ document.addEventListener("keydown", (e) => {
   if (!e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || typing(e.target)) return;
   const action = SHORTCUTS[e.code];
   if (!action || !config.actions.includes(action)) return;
-  const article = hovered?.isConnected ? hovered : document.activeElement?.closest(ARTICLE);
+  const article = hovered?.isConnected ? hovered : postOf(document.activeElement);
   if (!article) return;
   e.preventDefault();
   runAction(article, action, config.route);
@@ -410,7 +412,7 @@ document.addEventListener("keydown", (e) => {
 document.addEventListener(
   "mouseover",
   (e) => {
-    const el = e.target instanceof Element ? e.target.closest(ARTICLE) : null;
+    const el = e.target instanceof Element ? postOf(e.target) : null;
     if (el) hovered = el;
   },
   { passive: true },

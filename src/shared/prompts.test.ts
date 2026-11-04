@@ -48,6 +48,13 @@ describe("translating a post in another script", () => {
     expect(p.user.trim().split("\n").at(-1)).toBe("Write every sentence in Turkish; never copy the original text untranslated.");
   });
 
+  it("falls back to the second language when X gives no language tag", () => {
+    const p = buildPrompt("translate", { ...tweet, text: "Bugün hava çok güzel.", lang: null }, { ...opts, secondLang: "en" });
+    expect(p.user).toContain("If the post is already written in Turkish, translate it into English instead.");
+    expect(p.system).toContain("Write your answer in Turkish, or in English if the post is already in Turkish.");
+    expect(buildPrompt("translate", { ...tweet, lang: "el" }, opts).user).not.toContain("instead");
+  });
+
   it("leaves out X's non-language tags", () => {
     expect(languageName("el")).toBe("Greek");
     expect(languageName("pt-BR")).toMatch(/Portuguese/);
